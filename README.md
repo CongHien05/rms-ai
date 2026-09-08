@@ -2,23 +2,80 @@
 
 **RMS-AI — AI-powered Project Risk Prediction and Resource Optimization System**
 
-RMS-AI is an AI-assisted decision-support system for software project resource management.
+RMS-AI is an AI-assisted decision-support system for software project resource management. The current scope is Week 1 base-project initialization only.
 
-The project aims to help software organizations:
+## Current Scope
 
-- predict project delivery risks;
-- identify resource and skill gaps;
-- recommend suitable employees for projects or tasks;
-- reduce employee bench time;
-- simulate resource allocation changes before applying them.
+This repository contains startup-ready base services only. Do not add product features, AI/ML models, database configuration, authentication, CRUD modules, Docker, CI/CD, dashboards, resource matching, risk prediction, optimization, or simulation in this phase.
 
-## Core Product Flow
+## Project Structure
 
 ```text
-Project Risk Prediction
-        ↓
-Resource Recommendation
-        ↓
-What-if Simulation
-        ↓
-PM Accept / Reject
+/
+├── frontend/      # React + TypeScript + Vite
+├── backend/       # NestJS + TypeScript API
+├── ai-service/    # FastAPI service
+├── AGENTS.md
+├── README.md
+└── .gitignore
+```
+
+No environment variables are required for the base applications.
+
+## Frontend
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+Build validation:
+
+```powershell
+npm run build
+```
+
+## Backend
+
+```powershell
+cd backend
+npm install
+npm run start:dev
+```
+
+Health check:
+
+```text
+GET http://localhost:3000/health
+{ "status": "ok" }
+```
+
+Validation:
+
+```powershell
+npm run build
+npm test
+```
+
+## AI Service
+
+```powershell
+cd ai-service
+python -m venv .venv
+.\.venv\Scripts\python -m pip install -r requirements.txt
+.\.venv\Scripts\python -m uvicorn main:app --reload --port 8000
+```
+
+Health check:
+
+```text
+GET http://localhost:8000/health
+{ "status": "ok" }
+```
+
+Validation:
+
+```powershell
+.\.venv\Scripts\python -m py_compile main.py
+```
