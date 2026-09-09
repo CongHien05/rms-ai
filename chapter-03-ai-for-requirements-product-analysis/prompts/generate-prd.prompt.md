@@ -1,38 +1,38 @@
-# Prompt: Generate RMS-AI PRD v0.1
+# Prompt: Tạo PRD RMS-AI v0.1
 
-This prompt summarizes the PRD creation request used in the Codex workflow so the requirement-analysis process can be reproduced. It is not a separate historical transcript.
+Prompt này tóm tắt yêu cầu tạo PRD đã được dùng trong quy trình làm việc với Codex để có thể tái lập quá trình phân tích yêu cầu. Đây không phải là bản ghi lịch sử riêng biệt.
 
-## Objective
+## Mục tiêu
 
-Create an initial PRD v0.1 for RMS-AI, an AI-powered Project Risk Prediction and Resource Optimization System. Treat the PRD as an early draft and source of truth for product-side scope.
+Tạo PRD v0.1 ban đầu cho RMS-AI, hệ thống dự báo rủi ro dự án và tối ưu hóa nguồn lực có ứng dụng AI. Xem PRD là bản nháp sớm và nguồn tham chiếu chính cho phạm vi sản phẩm.
 
-## Prompt
+## Nội dung prompt
 
-Write a concise, professional PRD v0.1 for RMS-AI.
+Hãy viết PRD v0.1 ngắn gọn và chuyên nghiệp cho RMS-AI.
 
-The product purpose is to support software project resource management by helping teams detect delivery risks earlier, identify skill and resource gaps, recommend suitable employees, reduce bench time, reduce overload, and simulate allocation changes before a project manager applies them.
+Mục đích sản phẩm là hỗ trợ quản lý nguồn lực trong dự án phần mềm bằng cách giúp nhóm phát hiện rủi ro tiến độ sớm hơn, xác định thiếu hụt kỹ năng và nguồn lực, đề xuất nhân sự phù hợp, giảm thời gian chờ phân bổ, giảm quá tải và mô phỏng thay đổi phân bổ trước khi PM áp dụng.
 
-Use this MVP decision flow:
+Sử dụng luồng quyết định MVP sau:
 
 ```text
-Project Risk Prediction
-→ Resource Recommendation
-→ What-if Simulation
-→ PM Accept / Reject
+Dự báo rủi ro dự án
+→ Đề xuất nhân sự
+→ Mô phỏng giả định
+→ PM chấp nhận / từ chối
 ```
 
-Include only these sections:
+Chỉ bao gồm các mục sau:
 
-- Document Information
-- Product Overview
-- Problem Statement
-- Product Goals
-- Target Users
-- Product Scope
-- MVP Scope
-- Out of Scope
-- Open Questions / TBD
+- Thông tin tài liệu
+- Tổng quan sản phẩm
+- Bài toán / Vấn đề cần giải quyết
+- Mục tiêu sản phẩm
+- Người dùng mục tiêu
+- Phạm vi sản phẩm
+- Phạm vi MVP
+- Ngoài phạm vi
+- Các vấn đề chưa quyết định / TBD
 
-Clearly distinguish confirmed scope from future ideas. Do not claim planned functionality already exists. Keep the MVP focused on AI-assisted decision support, with the project manager as the final decision-maker. What-if Simulation must be non-destructive and must not change real allocation data unless a project manager accepts a change.
+Phân biệt rõ phạm vi đã xác nhận với ý tưởng tương lai. Không khẳng định rằng chức năng dự kiến đã tồn tại. Giữ MVP tập trung vào hỗ trợ ra quyết định có ứng dụng AI, trong đó PM là người quyết định cuối cùng. Mô phỏng giả định phải không phá hủy dữ liệu và không được thay đổi dữ liệu phân bổ thật trừ khi PM chấp nhận thay đổi.
 
-Do not specify detailed database schema, ERD, exact APIs, NestJS module architecture, detailed UI screens, wireframes, final ML models, optimization formulas, deployment architecture, Docker, CI/CD, cloud provider, or detailed RBAC.
+Không nêu lược đồ cơ sở dữ liệu chi tiết, ERD, API cụ thể, kiến trúc mô-đun NestJS, giao diện chi tiết, khung màn hình, mô hình học máy cuối cùng, công thức tối ưu hóa, kiến trúc triển khai, Docker, CI/CD, nhà cung cấp đám mây hoặc RBAC chi tiết.

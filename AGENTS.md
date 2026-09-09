@@ -1,30 +1,30 @@
-# RMS-AI Repository Instructions
+# Hướng dẫn repository RMS-AI
 
-## Project
+## Dự án
 
-RMS-AI — AI-powered Project Risk Prediction and Resource Optimization System.
+RMS-AI — Hệ thống dự báo rủi ro dự án và tối ưu hóa nguồn lực có ứng dụng AI.
 
-The system is an AI decision-support product for software project resource management.
+Hệ thống là sản phẩm hỗ trợ ra quyết định có ứng dụng AI cho quản lý nguồn lực trong dự án phần mềm.
 
-Core long-term product flow:
+Luồng sản phẩm dài hạn cốt lõi:
 
-Project Risk Prediction
--> Resource Recommendation
--> What-if Simulation
--> PM Accept / Reject
+Dự báo rủi ro dự án
+-> Đề xuất nhân sự
+-> Mô phỏng giả định
+-> PM chấp nhận / từ chối
 
-## Current Course Phase
+## Giai đoạn môn học hiện tại
 
-We are currently in project initialization and product requirements.
+Kho mã nguồn hiện đang ở giai đoạn khởi tạo dự án và xác định yêu cầu sản phẩm.
 
-IMPORTANT:
-Do NOT implement product features yet.
-Do NOT implement AI/ML models yet.
-Do NOT design the full database yet.
-Do NOT implement authentication, CRUD modules, dashboards, resource matching,
-risk prediction, optimization, or simulation yet.
+QUAN TRỌNG:
+Chưa triển khai chức năng sản phẩm.
+Chưa triển khai mô hình AI/ML.
+Chưa thiết kế đầy đủ cơ sở dữ liệu.
+Chưa triển khai xác thực, module CRUD, dashboard, ghép nối nguồn lực,
+dự báo rủi ro, tối ưu hóa hoặc mô phỏng.
 
-## Current Technical Direction
+## Định hướng kỹ thuật hiện tại
 
 Frontend:
 - React
@@ -34,14 +34,14 @@ Backend:
 - NestJS
 - TypeScript
 
-AI service:
+Dịch vụ AI:
 - Python
 - FastAPI
 
-Database planned for later:
+Cơ sở dữ liệu dự kiến cho giai đoạn sau:
 - MySQL
 
-## Repository Target Structure
+## Cấu trúc kho mã nguồn mục tiêu
 
 /
 ├── frontend/
@@ -54,29 +54,27 @@ Database planned for later:
 ├── .gitignore
 └── .env.example
 
-## Working Rules
+## Quy tắc làm việc
 
-1. Work only inside this repository.
-2. Inspect the existing repository before making changes.
-3. Never assume files or architecture that do not exist.
-4. Do not add unnecessary frameworks, infrastructure, databases,
-   Docker, CI/CD, or dependencies.
-5. Keep changes minimal and appropriate for the current course phase.
-6. Do not implement future requirements early.
-7. Before modifying files, explain the planned changes.
-8. After modifying files, run relevant validation/build commands.
-9. Never run git commit, git push, git reset, git rebase,
-   or destructive git commands unless explicitly requested.
-10. Do not modify unrelated files.
+1. Chỉ làm việc bên trong kho mã nguồn này.
+2. Kiểm tra kho mã nguồn hiện có trước khi thay đổi.
+3. Không giả định file hoặc kiến trúc chưa tồn tại.
+4. Không thêm khung công nghệ, hạ tầng, cơ sở dữ liệu, Docker, CI/CD hoặc gói phụ thuộc không cần thiết.
+5. Giữ thay đổi ở mức tối thiểu và phù hợp với giai đoạn môn học hiện tại.
+6. Không triển khai sớm yêu cầu thuộc giai đoạn tương lai.
+7. Trước khi sửa file, giải thích các thay đổi dự kiến.
+8. Sau khi sửa file, chạy các lệnh kiểm tra hoặc build phù hợp.
+9. Không chạy git commit, git push, git reset, git rebase hoặc lệnh Git phá hủy trừ khi được yêu cầu rõ ràng.
+10. Không sửa các file không liên quan.
 
-## Current Definition of Done
+## Định nghĩa hoàn thành hiện tại
 
-The base project is complete only when:
+Nền tảng dự án chỉ được xem là hoàn thành khi:
 
-- frontend can start successfully
-- backend can start successfully
-- ai-service can start successfully
-- backend has a simple GET /health endpoint
-- ai-service has a simple GET /health endpoint
-- README explains how to run each service
-- no RMS-AI business feature has been implemented
+- frontend khởi chạy thành công
+- backend khởi chạy thành công
+- ai-service khởi chạy thành công
+- backend có endpoint GET /health đơn giản
+- ai-service có endpoint GET /health đơn giản
+- README giải thích cách chạy từng dịch vụ
+- chưa có chức năng nghiệp vụ RMS-AI nào được triển khai
