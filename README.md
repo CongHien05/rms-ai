@@ -20,6 +20,18 @@ This repository contains startup-ready base services only. Do not add product fe
 └── .gitignore
 ```
 
+## Course Artifacts
+
+```text
+chapter-01-ai-in-software-engineering/
+→ Project clarification and project brief
+
+chapter-03-ai-for-requirements-product-analysis/
+→ PRD and requirement-analysis artifacts
+```
+
+Future chapter folders will be added as the course progresses.
+
 No environment variables are required for the base applications.
 
 ## Frontend
