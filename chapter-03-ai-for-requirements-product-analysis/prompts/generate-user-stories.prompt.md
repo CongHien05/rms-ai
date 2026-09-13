@@ -48,8 +48,8 @@ Tách tài liệu story và AC nhưng dùng mã nhất quán, liên kết qua l�
 
 Trước khi kết thúc, kiểm tra: mỗi story có outcome, không trùng, cần cho MVP và trace về PRD; mọi capability được giao đã có nơi bao phủ; giả định không thành fact; TBD không bị tự quyết định; AC không chứa thiết kế triển khai; không có scope creep. Báo file thay đổi, danh sách story, ưu tiên, truy vết, giả định, TBD và giới hạn còn lại. Chỉ chạy kiểm tra phù hợp tài liệu trong phạm vi được giao; không tự commit hoặc push.
 
-## Lưu ý
+## Lưu ý về khả năng tái lập
 
-Các nguyên tắc bổ sung đã được người giao việc xác nhận cho RMS-AI: không trình bày kết quả thiếu căn cứ như kết quả chính xác; không ép đưa ứng viên không phù hợp chỉ để có kết quả; không báo áp dụng thành công khi thực tế thất bại. Ghi nguồn là constraint người giao việc nếu PRD chưa nêu trực tiếp. Điều kiện dữ liệu đủ, tiêu chí phù hợp và cách phục hồi sau lỗi vẫn TBD khi chưa được chốt.
+Các nguyên tắc bổ sung đã được người giao việc xác nhận cho RMS-AI: không trình bày kết quả thiếu căn cứ như kết quả chính xác; phải thể hiện không có kết quả phù hợp khi không có ứng viên đáp ứng điều kiện; không ép đưa ứng viên không phù hợp chỉ để có kết quả; không báo áp dụng thành công khi thực tế thất bại. Ghi nguồn là yêu cầu người giao việc nếu PRD chưa nêu trực tiếp. Điều kiện dữ liệu đủ, tiêu chí phù hợp và cách phục hồi sau lỗi vẫn TBD khi chưa được chốt. Chỉ cập nhật trạng thái một hành vi khi có xác nhận rõ ràng cho chính hành vi đó, không suy rộng xác nhận sang các chi tiết còn thiếu.
 
 Prompt phục vụ khả năng tái lập quy trình làm requirement, không phải bản ghi lịch sử chính xác của một prompt đã từng được sử dụng.

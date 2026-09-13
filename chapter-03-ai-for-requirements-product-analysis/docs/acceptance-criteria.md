@@ -101,19 +101,19 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 **Then:** Phân bổ thật không thay đổi do việc cung cấp/xem đề xuất; thứ hạng không được xem là sự chấp nhận của PM.
 
-### AC-US-02-03 — Không có ứng viên phù hợp — PROPOSED
+### AC-US-02-03 — Thể hiện không có kết quả phù hợp — CONFIRMED
 
 **Liên quan:** US-02
 
-**Trạng thái:** PROPOSED
+**Trạng thái:** CONFIRMED
 
-**Nguồn khoảng trống:** PRD chưa quy định kết quả rỗng; TBD-03. Đây là đề xuất cần review, không phải quy tắc đã được phê duyệt.
+**Nguồn:** Yêu cầu bổ sung đã được người giao việc xác nhận — Không có ứng viên phù hợp: hệ thống phải thể hiện rằng không có kết quả phù hợp. PRD chưa quy định trực tiếp tình huống này; tiêu chí phù hợp vẫn TBD-03. Trạng thái được cập nhật nhờ xác nhận mới này, không phải để lấp khoảng trống tài liệu.
 
 **Given:** Quá trình đề xuất hoàn tất và không tìm thấy ứng viên theo tiêu chí phù hợp sẽ được nhóm chốt.
 
 **When:** PM nhận kết quả đề xuất.
 
-**Then:** Đề xuất thể hiện rõ không có ứng viên phù hợp và không trình bày một ứng viên khác như kết quả phù hợp thay thế. Hành động tiếp theo của PM và tiêu chí phù hợp vẫn TBD.
+**Then:** Kết quả thể hiện rõ không có ứng viên phù hợp. Tiêu chí phù hợp và hành động tiếp theo của PM vẫn TBD-03; không quy định cách trình bày UI hoặc tự động nới điều kiện tìm ứng viên.
 
 ### AC-US-02-04 — Thiếu thông tin hoặc không tạo được đề xuất — TBD
 
@@ -127,7 +127,7 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 **When:** PM yêu cầu đề xuất.
 
-**Then:** TBD — xác định việc loại/giữ ứng viên thiếu thông tin, cách thể hiện độ thiếu và phân biệt lỗi với kết quả rỗng. Không mặc định ứng viên đang rảnh hoặc tự gán giá trị thiếu.
+**Then:** TBD — xác định việc loại/giữ ứng viên thiếu thông tin, cách thể hiện độ thiếu và phân biệt lỗi với kết quả rỗng. Không mặc định thiếu khối lượng công việc nghĩa là đang rảnh hoặc thiếu thông tin sẵn sàng nghĩa là có thể phân bổ; không tự gán giá trị thiếu.
 
 ### AC-US-02-05 — Không ép đưa ứng viên không phù hợp — CONFIRMED
 
@@ -141,7 +141,7 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 **When:** Hệ thống cung cấp kết quả đề xuất.
 
-**Then:** Hệ thống không đưa ứng viên không đáp ứng điều kiện vào như ứng viên phù hợp chỉ để có kết quả. Cách thông báo tại AC-US-02-03 vẫn PROPOSED; không nâng toàn bộ tiêu chí đó thành CONFIRMED.
+**Then:** Hệ thống không đưa ứng viên không đáp ứng điều kiện vào như ứng viên phù hợp chỉ để có kết quả. Việc thể hiện kết quả rỗng được kiểm tra riêng tại AC-US-02-03; điều kiện ứng viên phù hợp vẫn TBD-03.
 
 ## AC-US-03 — Đánh giá phương án bằng mô phỏng
 
@@ -317,4 +317,4 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 ## Giới hạn nghiệm thu
 
-Mỗi story có tình huống thành công; các nhánh thiếu căn cứ được ghi rõ thay vì tạo business rule. Trường hợp không có ứng viên có tiêu chí PROPOSED để review; các tình huống TBD chưa có expected behavior hoàn chỉnh. Bốn outcome và quyền quyết định của PM được mô tả nhất quán, nhưng còn cần nhóm chốt TBD trước khi nghiệm thu đầy đủ các nhánh tương ứng.
+Mỗi story có tình huống thành công; các nhánh thiếu căn cứ được ghi rõ thay vì tự tạo quy tắc nghiệp vụ. Nguyên tắc thể hiện kết quả rỗng và không ép đưa ứng viên không phù hợp đã được người giao việc xác nhận; tiêu chí phù hợp vẫn TBD. Các tình huống TBD chưa có kết quả kỳ vọng hoàn chỉnh. Bốn mục tiêu người dùng và quyền quyết định của PM được mô tả nhất quán, nhưng còn cần nhóm chốt TBD trước khi nghiệm thu đầy đủ các nhánh tương ứng.

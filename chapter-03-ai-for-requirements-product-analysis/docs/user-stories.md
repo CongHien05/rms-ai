@@ -2,7 +2,7 @@
 
 ## 1. Mục đích
 
-Chuyển yêu cầu trong PRD thành nhu cầu và User Stories phục vụ phân tích, kiểm thử và triển khai MVP sau khi các quyết định cần thiết được chốt. Đây không phải tài liệu thiết kế kỹ thuật.
+Chuyển yêu cầu trong PRD thành nhu cầu, hành vi người dùng và User Stories phục vụ phân tích, kiểm thử và triển khai MVP sau khi các quyết định cần thiết được chốt. Đây không phải tài liệu thiết kế kỹ thuật.
 
 Tài liệu phân tích thuộc Chapter 3, phần việc của Khánh: nhu cầu người dùng, User Stories và Acceptance Criteria. Nguồn phạm vi là [PRD v0.1](PRD.md); tiêu chí tương ứng nằm trong [acceptance-criteria.md](acceptance-criteria.md).
 
@@ -79,7 +79,7 @@ Bao phủ N-01. Giải thích là một phần của việc hiểu dự báo, kh
 
 **Trạng thái requirement:** CONFIRMED
 
-Bao phủ N-02. Yêu cầu đề xuất, thứ hạng và giải thích phục vụ cùng một quyết định. Thứ hạng không chứng minh ứng viên đầu tiên tối ưu tuyệt đối. Trường hợp không có ứng viên được xem xét tại AC-US-02-03 và TBD-03: cách thông báo là PROPOSED, tiêu chí phù hợp và hành động tiếp theo vẫn TBD. Nguyên tắc không ép đưa ứng viên không phù hợp được người giao việc xác nhận riêng tại AC-US-02-05. Bỏ story này sẽ thiếu bước hỗ trợ tìm phương án nhân sự.
+Bao phủ N-02. Yêu cầu đề xuất, thứ hạng và giải thích phục vụ cùng một quyết định. Thứ hạng không chứng minh ứng viên đầu tiên tối ưu tuyệt đối. Người giao việc đã xác nhận nguyên tắc phải thể hiện không có kết quả phù hợp tại AC-US-02-03 và không ép đưa ứng viên không phù hợp tại AC-US-02-05. Đây là căn cứ bổ sung cho tình huống kết quả rỗng, không phải nội dung vốn có trong PRD. Tiêu chí phù hợp và hành động tiếp theo vẫn TBD-03. Bỏ story này sẽ thiếu bước hỗ trợ tìm phương án nhân sự.
 
 ### US-03 — Đánh giá phương án bằng mô phỏng
 
@@ -121,7 +121,7 @@ Bao phủ N-04. Chấp nhận và từ chối là hai kết quả của cùng qu
 
 Không thêm hệ thống HR, cổng nhân viên/quản trị viên, quản lý dự án đầy đủ, CRUD đầy đủ project/task/sprint/employee/skill, dashboard, thông báo, xuất báo cáo ngoài requirement. Không thêm AI tự phân bổ, quyết định thay PM hoặc quy trình phê duyệt nhiều cấp.
 
-Không tạo story về bảng lương, tuyển dụng, nghỉ phép, đánh giá hiệu suất, lập kế hoạch dự án đầy đủ, biểu đồ Gantt, trò chuyện AI, quản lý quyền quản trị, quản lý task/sprint đầy đủ hoặc công việc kỹ thuật về API, cơ sở dữ liệu, mô hình ML và hạ tầng.
+Không tạo story về bảng lương, tuyển dụng, chấm công, nghỉ phép, đánh giá hiệu suất, lập kế hoạch dự án đầy đủ, biểu đồ Gantt, trò chuyện AI, quản lý quyền quản trị, quản lý task/sprint đầy đủ hoặc công việc kỹ thuật về API, cơ sở dữ liệu, mô hình ML và hạ tầng.
 
 Dữ liệu hỗ trợ tối thiểu là dependency của cả luồng, theo PRD — Phạm vi sản phẩm. Các ví dụ về trạng thái dự án, tiến độ, kỹ năng, mức độ sẵn sàng, khối lượng công việc và ngữ cảnh phân bổ chưa phải danh sách trường bắt buộc. Dữ liệu tổng hợp là hướng ưu tiên, chưa phải bằng chứng bộ dữ liệu đã tồn tại. Không tạo story CRUD chỉ để giải quyết dependency này.
 
