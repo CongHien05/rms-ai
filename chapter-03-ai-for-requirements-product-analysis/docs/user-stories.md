@@ -1,10 +1,18 @@
 # User Stories RMS-AI
 
+## 1. Mục đích
+
+Chuyển yêu cầu trong PRD thành nhu cầu và User Stories phục vụ phân tích, kiểm thử và triển khai MVP sau khi các quyết định cần thiết được chốt. Đây không phải tài liệu thiết kế kỹ thuật.
+
 Tài liệu phân tích thuộc Chapter 3, phần việc của Khánh: nhu cầu người dùng, User Stories và Acceptance Criteria. Nguồn phạm vi là [PRD v0.1](PRD.md); tiêu chí tương ứng nằm trong [acceptance-criteria.md](acceptance-criteria.md).
 
 PRD vẫn ghi trạng thái bản nháp; phạm vi v0.1 được người giao việc xác nhận đã được nhóm chốt. Tài liệu này không xác nhận chức năng đã được triển khai và không thay thế PRD. Việc duyệt kế hoạch phân tích không đồng nghĩa duyệt mọi hành vi đề xuất hoặc quyết định còn thiếu.
 
-## Nhu cầu người dùng
+## 2. Người dùng chính
+
+Quản lý dự án (PM) là actor chính của MVP. PRD chưa yêu cầu workflow độc lập của actor phụ để hoàn thành luồng, nên bộ tối thiểu không thêm story cho vai trò khác. AI chỉ hỗ trợ PM, không có quyền quyết định cuối cùng.
+
+## 3. Nhu cầu chính của người dùng
 
 | Mã nhu cầu | Nhu cầu được PRD xác nhận | Giá trị với PM | Nguồn trong PRD |
 | --- | --- | --- | --- |
@@ -20,22 +28,22 @@ Phân biệt căn cứ:
 - Khoảng trống yêu cầu: PRD chưa mô tả đầy đủ kết quả rỗng, lỗi, dữ liệu lỗi thời, điều kiện phân bổ và thời điểm áp dụng.
 - TBD: các quyết định còn thiếu được quản lý trong bảng TBD bên dưới; không tự chọn hành vi để lấp khoảng trống.
 
-## Người dùng chính
+## 4. User Stories
 
-Quản lý dự án (PM) là actor chính của cả bốn story. PRD chưa yêu cầu workflow độc lập của actor phụ để hoàn thành luồng MVP, nên bộ tối thiểu không thêm story cho vai trò khác. AI chỉ hỗ trợ PM, không phải actor quyết định cuối cùng.
+Không đặt mục tiêu số lượng story. Bộ hiện tại là kết quả phân tích các outcome độc lập: hiểu rủi ro, cân nhắc nhân sự, đánh giá tác động và quyết định phân bổ. Không tách capability chỉ để tăng số lượng story.
 
-## Quy ước
+### Quy ước
 
 - Mã story: US-01 đến US-04; mã nhu cầu: N-01 đến N-04.
-- Mức ưu tiên: Bắt buộc hoặc Nên có. Bộ tối thiểu hiện chỉ có Bắt buộc.
+- Mức ưu tiên: Bắt buộc / Nên có / TBD. Chỉ gán Bắt buộc hoặc Nên có khi có căn cứ từ PRD/phạm vi MVP đã xác nhận; thiếu căn cứ thì ghi TBD. Bộ hiện tại chỉ có Bắt buộc vì các outcome đều thuộc luồng MVP đã chốt.
 - CONFIRMED: mục tiêu nghiệp vụ có căn cứ trong PRD; không hàm ý mọi chi tiết của story đã đầy đủ.
 - PROPOSED: nội dung đề xuất cần nhóm review, chưa phải cam kết đã duyệt.
 - TBD: chưa đủ căn cứ xác định hành vi kỳ vọng; chưa phải tiêu chí nghiệm thu có thể kết luận đạt/trượt.
 - AC được phân loại riêng; story CONFIRMED vẫn có thể chứa tình huống PROPOSED hoặc TBD trong tài liệu AC.
 
-## Phạm vi User Stories
+### Luồng được bao phủ
 
-Luồng được bao phủ: Dự báo rủi ro → Đề xuất nhân sự → Mô phỏng thay đổi phân bổ → PM quyết định → Áp dụng thay đổi khi được phép. Nhánh từ chối không áp dụng phương án. Sự chấp nhận rõ ràng là điều kiện cần; PRD chưa xác định toàn bộ điều kiện đủ để áp dụng.
+Luồng đã chốt: Dự báo rủi ro dự án → Đề xuất nhân sự → Mô phỏng giả định → PM chấp nhận / từ chối. Áp dụng thành công là kết quả có điều kiện của chấp nhận, không thêm bước nghiệp vụ bắt buộc. Nhánh từ chối không áp dụng phương án. Sự chấp nhận rõ ràng là điều kiện cần; PRD chưa xác định toàn bộ điều kiện đủ để áp dụng.
 
 ### US-01 — Xem và hiểu rủi ro bàn giao dự án
 
@@ -47,7 +55,7 @@ Luồng được bao phủ: Dự báo rủi ro → Đề xuất nhân sự → M
 
 **Mức ưu tiên:** Bắt buộc
 
-**Liên quan luồng MVP:** Dự báo rủi ro.
+**Liên quan đến bước MVP:** Dự báo rủi ro.
 
 **Nguồn requirement:** PRD — Mục tiêu sản phẩm; Phạm vi MVP — Dự báo rủi ro dự án.
 
@@ -65,13 +73,13 @@ Bao phủ N-01. Giải thích là một phần của việc hiểu dự báo, kh
 
 **Mức ưu tiên:** Bắt buộc
 
-**Liên quan luồng MVP:** Đề xuất nhân sự.
+**Liên quan đến bước MVP:** Đề xuất nhân sự.
 
 **Nguồn requirement:** PRD — Người dùng mục tiêu — PM; Mục tiêu sản phẩm; Phạm vi MVP — Đề xuất nhân sự.
 
 **Trạng thái requirement:** CONFIRMED
 
-Bao phủ N-02. Yêu cầu đề xuất, thứ hạng và giải thích phục vụ cùng một quyết định. Thứ hạng không chứng minh ứng viên đầu tiên tối ưu tuyệt đối. Trường hợp không có ứng viên được xem xét tại AC-US-02-03 và TBD-03; hành vi xử lý chưa được chốt. Bỏ story này sẽ thiếu bước hỗ trợ tìm phương án nhân sự.
+Bao phủ N-02. Yêu cầu đề xuất, thứ hạng và giải thích phục vụ cùng một quyết định. Thứ hạng không chứng minh ứng viên đầu tiên tối ưu tuyệt đối. Trường hợp không có ứng viên được xem xét tại AC-US-02-03 và TBD-03: cách thông báo là PROPOSED, tiêu chí phù hợp và hành động tiếp theo vẫn TBD. Nguyên tắc không ép đưa ứng viên không phù hợp được người giao việc xác nhận riêng tại AC-US-02-05. Bỏ story này sẽ thiếu bước hỗ trợ tìm phương án nhân sự.
 
 ### US-03 — Đánh giá phương án bằng mô phỏng
 
@@ -83,13 +91,13 @@ Bao phủ N-02. Yêu cầu đề xuất, thứ hạng và giải thích phục v
 
 **Mức ưu tiên:** Bắt buộc
 
-**Liên quan luồng MVP:** Mô phỏng thay đổi phân bổ.
+**Liên quan đến bước MVP:** Mô phỏng thay đổi phân bổ.
 
 **Nguồn requirement:** PRD — Mục tiêu sản phẩm; Phạm vi MVP — Mô phỏng giả định và nguyên tắc không phá hủy dữ liệu.
 
 **Trạng thái requirement:** CONFIRMED
 
-Bao phủ N-03. Chạy mô phỏng và xem tác động thuộc cùng outcome; không thêm quản lý nhiều kịch bản. Bỏ story này sẽ mất bước đánh giá trước thay đổi thật.
+Bao phủ N-03. Xác định phương án đang xem xét để mô phỏng, chạy mô phỏng và xem tác động thuộc cùng outcome; không thêm story chọn phương án hoặc quản lý nhiều kịch bản. Cách hình thành/chỉnh phương án còn ở TBD-04. Bỏ story này sẽ mất bước đánh giá trước thay đổi thật.
 
 ### US-04 — Quyết định áp dụng hoặc từ chối phương án
 
@@ -101,7 +109,7 @@ Bao phủ N-03. Chạy mô phỏng và xem tác động thuộc cùng outcome; k
 
 **Mức ưu tiên:** Bắt buộc
 
-**Liên quan luồng MVP:** PM quyết định → Áp dụng khi được phép; từ chối thì không áp dụng.
+**Liên quan đến bước MVP:** PM chấp nhận / từ chối; áp dụng khi được phép là kết quả có điều kiện của chấp nhận.
 
 **Nguồn requirement:** PRD — Tổng quan sản phẩm; Phạm vi MVP — PM chấp nhận / từ chối và nguyên tắc chấp nhận rõ ràng trước thay đổi thật.
 
@@ -109,21 +117,23 @@ Bao phủ N-03. Chạy mô phỏng và xem tác động thuộc cùng outcome; k
 
 Bao phủ N-04. Chấp nhận và từ chối là hai kết quả của cùng quyết định, không tách story. Không mặc định chấp nhận có hiệu lực ngay hoặc luôn áp dụng thành công. Bỏ story này sẽ không khép kín luồng theo quyền quyết định của PM.
 
-## Giới hạn phạm vi
+### Giới hạn phạm vi
 
 Không thêm hệ thống HR, cổng nhân viên/quản trị viên, quản lý dự án đầy đủ, CRUD đầy đủ project/task/sprint/employee/skill, dashboard, thông báo, xuất báo cáo ngoài requirement. Không thêm AI tự phân bổ, quyết định thay PM hoặc quy trình phê duyệt nhiều cấp.
+
+Không tạo story về bảng lương, tuyển dụng, nghỉ phép, đánh giá hiệu suất, lập kế hoạch dự án đầy đủ, biểu đồ Gantt, trò chuyện AI, quản lý quyền quản trị, quản lý task/sprint đầy đủ hoặc công việc kỹ thuật về API, cơ sở dữ liệu, mô hình ML và hạ tầng.
 
 Dữ liệu hỗ trợ tối thiểu là dependency của cả luồng, theo PRD — Phạm vi sản phẩm. Các ví dụ về trạng thái dự án, tiến độ, kỹ năng, mức độ sẵn sàng, khối lượng công việc và ngữ cảnh phân bổ chưa phải danh sách trường bắt buộc. Dữ liệu tổng hợp là hướng ưu tiên, chưa phải bằng chứng bộ dữ liệu đã tồn tại. Không tạo story CRUD chỉ để giải quyết dependency này.
 
 Không có story Nên có trong bộ này. Không suy ra ngưỡng rủi ro, giới hạn phân bổ, công thức điểm, trọng số xếp hạng, màn hình, API, database hoặc model ML.
 
-## Quyết định chưa xác định / TBD
+### Quyết định chưa xác định / TBD
 
 | Mã | Nội dung cần nhóm quyết định | Ảnh hưởng | Căn cứ / khoảng trống |
 | --- | --- | --- | --- |
 | TBD-01 | Dữ liệu tối thiểu, người cung cấp, điều kiện đủ/hợp lệ và xử lý dữ liệu thiếu | Cả luồng | PRD — Các vấn đề chưa quyết định; chưa có người chịu trách nhiệm dữ liệu |
-| TBD-02 | Cách biểu diễn rủi ro và độ cập nhật cần thiết của kết quả | US-01 | PRD chưa xác định đầu ra chi tiết |
-| TBD-03 | Điều kiện ứng viên phù hợp; kết quả rỗng, thiếu thông tin sẵn sàng/khối lượng công việc, đồng hạng | US-02 | PRD xác nhận xếp hạng nhưng chưa chốt cách xử lý các trường hợp này |
+| TBD-02 | Cách biểu diễn rủi ro, ngưỡng phân loại nếu cần và độ cập nhật cần thiết của kết quả | US-01 | PRD chưa xác định đầu ra chi tiết |
+| TBD-03 | Điều kiện ứng viên phù hợp/loại trừ, ngưỡng điểm nếu cần, số lượng ứng viên, trọng số; kết quả rỗng, thiếu thông tin sẵn sàng/khối lượng công việc, đồng hạng | US-02 | PRD xác nhận xếp hạng nhưng chưa chốt các quy tắc hoặc con số này |
 | TBD-04 | Nội dung một thay đổi phân bổ; các ràng buộc và hành vi khi có khả năng vi phạm | US-03, US-04 | PRD chưa xác định quy tắc phân bổ |
 | TBD-05 | Chỉ báo tác động mô phỏng, mốc so sánh và phạm vi ảnh hưởng tới dự án khác | US-03 | PRD chỉ mô tả tác động ở mức khái quát |
 | TBD-06 | Điều kiện đủ và thời điểm áp dụng; có bắt buộc kết quả mô phỏng hợp lệ trước chấp nhận không | US-04 | PRD chốt quyền PM nhưng chưa chốt điều kiện chuyển bước |
@@ -134,7 +144,7 @@ Không có story Nên có trong bộ này. Không suy ra ngưỡng rủi ro, gi�
 
 Các gap không làm thay đổi bốn outcome cốt lõi, nhưng giới hạn mức độ hoàn chỉnh của AC. Chưa dùng tài liệu này để tuyên bố sẵn sàng triển khai toàn bộ hoặc đã nghiệm thu MVP.
 
-## Ma trận truy vết
+## 5. Ma trận truy vết
 
 | User Story | Nhu cầu người dùng | Bước MVP | Nguồn PRD | Mức ưu tiên | Trạng thái requirement |
 | --- | --- | --- | --- | --- | --- |
