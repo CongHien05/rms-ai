@@ -2,14 +2,12 @@ import type { MockProjectRiskViewModel } from './mockProjectRisks'
 
 type ProjectRiskDetailProps = {
   project: MockProjectRiskViewModel
-  showHandoffNotice: boolean
   onBack: () => void
   onRequestRecommendation: () => void
 }
 
 export function ProjectRiskDetail({
   project,
-  showHandoffNotice,
   onBack,
   onRequestRecommendation,
 }: ProjectRiskDetailProps) {
@@ -93,8 +91,8 @@ export function ProjectRiskDetail({
           <p className="eyebrow">Bước tiếp theo trong MVP</p>
           <h2 id="handoff-title">Đề xuất nhân sự</h2>
           <p>
-            Bản mẫu hiện tại dừng tại điểm chuyển tiếp này. Điều kiện sử dụng
-            thao tác chưa được xác định.
+            Mở danh sách đề xuất cho dự án đang xem xét. Điều kiện sử dụng thao
+            tác chưa được xác định.
           </p>
         </div>
         <button
@@ -105,14 +103,6 @@ export function ProjectRiskDetail({
           Yêu cầu đề xuất nhân sự
         </button>
       </section>
-
-      {showHandoffNotice && (
-        <div className="handoff-notice" role="status">
-          Đề xuất nhân sự là bước tiếp theo trong luồng MVP và chưa được triển
-          khai trong phần bản mẫu hiện tại. Không có yêu cầu nào được gửi và dữ
-          liệu phân bổ không thay đổi.
-        </div>
-      )}
     </section>
   )
 }
