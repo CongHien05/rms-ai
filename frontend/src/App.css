@@ -212,6 +212,20 @@ tbody tr:last-child td {
   color: var(--primary);
 }
 
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.button:disabled:hover {
+  border-color: transparent;
+}
+
+.button--secondary:disabled:hover {
+  border-color: var(--border-strong);
+  color: var(--text-strong);
+}
+
 .back-button {
   margin: 0 0 28px;
   padding: 6px 0;
@@ -320,14 +334,138 @@ tbody tr:last-child td {
   max-width: 650px;
 }
 
-.handoff-notice {
-  margin-top: 16px;
+.section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 18px;
+}
+
+.section-heading h2,
+.scenario-panel h2,
+.impact-section h2,
+.decision-section h2 {
+  margin: 0;
+  font-size: 21px;
+}
+
+.section-heading .section-index {
+  margin-bottom: 5px;
+}
+
+.section-heading .tbd-note {
+  max-width: 440px;
+  margin: 0;
+  text-align: right;
+}
+
+.recommendation-list {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recommendation-card {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+.recommendation-rank {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.recommendation-card h3,
+.impact-layout h3 {
+  margin: 0;
+  color: var(--text-strong);
+}
+
+.recommendation-explanation {
+  margin: 8px 0 0;
+}
+
+.recommendation-card .tbd-note {
+  margin: 7px 0 0;
+}
+
+.scenario-panel,
+.impact-section,
+.decision-section {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 24px;
+  padding: 28px 0;
+  border-block: 1px solid var(--border);
+}
+
+.scenario-panel p,
+.impact-section p,
+.decision-section p {
+  margin: 10px 0 0;
+}
+
+.simulation-notice,
+.decision-status {
   padding: 14px 16px;
   border: 1px solid var(--notice-border);
   border-radius: 6px;
   background: var(--notice-bg);
   color: var(--notice-text);
   font-size: 14px;
+}
+
+.simulation-notice {
+  margin-top: 18px;
+}
+
+.simulation-action {
+  margin-top: 18px;
+}
+
+.impact-section,
+.decision-section {
+  margin-top: 36px;
+}
+
+.impact-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: 18px;
+  border: 1px solid var(--border);
+  background: var(--border);
+}
+
+.impact-layout > div {
+  padding: 20px;
+  background: var(--surface);
+}
+
+.decision-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.decision-status {
+  margin-top: 16px;
 }
 
 .visually-hidden {
@@ -365,7 +503,8 @@ tbody tr:last-child td {
   }
 
   .page-heading,
-  .handoff {
+  .handoff,
+  .section-heading {
     align-items: flex-start;
     flex-direction: column;
     gap: 20px;
@@ -382,6 +521,25 @@ tbody tr:last-child td {
   .detail-section {
     grid-template-columns: 1fr;
     gap: 6px;
+  }
+
+  .section-heading .tbd-note {
+    text-align: left;
+  }
+
+  .recommendation-card {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .recommendation-card .button {
+    grid-column: 1 / -1;
+  }
+
+  .scenario-panel,
+  .impact-section,
+  .decision-section,
+  .impact-layout {
+    grid-template-columns: 1fr;
   }
 
   .section-index {
