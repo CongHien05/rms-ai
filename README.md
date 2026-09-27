@@ -2,11 +2,13 @@
 
 **RMS-AI — AI-powered Project Risk Prediction and Resource Optimization System**
 
-RMS-AI is an AI-assisted decision-support system for software project resource management. The current scope is Week 1 base-project initialization only.
+RMS-AI is an AI-assisted decision-support system for software project resource management. The repository now contains the base services, the Chapter 3 requirement baseline, and Chapter 4 low-fidelity product-design work.
 
 ## Current Scope
 
-This repository contains startup-ready base services only. Do not add product features, AI/ML models, database configuration, authentication, CRUD modules, Docker, CI/CD, dashboards, resource matching, risk prediction, optimization, or simulation in this phase.
+The current product-design scope covers the PM decision flow from Project Risk through Resource Recommendation, What-if Simulation, and Accept/Reject. Existing UI is a scoped prototype used to review that flow; it is not a production implementation and does not provide real AI prediction, matching, simulation, persistence, or allocation changes.
+
+Do not extend the repository into a full HR or project-management platform, or add AI/ML models, production database design, authentication, infrastructure, or business rules that the requirement baseline has not confirmed.
 
 ## Project Structure
 
@@ -15,6 +17,9 @@ This repository contains startup-ready base services only. Do not add product fe
 ├── frontend/      # React + TypeScript + Vite
 ├── backend/       # NestJS + TypeScript API
 ├── ai-service/    # FastAPI service
+├── chapter-01-ai-in-software-engineering/
+├── chapter-03-ai-for-requirements-product-analysis/
+├── chapter-04-ai-for-product-design/
 ├── AGENTS.md
 ├── README.md
 └── .gitignore
@@ -28,13 +33,19 @@ chapter-01-ai-in-software-engineering/
 
 chapter-03-ai-for-requirements-product-analysis/
 → PRD and requirement-analysis artifacts
-```
 
-Future chapter folders will be added as the course progresses.
+chapter-04-ai-for-product-design/
+→ User flows, low-fidelity UI design, design prompts, and review artifacts
+```
 
 No environment variables are required for the base applications.
 
 ## Frontend
+
+The React frontend includes a low-fidelity prototype for Project Risk,
+Resource Recommendation, What-if Simulation, and local PM decision states.
+These screens use illustrative presentation data and do not call production
+AI or allocation services.
 
 ```powershell
 cd frontend
