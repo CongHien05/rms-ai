@@ -15,14 +15,19 @@ Project Risk Prediction
 
 ## Current Course Phase
 
-We are currently in project initialization and product requirements.
+The repository has completed its initial setup and Chapter 3 requirement
+baseline. Current course work includes Chapter 4 product design: user flows,
+low-fidelity UI artifacts, AI-assisted design review, and scoped prototypes.
+
+Existing Project Risk, Resource Recommendation, and What-if UI work is a
+design/prototype baseline. Do not describe it as production behavior or use it
+to create business rules that are absent from the PRD, User Stories, or
+Acceptance Criteria.
 
 IMPORTANT:
-Do NOT implement product features yet.
-Do NOT implement AI/ML models yet.
-Do NOT design the full database yet.
-Do NOT implement authentication, CRUD modules, dashboards, resource matching,
-risk prediction, optimization, or simulation yet.
+Do NOT implement AI/ML models, a full database, authentication, full CRUD
+modules, production resource matching, risk prediction, optimization, or a
+simulation engine unless a later task explicitly authorizes that scope.
 
 ## Current Technical Direction
 
@@ -41,15 +46,15 @@ AI service:
 Database planned for later:
 - MySQL
 
-## Repository Target Structure
+## Repository Structure
 
 /
 ├── frontend/
 ├── backend/
 ├── ai-service/
-├── docs/
-│   ├── PRD.md
-│   └── ai-usage/
+├── chapter-01-ai-in-software-engineering/
+├── chapter-03-ai-for-requirements-product-analysis/
+├── chapter-04-ai-for-product-design/
 ├── README.md
 ├── .gitignore
 └── .env.example
@@ -68,15 +73,15 @@ Database planned for later:
 9. Never run git commit, git push, git reset, git rebase,
    or destructive git commands unless explicitly requested.
 10. Do not modify unrelated files.
+11. Trace important UI steps to the current PRD, User Stories, or Acceptance
+    Criteria, or label them as PROPOSED UI.
+12. Keep unresolved business rules as TBD. A prototype choice does not confirm
+    a product requirement.
 
-## Current Definition of Done
+## Current Chapter 4 Definition of Done
 
-The base project is complete only when:
-
-- frontend can start successfully
-- backend can start successfully
-- ai-service can start successfully
-- backend has a simple GET /health endpoint
-- ai-service has a simple GET /health endpoint
-- README explains how to run each service
-- no RMS-AI business feature has been implemented
+Chapter 4 work is complete only when the relevant flow and low-fidelity UI are
+reviewable, important states are considered, requirement traceability is
+present, and CONFIRMED / PROPOSED UI / TBD content is clearly distinguished.
+Chapter 4 artifacts must not introduce API, database, or ML implementation
+decisions without explicit authorization.
