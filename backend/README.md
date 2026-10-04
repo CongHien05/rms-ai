@@ -31,6 +31,30 @@
 $ npm install
 ```
 
+## Cấu hình cơ sở dữ liệu
+
+Backend đọc cấu hình kết nối MySQL từ các biến môi trường. File `.env.example`
+chỉ là mẫu tên biến; ứng dụng không tự động tải file `.env` và không có thông
+tin đăng nhập mặc định.
+
+Các biến bắt buộc:
+
+```text
+DB_HOST
+DB_PORT
+DB_USERNAME
+DB_PASSWORD
+DB_DATABASE
+```
+
+Tính năng đồng bộ schema tự động đã bị tắt. Sau khi cấu hình đủ các biến môi
+trường, chạy migration đã được lưu trong repository bằng các lệnh sau:
+
+```bash
+$ npm run migration:run
+$ npm run migration:revert
+```
+
 ## Compile and run the project
 
 ```bash
