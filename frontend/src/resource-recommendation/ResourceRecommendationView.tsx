@@ -18,21 +18,21 @@ export function ResourceRecommendationView({
   onTryCandidate,
 }: ResourceRecommendationViewProps) {
   return (
-    <section aria-labelledby="recommendation-title">
+    <section className="recommendation-view" aria-labelledby="recommendation-title">
       <button type="button" className="back-button" onClick={onBack}>
         Quay lại chi tiết rủi ro
       </button>
 
       <header className="page-heading">
         <div>
-          <p className="eyebrow">Bước tiếp theo trong MVP</p>
+          <p className="eyebrow">Luồng quyết định · Đề xuất</p>
           <h1 id="recommendation-title">Đề xuất nhân sự</h1>
           <p className="page-description">
             Xem các ứng viên được đề xuất cho {project.name} và lý do phù hợp ở
             mức cơ bản.
           </p>
         </div>
-        <p className="scope-note">Dữ liệu [Minh họa]</p>
+        <p className="scope-note">Dữ liệu minh họa</p>
       </header>
 
       {recommendation.state === 'available' ? (
@@ -41,7 +41,7 @@ export function ResourceRecommendationView({
           onTryCandidate={onTryCandidate}
         />
       ) : (
-        <div className="unavailable-state" role="status">
+        <div className="empty-state" role="status">
           <h2>Không có ứng viên phù hợp</h2>
           <p>
             Hệ thống không đưa ứng viên không phù hợp vào danh sách chỉ để có
@@ -79,11 +79,11 @@ function RecommendationList({
 
       <ol className="recommendation-list">
         {candidates.map((candidate, index) => (
-          <li className="recommendation-card" key={candidate.id}>
+          <li className="recommendation-row" key={candidate.id}>
             <span className="recommendation-rank" aria-label={`Hạng ${index + 1}`}>
-              {index + 1}
+              {String(index + 1).padStart(2, '0')}
             </span>
-            <div className="recommendation-card__content">
+            <div className="recommendation-row__content">
               <h3>{candidate.displayLabel}</h3>
               <p className="recommendation-explanation">
                 {candidate.explanation}

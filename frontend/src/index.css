@@ -1,15 +1,15 @@
 :root {
-  --canvas: #f3f6f5;
+  --canvas: #f5f4f0;
   --surface: #ffffff;
-  --surface-muted: #eef2f1;
-  --border: #dce3e1;
-  --border-strong: #bdc9c6;
-  --text-strong: #172321;
-  --text: #31413e;
-  --text-muted: #60706d;
-  --text-subtle: #83908e;
-  --primary: #0e6c67;
-  --primary-hover: #095752;
+  --surface-muted: #edf1ef;
+  --border: #d9dfdc;
+  --border-strong: #b7c2be;
+  --text-strong: #172428;
+  --text: #324247;
+  --text-muted: #5f6f72;
+  --text-subtle: #7e8b8d;
+  --primary: #0f6b66;
+  --primary-hover: #095650;
   --notice-bg: #fff8e8;
   --notice-border: #d4a84f;
   --notice-text: #604816;
@@ -49,6 +49,9 @@ textarea {
 }
 
 button:focus-visible,
+.app-nav__item:focus-visible,
+.project-directory__button:focus-visible,
+.row-action:focus-visible,
 a:focus-visible {
   outline: 3px solid rgba(14, 108, 103, 0.28);
   outline-offset: 3px;

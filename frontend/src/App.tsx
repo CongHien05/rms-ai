@@ -1,13 +1,24 @@
 import { useState } from 'react'
 import './App.css'
+import { EmployeesView } from './employees/EmployeesView'
+import {
+  AppShell,
+  type DecisionFlowStep,
+  type GlobalSection,
+} from './layout/AppShell'
+import { OperationsOverview } from './operations-overview/OperationsOverview'
 import { mockProjectRisks } from './project-risk/mockProjectRisks'
 import { ProjectRiskDetail } from './project-risk/ProjectRiskDetail'
 import { ProjectRiskOverview } from './project-risk/ProjectRiskOverview'
+import { ProjectsView } from './projects/ProjectsView'
 import { mockResourceRecommendations } from './resource-recommendation/mockResourceRecommendations'
 import { ResourceRecommendationView } from './resource-recommendation/ResourceRecommendationView'
 import { WhatIfSimulationView } from './resource-recommendation/WhatIfSimulationView'
 
 type AppView =
+  | { readonly name: 'operations-overview' }
+  | { readonly name: 'projects' }
+  | { readonly name: 'employees' }
   | { readonly name: 'risk-overview' }
   | { readonly name: 'risk-detail'; readonly projectId: string }
   | { readonly name: 'resource-recommendation'; readonly projectId: string }
@@ -15,13 +26,41 @@ type AppView =
       readonly name: 'what-if'
       readonly projectId: string
       readonly candidateId: string
+      readonly stage: 'simulation' | 'decision'
     }
 
-function App() {
-  const [view, setView] = useState<AppView>({ name: 'risk-overview' })
+type AppViewName = AppView['name']
 
-  const selectedProjectId =
-    view.name === 'risk-overview' ? null : view.projectId
+const activeSectionByView: Record<AppViewName, GlobalSection> = {
+  'operations-overview': 'overview',
+  projects: 'projects',
+  employees: 'employees',
+  'risk-overview': 'risk',
+  'risk-detail': 'risk',
+  'resource-recommendation': 'risk',
+  'what-if': 'risk',
+}
+
+function getContextualStep(view: AppView): DecisionFlowStep | null {
+  if (view.name === 'risk-detail') {
+    return 'risk-detail'
+  }
+
+  if (view.name === 'resource-recommendation') {
+    return 'recommendation'
+  }
+
+  if (view.name === 'what-if') {
+    return view.stage
+  }
+
+  return null
+}
+
+function App() {
+  const [view, setView] = useState<AppView>({ name: 'operations-overview' })
+
+  const selectedProjectId = 'projectId' in view ? view.projectId : null
 
   const selectedProject = mockProjectRisks.find(
     (project) => project.id === selectedProjectId,
@@ -31,7 +70,53 @@ function App() {
     setView({ name: 'risk-detail', projectId })
   }
 
+  function handleGlobalNavigation(section: GlobalSection) {
+    const nextView: Record<GlobalSection, AppView> = {
+      overview: { name: 'operations-overview' },
+      projects: { name: 'projects' },
+      employees: { name: 'employees' },
+      risk: { name: 'risk-overview' },
+    }
+
+    setView(nextView[section])
+  }
+
   function renderCurrentView() {
+    if (view.name === 'operations-overview') {
+      const [featuredProject, ...projects] = mockProjectRisks
+
+      return (
+        <OperationsOverview
+          featuredProject={featuredProject}
+          projects={projects}
+          onOpenRiskOverview={() => setView({ name: 'risk-overview' })}
+          onSelectProject={handleSelectProject}
+        />
+      )
+    }
+
+    if (view.name === 'projects') {
+      return (
+        <ProjectsView
+          projects={mockProjectRisks}
+          onSelectProject={handleSelectProject}
+        />
+      )
+    }
+
+    if (view.name === 'employees') {
+      return <EmployeesView />
+    }
+
+    if (view.name === 'risk-overview') {
+      return (
+        <ProjectRiskOverview
+          projects={mockProjectRisks}
+          onSelectProject={handleSelectProject}
+        />
+      )
+    }
+
     if (!selectedProject) {
       return (
         <ProjectRiskOverview
@@ -77,6 +162,7 @@ function App() {
               name: 'what-if',
               projectId: selectedProject.id,
               candidateId,
+              stage: 'simulation',
             })
           }
         />
@@ -103,6 +189,14 @@ function App() {
         key={candidate.id}
         project={selectedProject}
         candidate={candidate}
+        onShowDecision={() =>
+          setView({
+            name: 'what-if',
+            projectId: selectedProject.id,
+            candidateId: candidate.id,
+            stage: 'decision',
+          })
+        }
         onBack={() =>
           setView({
             name: 'resource-recommendation',
@@ -114,19 +208,13 @@ function App() {
   }
 
   return (
-    <div className="app-shell">
-      <header className="app-header">
-        <div className="app-header__inner">
-          <div className="brand">
-            <strong>RMS-AI</strong>
-            <span>Không gian hỗ trợ ra quyết định</span>
-          </div>
-          <p className="workspace-label">Rủi ro dự án</p>
-        </div>
-      </header>
-
-      <main className="app-main">{renderCurrentView()}</main>
-    </div>
+    <AppShell
+      activeSection={activeSectionByView[view.name]}
+      contextualStep={getContextualStep(view)}
+      onNavigate={handleGlobalNavigation}
+    >
+      {renderCurrentView()}
+    </AppShell>
   )
 }
 

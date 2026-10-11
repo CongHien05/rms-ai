@@ -18,25 +18,33 @@ export type MockResourceRecommendationPresentation =
 export const mockResourceRecommendations: readonly MockResourceRecommendationPresentation[] =
   [
     {
+      state: 'empty',
+      projectId: 'project-alpha-mock',
+    },
+    {
       state: 'available',
       projectId: 'project-a-mock',
       candidates: [
         {
           id: 'candidate-a-mock',
-          displayLabel: 'Ứng viên A [Minh họa]',
+          displayLabel: 'Ứng viên A',
           explanation:
-            'Giải thích mức độ phù hợp cho nhu cầu của dự án [Minh họa].',
+            'Giải thích minh họa về mức độ phù hợp với nhu cầu của dự án.',
         },
         {
           id: 'candidate-b-mock',
-          displayLabel: 'Ứng viên B [Minh họa]',
+          displayLabel: 'Ứng viên B',
           explanation:
-            'Giải thích mức độ phù hợp cho nhu cầu của dự án [Minh họa].',
+            'Giải thích minh họa về mức độ phù hợp với nhu cầu của dự án.',
         },
       ],
     },
     {
       state: 'empty',
       projectId: 'project-b-mock',
+    },
+    {
+      state: 'empty',
+      projectId: 'project-c-mock',
     },
   ]
