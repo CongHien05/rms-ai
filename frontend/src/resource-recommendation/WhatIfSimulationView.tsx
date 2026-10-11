@@ -9,12 +9,14 @@ type WhatIfSimulationViewProps = {
   project: MockProjectRiskViewModel
   candidate: MockRecommendationCandidatePresentation
   onBack: () => void
+  onShowDecision: () => void
 }
 
 export function WhatIfSimulationView({
   project,
   candidate,
   onBack,
+  onShowDecision,
 }: WhatIfSimulationViewProps) {
   const [simulationStatus, setSimulationStatus] =
     useState<SimulationStatus>('not-run')
@@ -26,23 +28,26 @@ export function WhatIfSimulationView({
 
   function handleRunSimulation() {
     setSimulationStatus('presented')
+    onShowDecision()
   }
 
   return (
-    <section aria-labelledby="what-if-title">
+    <section className="simulation-view" aria-labelledby="what-if-title">
       <button type="button" className="back-button" onClick={onBack}>
         Quay lại đề xuất nhân sự
       </button>
 
       <header className="page-heading">
         <div>
-          <p className="eyebrow">Thử phương án trước khi quyết định</p>
+          <p className="eyebrow">Luồng quyết định · Mô phỏng</p>
           <h1 id="what-if-title">Mô phỏng giả định</h1>
           <p className="page-description">
             Xem tác động dự kiến của một phương án minh họa cho {project.name}.
           </p>
         </div>
-        <p className="scope-note">Phân bổ thật chưa thay đổi</p>
+        <p className="scope-note scope-note--guardrail">
+          Phân bổ thật chưa thay đổi
+        </p>
       </header>
 
       <section className="scenario-panel" aria-labelledby="scenario-title">
@@ -60,7 +65,7 @@ export function WhatIfSimulationView({
         </div>
       </section>
 
-      <div className="simulation-notice" role="note">
+      <div className="simulation-guardrail" role="note">
         Đây là mô phỏng. Chạy mô phỏng không thay đổi dữ liệu phân bổ thật.
       </div>
 
@@ -93,7 +98,7 @@ export function WhatIfSimulationView({
                   <p>[Cách biểu diễn: Chưa xác định]</p>
                 </div>
               </div>
-              <p className="simulation-notice">
+              <p className="simulation-guardrail">
                 Kết quả mô phỏng chưa thay đổi phân bổ thật.
               </p>
             </div>

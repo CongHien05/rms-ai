@@ -14,21 +14,21 @@ export function ProjectRiskDetail({
   const hasAssessment = project.assessmentState === 'available'
 
   return (
-    <section aria-labelledby="risk-detail-title">
+    <section className="risk-detail" aria-labelledby="risk-detail-title">
       <button type="button" className="back-button" onClick={onBack}>
         Quay lại tổng quan rủi ro
       </button>
 
       <header className="page-heading page-heading--detail">
         <div>
-          <p className="eyebrow">Chi tiết rủi ro dự án</p>
+          <p className="eyebrow">Trung tâm rủi ro · Chi tiết</p>
           <h1 id="risk-detail-title">{project.name}</h1>
           <p className="page-description">
             Xem đánh giá hiện tại và các yếu tố giải thích trước khi cân nhắc
             can thiệp nguồn lực.
           </p>
         </div>
-        <p className="scope-note">Dữ liệu [Minh họa]</p>
+        <p className="scope-note">Dữ liệu minh họa</p>
       </header>
 
       <div className="detail-sections">
@@ -46,7 +46,7 @@ export function ProjectRiskDetail({
               </div>
             ) : (
               <div className="unavailable-state" role="status">
-                <h3>Chưa thể đánh giá rủi ro</h3>
+                <h3>{project.assessmentText}</h3>
                 <p>
                   Hiện chưa đủ căn cứ để trình bày một kết quả đánh giá đáng tin
                   cậy. Không được diễn giải trạng thái này là dự án đang an
