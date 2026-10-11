@@ -1,84 +1,81 @@
-# Chapter 4 Guideline
+# Hướng dẫn Chapter 4
 
-## Chapter Objective
+## Mục tiêu của chapter
 
-Create reviewable product-design artifacts for the RMS-AI MVP through:
+Tạo các tài liệu thiết kế sản phẩm có thể rà soát cho RMS-AI MVP thông qua:
 
-- User Flow.
-- Wireframes and low-fidelity UI.
-- Scoped prototypes.
-- AI-assisted design review with human approval.
+- Luồng người dùng.
+- Wireframe và UI độ trung thực thấp.
+- Bản mẫu có phạm vi giới hạn.
+- Rà soát thiết kế có AI hỗ trợ và con người phê duyệt.
 
-Chapter 4 describes how confirmed requirements may be presented and reviewed.
-It does not define production architecture or silently complete missing
-business rules.
+Chapter 4 mô tả cách trình bày và rà soát các yêu cầu đã xác nhận. Chapter này
+không định nghĩa kiến trúc production hoặc ngầm hoàn thiện các quy tắc nghiệp vụ
+còn thiếu.
 
-## Sources of Truth
+## Nguồn tham chiếu có thẩm quyền
 
-Use the current artifacts in this order for requirement traceability:
+Sử dụng các tài liệu hiện tại theo thứ tự sau để truy vết yêu cầu:
 
 1. PRD.
 2. User Stories.
 3. Acceptance Criteria.
 
-Existing user flows, wireframes, and prototypes provide design continuity, but
-they do not override the requirement baseline.
+Luồng người dùng, wireframe và bản mẫu hiện có cung cấp tính liên tục cho thiết
+kế nhưng không thay thế cơ sở yêu cầu.
 
-## Status Convention
+## Quy ước trạng thái
 
-### CONFIRMED
+### ĐÃ XÁC NHẬN
 
-The statement has direct support in the current PRD, User Stories, or
-Acceptance Criteria.
+Nội dung có căn cứ trực tiếp từ PRD, User Stories hoặc Acceptance Criteria hiện tại.
 
-### PROPOSED UI
+### GIAO DIỆN ĐỀ XUẤT
 
-The statement is a presentation or interaction choice proposed to realize a
-requirement. It remains a design choice and does not become a business rule.
+Nội dung là lựa chọn trình bày hoặc tương tác được đề xuất để hiện thực hóa một
+yêu cầu. Đây vẫn là lựa chọn thiết kế và không trở thành quy tắc nghiệp vụ.
 
 ### TBD
 
-The requirement or business rule does not contain enough information for an
-accurate decision. Keep the gap visible for team review.
+Yêu cầu hoặc quy tắc nghiệp vụ chưa có đủ thông tin để đưa ra quyết định chính
+xác. Giữ rõ khoảng trống này để nhóm rà soát.
 
-## Design Principles
+## Nguyên tắc thiết kế
 
-- A UI choice does not become a business rule.
-- Do not invent thresholds, scores, formulas, allocation rules, or approval
-  rules.
-- Do not design a database, API, or ML model as part of a UI artifact.
-- Describe prototypes as prototypes, not production behavior.
-- AI supports design analysis and drafting; people review and decide.
-- Trace every important screen or step to a requirement, or mark it as
-  PROPOSED UI.
-- Preserve unresolved business rules as TBD instead of filling them with mock
-  behavior.
-- Keep the MVP focused on PM decision support rather than a full HR or project
-  management platform.
+- Lựa chọn UI không trở thành quy tắc nghiệp vụ.
+- Không tự tạo ngưỡng, điểm, công thức, quy tắc phân bổ hoặc quy tắc phê duyệt.
+- Không thiết kế database, API hoặc mô hình ML trong một tài liệu UI.
+- Mô tả bản mẫu đúng là bản mẫu, không phải hành vi production.
+- AI hỗ trợ phân tích và soạn thảo thiết kế; con người rà soát và quyết định.
+- Truy vết mọi màn hình hoặc bước quan trọng về yêu cầu, hoặc đánh dấu là
+  GIAO DIỆN ĐỀ XUẤT.
+- Giữ các quy tắc nghiệp vụ chưa giải quyết là TBD thay vì điền bằng hành vi giả lập.
+- Giữ MVP tập trung vào hỗ trợ quyết định của PM thay vì nền tảng HR hoặc quản lý
+  dự án đầy đủ.
 
-## AI-Assisted Design Workflow
+## Quy trình thiết kế có AI hỗ trợ
 
-1. Read the PRD, User Stories, and Acceptance Criteria.
-2. Read upstream UI artifacts and identify the handoff context.
-3. Separate CONFIRMED requirements, PROPOSED UI choices, and TBD gaps.
-4. Draft the flow, wireframe, states, and traceability mapping.
-5. Review for unsupported business rules, missing states, and scope creep.
-6. Record human review decisions before treating a proposal as approved.
+1. Đọc PRD, User Stories và Acceptance Criteria.
+2. Đọc các tài liệu UI ở bước trước và xác định ngữ cảnh chuyển tiếp.
+3. Tách yêu cầu ĐÃ XÁC NHẬN, lựa chọn GIAO DIỆN ĐỀ XUẤT và khoảng trống TBD.
+4. Soạn luồng, wireframe, trạng thái và ánh xạ truy vết.
+5. Rà soát quy tắc nghiệp vụ không có căn cứ, trạng thái còn thiếu và việc mở
+   rộng phạm vi ngoài dự kiến.
+6. Ghi nhận quyết định rà soát của con người trước khi coi một đề xuất là được duyệt.
 
-Prompt artifacts support reproducibility of this workflow. They are not
-historical transcripts unless the repository contains evidence that they are.
+Tài liệu prompt hỗ trợ khả năng tái lập của quy trình này. Chúng không phải bản
+ghi lịch sử trừ khi repository có bằng chứng xác nhận điều đó.
 
-## Definition of Done
+## Định nghĩa hoàn thành
 
-Chapter 4 is complete when:
+Chapter 4 hoàn thành khi:
 
-- The relevant main flow is documented.
-- Wireframes or low-fidelity UI are sufficient for team review.
-- Important loading, empty, insufficient-data, error, and decision states are
-  considered where relevant.
-- User Stories and Acceptance Criteria are traced to important UI steps.
-- CONFIRMED, PROPOSED UI, and TBD content is clearly distinguished.
-- Unresolved business rules remain TBD.
-- AI-generated proposals have been reviewed by a person.
-- Artifacts do not introduce unapproved API, database, or ML implementation
-  decisions.
+- Luồng chính liên quan được lập tài liệu.
+- Wireframe hoặc UI độ trung thực thấp đủ để nhóm rà soát.
+- Các trạng thái quan trọng như đang tải, rỗng, thiếu dữ liệu, lỗi và quyết định
+  được xem xét khi phù hợp.
+- User Stories và Acceptance Criteria được truy vết đến các bước UI quan trọng.
+- Nội dung ĐÃ XÁC NHẬN, GIAO DIỆN ĐỀ XUẤT và TBD được phân biệt rõ.
+- Quy tắc nghiệp vụ chưa giải quyết vẫn là TBD.
+- Đề xuất do AI tạo đã được con người rà soát.
+- Tài liệu không đưa ra quyết định triển khai API, database hoặc ML chưa được phê duyệt.

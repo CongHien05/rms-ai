@@ -102,7 +102,7 @@ không xác nhận tên cột, kiểu dữ liệu hoặc quy ước đặt tên 
 | Kỹ năng (`Skill`) | Có thể | Có nếu nhóm duyệt là dữ liệu hỗ trợ MVP | ĐỀ XUẤT KỸ THUẬT | Liên kết nhân sự và yêu cầu dự án | Đề xuất nhân sự |
 | Kỹ năng của nhân sự (`EmployeeSkill`) | Có thể | Có nếu kỹ năng được dùng | ĐỀ XUẤT KỸ THUẬT; cấp độ TBD | Nối Employee và Skill | Đề xuất nhân sự |
 | Yêu cầu kỹ năng dự án (`ProjectSkillRequirement`) | Có thể | Có nếu nhu cầu kỹ năng được chốt | TBD về ngữ nghĩa | Nối Project và Skill | Thiếu hụt kỹ năng / đề xuất |
-| Phân bổ dự án (`ProjectAllocation`) | Có ở mức khái niệm; vận hành còn TBD | Chỉ sau khi semantics phân bổ được chốt | BỊ CHẶN cho persistence vận hành | Biểu diễn quan hệ Employee <-> Project; chưa phải bảng production sẵn sàng triển khai | Phân bổ thật / mốc so sánh mô phỏng |
+| Phân bổ dự án (`ProjectAllocation`) | Có ở mức khái niệm; vận hành còn TBD | Chỉ sau khi ngữ nghĩa phân bổ được chốt | BỊ CHẶN cho lưu trữ vận hành | Biểu diễn quan hệ Employee <-> Project; chưa phải bảng production sẵn sàng triển khai | Phân bổ thật / mốc so sánh mô phỏng |
 | Đánh giá rủi ro (`RiskAssessment`) | Có | Không mặc định; có thể lưu lịch sử | TBD | Thuộc đúng Project | US-01 |
 | Giải thích rủi ro (`RiskExplanation`) | Có | Theo RiskAssessment nếu lịch sử được duyệt | TBD | Thuộc đúng RiskAssessment | US-01 |
 | Lần đề xuất (`RecommendationRun`) | Có | Không mặc định; có thể lưu để truy vết | TBD | Thuộc Project | US-02 |
@@ -183,7 +183,7 @@ erDiagram
 
 Các trường trong ERD là trường logic tối thiểu để đọc quan hệ. Trạng thái chi
 tiết nằm ở các mục tiếp theo; sơ đồ không làm cho chúng trở thành yêu cầu hoặc
-thành cấu trúc persistence production đã được duyệt.
+thành cấu trúc lưu trữ production đã được duyệt.
 
 ## 8. Dự án, Sprint và Task
 
@@ -282,7 +282,7 @@ khi nhóm duyệt mô hình yêu cầu kỹ năng tối thiểu.
 | `statusCode` | Trạng thái phân bổ | TBD |
 
 Quan hệ Employee <-> Project **SẴN SÀNG** ở mức mô hình khái niệm. Tuy nhiên,
-`ProjectAllocation` vận hành và persistence production **BỊ CHẶN**. Không thể
+`ProjectAllocation` vận hành và lưu trữ production **BỊ CHẶN**. Không thể
 chốt một phân bổ thật chỉ từ ba khóa tham chiếu vì `allocationAmount`,
 `allocationUnit`, khoảng hiệu lực, giới hạn tổng, chồng lấn, năng lực, mức độ
 sẵn sàng, mức sử dụng và quy tắc nhân sự chờ phân bổ vẫn TBD.
@@ -389,7 +389,7 @@ không được tạo cho nhánh Từ chối như thể một thay đổi đã �
 | `Sprint`/`Task` | Có thể | Tín hiệu tiến độ và cấu trúc công việc | Không; mức cần thiết TBD | Chỉ lưu nền tảng tối thiểu nếu được chọn làm đầu vào |
 | `Employee`/`Skill` | Có thể | Nhận diện ứng viên và dữ liệu hỗ trợ | Không nêu trường bắt buộc | Lưu tối thiểu sau khi duyệt mô hình kỹ năng |
 | Quan hệ Employee <-> Project | Có ở mức khái niệm | Xác định ranh giới dữ liệu | Không yêu cầu một bảng riêng | SẴN SÀNG ở mức mô hình; không ghi phân bổ thật |
-| `ProjectAllocation` vận hành | Có khi chức năng phân bổ thật được triển khai | Mốc phân bổ thật và nền cho mô phỏng | Hành vi thật cần một nguồn trạng thái; lược đồ chưa được xác nhận | BỊ CHẶN tới khi chốt semantics phân bổ tối thiểu |
+| `ProjectAllocation` vận hành | Có khi chức năng phân bổ thật được triển khai | Mốc phân bổ thật và nền cho mô phỏng | Hành vi thật cần một nguồn trạng thái; lược đồ chưa được xác nhận | BỊ CHẶN tới khi chốt ngữ nghĩa phân bổ tối thiểu |
 | `RiskAssessment`/`RiskExplanation` | Có khi trả kết quả | Lịch sử, so sánh, truy vết | Không | Không mặc định lưu; TBD |
 | `RecommendationRun`/`RecommendationCandidate` | Có khi trả kết quả | Truy vết đề xuất PM đã xem | Không | Không mặc định lưu; TBD |
 | `AllocationScenario` | Có cho mô phỏng/quyết định | Giữ đúng phương án và liên kết | Không xác nhận lưu | Có thể lưu nếu `PMDecision` cần tham chiếu bền vững; TBD |
@@ -426,7 +426,7 @@ lưu lịch sử, phải chốt mục đích, dữ liệu tối thiểu, độ m
 - Bảo vệ kết nối Backend -> AI và dữ liệu nhạy cảm nằm ngoài ERD này, vẫn cần
   thiết kế bảo mật riêng.
 
-## 14. Quyết định công nghệ persistence trước Milestone 4
+## 14. Quyết định công nghệ lưu trữ trước Milestone 4
 
 ### 14.1. Trạng thái hiện tại
 
@@ -444,7 +444,7 @@ lưu lịch sử, phải chốt mục đích, dữ liệu tối thiểu, độ m
 | ORM | TypeORM | ĐỊNH HƯỚNG KỸ THUẬT ĐÃ ĐƯỢC NHÓM PHÊ DUYỆT |
 | Tích hợp NestJS | `@nestjs/typeorm` | ĐỊNH HƯỚNG KỸ THUẬT ĐÃ ĐƯỢC NHÓM PHÊ DUYỆT |
 | Trình điều khiển MySQL | `mysql2` | ĐỊNH HƯỚNG KỸ THUẬT ĐÃ ĐƯỢC NHÓM PHÊ DUYỆT |
-| Phiên bản package chính xác | Chưa chốt; phải kiểm tra package manager, phiên bản NestJS và tính tương thích khi bắt đầu implementation | TBD |
+| Phiên bản gói chính xác | Chưa chốt; phải kiểm tra trình quản lý gói, phiên bản NestJS và tính tương thích khi bắt đầu triển khai | TBD |
 
 Nguồn kỹ thuật tham khảo:
 
@@ -452,14 +452,14 @@ Nguồn kỹ thuật tham khảo:
 - [Tích hợp TypeORM của NestJS](https://docs.nestjs.com/techniques/database).
 - [TypeORM với MySQL/MariaDB](https://typeorm.io/docs/drivers/mysql/).
 
-### 14.3. Guardrail đã được duyệt
+### 14.3. Nguyên tắc bảo vệ đã được duyệt
 
 - Cấu hình kết nối phải đi qua biến môi trường; không hard-code thông tin xác thực.
 - Không dùng `synchronize: true` như chiến lược quản lý lược đồ production.
-- Khi bắt đầu persistence implementation, thay đổi lược đồ phải đi qua migration.
-- Phiên bản package chính xác vẫn TBD cho tới khi kiểm tra package manager,
+- Khi bắt đầu triển khai lưu trữ, thay đổi lược đồ phải đi qua migration.
+- Phiên bản gói chính xác vẫn TBD cho tới khi kiểm tra trình quản lý gói,
   NestJS hiện tại và ma trận tương thích.
-- Lượt review này không cài package và không tạo migration.
+- Lượt rà soát này không cài gói và không tạo migration.
 
 ## 15. Ánh xạ với hợp đồng API ban đầu
 
@@ -523,13 +523,13 @@ Các trường nội bộ này không nên tự động được đưa vào DTO 
 ### Công nghệ
 
 - Phiên bản chính xác của TypeORM, `@nestjs/typeorm` và `mysql2`.
-- Chi tiết cấu hình biến môi trường và migration khi implementation bắt đầu.
+- Chi tiết cấu hình biến môi trường và migration khi bắt đầu triển khai.
 
 ## 17. Mức sẵn sàng cho Milestone 4
 
 | Khu vực | Mức sẵn sàng | Kết luận |
 | --- | --- | --- |
-| Nền tảng Project/Sprint/Task | SẴN SÀNG | Có thể triển khai field đủ căn cứ sau khi branch này merge; trạng thái, tiến độ, công sức và đặc trưng rủi ro vẫn TBD |
+| Nền tảng Project/Sprint/Task | SẴN SÀNG | Có thể triển khai trường đủ căn cứ sau khi nhánh này được merge; trạng thái, tiến độ, công sức và đặc trưng rủi ro vẫn TBD |
 | Nền tảng Employee/Skill | SẴN SÀNG | Có thể bắt đầu sau khi nền tảng Project/Sprint/Task merge; không mở rộng hồ sơ HR |
 | `EmployeeSkill` tối thiểu | SẴN SÀNG MỘT PHẦN | Có thể triển khai quan hệ; mức kỹ năng và bằng chứng vẫn TBD |
 | Quan hệ Employee <-> Project | SẴN SÀNG | Đã có mô hình khái niệm; không đồng nghĩa có bảng phân bổ vận hành |
@@ -540,16 +540,16 @@ Các trường nội bộ này không nên tự động được đưa vào DTO 
 | PMDecision | SẴN SÀNG MỘT PHẦN | Chấp nhận/Từ chối rõ; chủ thể, lưu trữ lâu dài và hành vi lặp TBD |
 | ApplicationResult | BỊ CHẶN | Điều kiện áp dụng và giao dịch chưa chốt |
 | Lịch sử | BỊ CHẶN | Không có yêu cầu bắt buộc lưu |
-| Công nghệ lưu trữ | SẴN SÀNG | MySQL + TypeORM + `@nestjs/typeorm` + `mysql2` đã được nhóm phê duyệt; phiên bản package chính xác vẫn TBD |
+| Công nghệ lưu trữ | SẴN SÀNG | MySQL + TypeORM + `@nestjs/typeorm` + `mysql2` đã được nhóm phê duyệt; phiên bản gói chính xác vẫn TBD |
 
 Kết luận: sau khi branch này merge, Hiền có thể bắt đầu nền tảng
-Project/Sprint/Task với các field đủ căn cứ. Khánh có thể bắt đầu nền tảng
+Project/Sprint/Task với các trường đủ căn cứ. Khánh có thể bắt đầu nền tảng
 `Employee`/`Skill` sau khi nền tảng đó merge và có thể tạo quan hệ
 `EmployeeSkill` tối thiểu mà không thêm mức kỹ năng. `ProjectAllocation` vận
 hành, đặc trưng AI, quy tắc phân bổ, nhân sự chờ phân bổ/mức sử dụng, lưu lịch sử
 và việc áp dụng thật vẫn chưa đủ căn cứ triển khai.
 
-## 18. Checklist tự rà soát
+## 18. Danh sách tự rà soát
 
 - [x] Không biến dữ liệu mẫu thành lược đồ.
 - [x] Không tạo điểm, ngưỡng hoặc mục tiêu rủi ro.
@@ -562,7 +562,7 @@ và việc áp dụng thật vẫn chưa đủ căn cứ triển khai.
 - [x] Không cài ORM/trình điều khiển và không tạo tệp chuyển đổi lược đồ/mã nguồn.
 - [x] Trường chưa có căn cứ vẫn là TBD.
 - [x] MySQL + TypeORM + `@nestjs/typeorm` + `mysql2` đã được ghi là định hướng kỹ thuật được nhóm phê duyệt.
-- [x] Phiên bản package chính xác vẫn TBD; không cài dependency hoặc tạo migration.
+- [x] Phiên bản gói chính xác vẫn TBD; không cài dependency hoặc tạo migration.
 - [x] Quan hệ Employee <-> Project không bị nhầm với `ProjectAllocation` production sẵn sàng triển khai.
-- [x] `ProjectAllocation` vận hành vẫn BỊ CHẶN; semantics phân bổ vẫn TBD.
+- [x] `ProjectAllocation` vận hành vẫn BỊ CHẶN; ngữ nghĩa phân bổ vẫn TBD.
 - [x] Nêu rõ phần nền tảng Project/Sprint/Task có thể bắt đầu sau khi branch này merge.

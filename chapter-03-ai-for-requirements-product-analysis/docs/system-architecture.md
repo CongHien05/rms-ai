@@ -317,7 +317,7 @@ Truy vết yêu cầu: US-04, AC-US-04-01 đến AC-US-04-07, Hợp đồng dữ
 
 ## 18. Ranh giới lưu trữ lâu dài
 
-| Nhóm dữ liệu | Cần ở runtime | Có thể cần lưu trữ lâu dài | Đã xác nhận phải lưu trữ |
+| Nhóm dữ liệu | Cần khi vận hành | Có thể cần lưu trữ lâu dài | Đã xác nhận phải lưu trữ |
 | --- | --- | --- | --- |
 | Ngữ cảnh dự án | Có, ở mức khái niệm | Có thể | Không; trường tối thiểu TBD |
 | Kỹ năng / mức độ sẵn sàng / khối lượng công việc / ngữ cảnh phân bổ | Có thể, nếu được chốt là đầu vào | Có thể | Không |
@@ -339,7 +339,7 @@ Thời hạn lưu, định danh, quan hệ, lịch sử, giao dịch và quyền
   và định danh kiểm toán đều TBD.
 - Không được suy ra Backend đã thực thi vai trò PM từ vai trò nghiệp vụ trong PRD.
 
-## 20. Giả định runtime và triển khai
+## 20. Giả định vận hành và triển khai
 
 Đã có:
 
@@ -352,7 +352,7 @@ Chưa có:
 
 - cấu hình URL tích hợp giữa ba phần;
 - CORS, cơ chế khám phá dịch vụ, công nghệ đóng gói, sơ đồ triển khai;
-- runtime cơ sở dữ liệu;
+- môi trường vận hành cơ sở dữ liệu;
 - cấu hình vận hành thực tế hoặc quản lý bí mật cấu hình.
 
 Ba tiến trình cục bộ là hướng triển khai thử nghiệm phù hợp với khung dự án hiện tại;
@@ -412,7 +412,7 @@ Kho mã nguồn không có tệp ERD, thiết kế cơ sở dữ liệu, lược
 Vì vậy chưa thể đánh giá ánh xạ thực thể/quan hệ hay tính nhất quán ở mức
 trường. Khi ERD xuất hiện, lượt rà soát tối thiểu phải kiểm tra:
 
-- dữ liệu khái niệm có thật sự cần lưu trữ lâu dài hay chỉ cần ở runtime;
+- dữ liệu khái niệm có thật sự cần lưu trữ lâu dài hay chỉ cần khi vận hành;
 - trường dữ liệu mẫu có bị đưa vào lược đồ như trường vận hành hay không;
 - ứng viên có bị gộp sai với phương án phân bổ hay không;
 - quyết định có bị gộp sai với kết quả áp dụng hay không;

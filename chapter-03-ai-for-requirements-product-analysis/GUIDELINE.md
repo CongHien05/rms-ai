@@ -1,31 +1,38 @@
-# Chapter 3 Guideline
+# Hướng dẫn Chapter 3
 
-## Chapter Objective
+## Mục tiêu của chapter
 
-Define RMS-AI product requirements at an initial PRD level without committing to detailed architecture or implementation decisions.
+Xác định yêu cầu sản phẩm RMS-AI ở mức PRD ban đầu mà không cam kết các quyết
+định chi tiết về kiến trúc hoặc triển khai.
 
-## PRD Purpose
+## Mục đích của PRD
 
-The PRD should describe the product problem, goals, users, confirmed scope, MVP scope, out-of-scope items, and unresolved questions. It should guide future design, architecture, and implementation work.
+PRD phải mô tả bài toán sản phẩm, mục tiêu, người dùng, phạm vi đã xác nhận, phạm
+vi MVP, nội dung ngoài phạm vi và các câu hỏi chưa được giải quyết. PRD định
+hướng cho công việc thiết kế, kiến trúc và triển khai sau này.
 
-## Expected Artifacts
+## Tài liệu dự kiến
 
 - `docs/PRD.md`
 - `prompts/generate-prd.prompt.md`
 
-## AI-Assisted Requirement Workflow
+## Quy trình yêu cầu có AI hỗ trợ
 
-Use AI to draft and refine requirement language, identify missing questions, and check for scope creep. Keep AI output concise and mark undecided details as TBD.
+Sử dụng AI để soạn thảo và hiệu chỉnh cách diễn đạt yêu cầu, xác định câu hỏi còn
+thiếu và kiểm tra việc mở rộng phạm vi ngoài dự kiến. Giữ đầu ra AI ngắn gọn và
+đánh dấu chi tiết chưa được quyết định là `TBD`.
 
-## Human Review Responsibilities
+## Trách nhiệm rà soát của con người
 
-The team must confirm that the PRD reflects the agreed MVP, does not overpromise functionality, and remains suitable for a 2-member university project.
+Nhóm phải xác nhận PRD phản ánh đúng MVP đã thống nhất, không cam kết quá mức về
+chức năng và vẫn phù hợp với dự án đại học gồm hai thành viên.
 
-## Definition of Done
+## Định nghĩa hoàn thành
 
-- PRD v0.1 exists in the Chapter 3 docs folder
-- PRD sections match the assigned product-side scope
-- prompt artifact exists
-- guideline artifact exists
-- future decisions are marked as TBD
-- no database, API, UI, ML, deployment, Docker, or CI/CD decisions are prematurely introduced
+- PRD v0.1 tồn tại trong thư mục `docs` của Chapter 3.
+- Các phần của PRD phù hợp với phạm vi sản phẩm được giao.
+- Tài liệu prompt tồn tại.
+- Tài liệu hướng dẫn tồn tại.
+- Các quyết định tương lai được đánh dấu là `TBD`.
+- Không đưa ra sớm quyết định về database, API, UI, ML, triển khai, Docker hoặc
+  CI/CD.

@@ -1,40 +1,43 @@
-# RMS-AI Project Brief
+# Bản mô tả dự án RMS-AI
 
-## Project Name
+## Tên dự án
 
-RMS-AI — AI-powered Project Risk Prediction and Resource Optimization System
+RMS-AI — Hệ thống dự báo rủi ro dự án và tối ưu nguồn lực bằng AI
 
-## Problem
+## Bài toán
 
-Software teams can struggle with project delivery because:
+Các nhóm phần mềm có thể gặp khó khăn khi bàn giao dự án vì:
 
-- project delivery risks may be detected too late
-- resource allocation can be inefficient
-- employees may remain on bench without timely matching
-- employees may become overloaded
-- projects may have unresolved skill gaps
+- Rủi ro bàn giao dự án có thể được phát hiện quá muộn.
+- Việc phân bổ nguồn lực có thể kém hiệu quả.
+- Nhân sự có thể ở trạng thái chờ phân bổ do không được ghép nối kịp thời.
+- Nhân sự có thể bị quá tải.
+- Dự án có thể còn khoảng trống kỹ năng chưa được xử lý.
 
-## Proposed Solution
+## Giải pháp đề xuất
 
-RMS-AI is an AI-assisted decision-support system for software project resource management. It helps teams identify delivery risks, review resource gaps, recommend suitable employees, and simulate allocation changes before a human decision is applied.
+RMS-AI là hệ thống hỗ trợ ra quyết định bằng AI cho hoạt động quản lý nguồn lực
+trong dự án phần mềm. Hệ thống giúp nhóm xác định rủi ro bàn giao, xem xét khoảng
+trống nguồn lực, đề xuất nhân sự phù hợp và mô phỏng thay đổi phân bổ trước khi
+áp dụng quyết định của con người.
 
-## Target Users
+## Người dùng mục tiêu
 
-- Project Manager
+- Quản lý dự án (PM)
 - HR
 - Employee
 - Administrator
 
-## Core Product Direction
+## Định hướng sản phẩm cốt lõi
 
-Predict
-→ Recommend
-→ Simulate
-→ Human Decision
+Dự báo
+→ Đề xuất
+→ Mô phỏng
+→ Quyết định của con người
 
-## Initial MVP Direction
+## Định hướng MVP ban đầu
 
-- Project Risk Prediction
-- Resource Recommendation
-- What-if Simulation
-- PM Accept / Reject
+- Dự báo rủi ro dự án
+- Đề xuất nhân sự
+- Mô phỏng giả định
+- PM chấp nhận / từ chối

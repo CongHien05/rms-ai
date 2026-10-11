@@ -2,16 +2,16 @@
 
 ## 1. Mục tiêu theo đề cương
 
-Sử dụng AI để hỗ trợ technical documentation, README, knowledge transfer và tài
-liệu tổng kết, với bước rà soát tính chính xác của nhóm.
+Sử dụng AI để hỗ trợ tài liệu kỹ thuật, README, chuyển giao kiến thức và tài liệu
+tổng kết, với bước rà soát tính chính xác của nhóm.
 
 ## 2. RMS-AI áp dụng chương này như thế nào
 
 Repository đã có README vận hành, tài liệu yêu cầu, thiết kế, kiến trúc và các
-quy tắc làm việc. Dự án chưa final nên chưa có final report hay bộ tài liệu bàn
-giao hoàn chỉnh.
+quy tắc làm việc. Dự án chưa kết thúc nên chưa có báo cáo cuối cùng hay bộ tài
+liệu bàn giao hoàn chỉnh.
 
-## 3. Artifact hiện có
+## 3. Tài liệu hiện có
 
 - [README tổng quan repository](../README.md)
 - [Tiến độ theo đề cương](../COURSE_PROGRESS.md)
@@ -24,18 +24,18 @@ giao hoàn chỉnh.
 ## 4. Tiến độ
 
 - [x] Có README tổng quan và hướng dẫn cho các thành phần chính.
-- [x] Có tài liệu yêu cầu, thiết kế, kiến trúc, API và database foundation.
+- [x] Có tài liệu yêu cầu, thiết kế, kiến trúc, API và nền tảng database.
 - [x] Có chỉ mục theo dõi tiến độ Chapter 3–9.
-- [ ] Đối chiếu toàn bộ tài liệu với implementation ở checkpoint cuối dự án.
-- [ ] Hoàn thiện knowledge transfer và final documentation.
+- [ ] Đối chiếu toàn bộ tài liệu với phần triển khai ở mốc cuối dự án.
+- [ ] Hoàn thiện chuyển giao kiến thức và tài liệu cuối cùng.
 
-## 5. Bằng chứng AI-assisted workflow
+## 5. Bằng chứng quy trình có AI hỗ trợ
 
-Repository lưu prompt cho một số artifact yêu cầu/thiết kế, guideline, tài liệu
-đã qua nhiều commit và các merge checkpoint. Chưa tập trung bằng chứng sinh và
-human review tài liệu vào Chapter 9.
+Repository lưu prompt cho một số tài liệu yêu cầu/thiết kế, hướng dẫn, tài liệu
+đã qua nhiều commit và các mốc merge. Chưa tập trung bằng chứng sinh tài liệu và
+rà soát của con người vào Chapter 9.
 
 ## 6. Việc tiếp theo
 
-Khi dự án đạt checkpoint cuối, kiểm tra link, thuật ngữ, lệnh vận hành và sự phù
-hợp giữa tài liệu với source trước khi lập tài liệu bàn giao.
+Khi dự án đạt mốc cuối, kiểm tra link, thuật ngữ, lệnh vận hành và sự phù hợp
+giữa tài liệu với mã nguồn trước khi lập tài liệu bàn giao.

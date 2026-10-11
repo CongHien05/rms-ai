@@ -1,28 +1,32 @@
-# Chapter 1 Guideline
+# Hướng dẫn Chapter 1
 
-## Chapter Objective
+## Mục tiêu của chapter
 
-Define the RMS-AI project idea clearly before implementation. The chapter should explain the problem, target users, proposed AI value, and initial MVP direction.
+Làm rõ ý tưởng dự án RMS-AI trước khi triển khai. Chapter này phải giải thích
+bài toán, người dùng mục tiêu, giá trị AI được đề xuất và định hướng MVP ban đầu.
 
-## Expected Artifacts
+## Tài liệu dự kiến
 
 - `docs/project-brief.md`
 - `prompts/clarify-project-idea.prompt.md`
 
-## How AI Is Used
+## Cách sử dụng AI
 
-AI may help clarify the project idea, identify user pain points, organize scope, and surface unresolved questions. AI output must be treated as draft material for team review.
+AI có thể hỗ trợ làm rõ ý tưởng dự án, xác định vấn đề của người dùng, tổ chức
+phạm vi và chỉ ra các câu hỏi chưa được giải quyết. Đầu ra AI phải được xem là
+bản nháp để nhóm rà soát.
 
-## Manual Review
+## Rà soát thủ công
 
-The team must verify that the problem statement, target users, MVP direction, and AI value are accurate and realistic for a 2-member university project.
+Nhóm phải xác minh rằng phát biểu bài toán, người dùng mục tiêu, định hướng MVP
+và giá trị AI là chính xác, khả thi đối với dự án đại học gồm hai thành viên.
 
-## Definition of Done
+## Định nghĩa hoàn thành
 
-- project problem is clearly defined
-- target users are identified
-- proposed AI value is clear
-- MVP direction is identified
-- project brief exists
-- prompt artifact exists
-- no premature architecture or implementation decisions are introduced
+- Bài toán dự án được xác định rõ.
+- Người dùng mục tiêu được xác định.
+- Giá trị AI đề xuất được trình bày rõ.
+- Định hướng MVP được xác định.
+- Bản mô tả dự án đã tồn tại.
+- Tài liệu prompt đã tồn tại.
+- Không đưa ra sớm các quyết định kiến trúc hoặc triển khai.

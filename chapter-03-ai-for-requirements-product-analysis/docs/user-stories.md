@@ -10,7 +10,9 @@ PRD vẫn ghi trạng thái bản nháp; phạm vi v0.1 được người giao v
 
 ## 2. Người dùng chính
 
-Quản lý dự án (PM) là actor chính của MVP. PRD chưa yêu cầu workflow độc lập của actor phụ để hoàn thành luồng, nên bộ tối thiểu không thêm story cho vai trò khác. AI chỉ hỗ trợ PM, không có quyền quyết định cuối cùng.
+Quản lý dự án (PM) là vai trò chính của MVP. PRD chưa yêu cầu quy trình độc lập
+của vai trò phụ để hoàn thành luồng, nên bộ tối thiểu không thêm story cho vai
+trò khác. AI chỉ hỗ trợ PM, không có quyền quyết định cuối cùng.
 
 ## 3. Nhu cầu chính của người dùng
 
@@ -24,22 +26,24 @@ Quản lý dự án (PM) là actor chính của MVP. PRD chưa yêu cầu workfl
 Phân biệt căn cứ:
 
 - Nhu cầu đã xác nhận: N-01 đến N-04; không bảo đảm mọi đề xuất đều giảm rủi ro, bench hoặc quá tải.
-- Giả định chưa được xác nhận: PM tự nhập toàn bộ dữ liệu; chỉ dự án rủi ro cao mới được đề xuất; thiếu thông tin khối lượng công việc đồng nghĩa nhân sự đang rảnh. Không dùng các giả định này làm requirement.
+- Giả định chưa được xác nhận: PM tự nhập toàn bộ dữ liệu; chỉ dự án rủi ro cao mới được đề xuất; thiếu thông tin khối lượng công việc đồng nghĩa nhân sự đang rảnh. Không dùng các giả định này làm yêu cầu.
 - Khoảng trống yêu cầu: PRD chưa mô tả đầy đủ kết quả rỗng, lỗi, dữ liệu lỗi thời, điều kiện phân bổ và thời điểm áp dụng.
 - TBD: các quyết định còn thiếu được quản lý trong bảng TBD bên dưới; không tự chọn hành vi để lấp khoảng trống.
 
 ## 4. User Stories
 
-Không đặt mục tiêu số lượng story. Bộ hiện tại là kết quả phân tích các outcome độc lập: hiểu rủi ro, cân nhắc nhân sự, đánh giá tác động và quyết định phân bổ. Không tách capability chỉ để tăng số lượng story.
+Không đặt mục tiêu số lượng story. Bộ hiện tại là kết quả phân tích các kết quả
+độc lập: hiểu rủi ro, cân nhắc nhân sự, đánh giá tác động và quyết định phân bổ.
+Không tách năng lực chỉ để tăng số lượng story.
 
 ### Quy ước
 
 - Mã story: US-01 đến US-04; mã nhu cầu: N-01 đến N-04.
-- Mức ưu tiên: Bắt buộc / Nên có / TBD. Chỉ gán Bắt buộc hoặc Nên có khi có căn cứ từ PRD/phạm vi MVP đã xác nhận; thiếu căn cứ thì ghi TBD. Bộ hiện tại chỉ có Bắt buộc vì các outcome đều thuộc luồng MVP đã chốt.
-- CONFIRMED: mục tiêu nghiệp vụ có căn cứ trong PRD; không hàm ý mọi chi tiết của story đã đầy đủ.
-- PROPOSED: nội dung đề xuất cần nhóm review, chưa phải cam kết đã duyệt.
+- Mức ưu tiên: Bắt buộc / Nên có / TBD. Chỉ gán Bắt buộc hoặc Nên có khi có căn cứ từ PRD/phạm vi MVP đã xác nhận; thiếu căn cứ thì ghi TBD. Bộ hiện tại chỉ có Bắt buộc vì các kết quả đều thuộc luồng MVP đã chốt.
+- ĐÃ XÁC NHẬN: mục tiêu nghiệp vụ có căn cứ trong PRD; không hàm ý mọi chi tiết của story đã đầy đủ.
+- ĐỀ XUẤT: nội dung đề xuất cần nhóm rà soát, chưa phải cam kết đã duyệt.
 - TBD: chưa đủ căn cứ xác định hành vi kỳ vọng; chưa phải tiêu chí nghiệm thu có thể kết luận đạt/trượt.
-- AC được phân loại riêng; story CONFIRMED vẫn có thể chứa tình huống PROPOSED hoặc TBD trong tài liệu AC.
+- AC được phân loại riêng; story ĐÃ XÁC NHẬN vẫn có thể chứa tình huống ĐỀ XUẤT hoặc TBD trong tài liệu AC.
 
 ### Luồng được bao phủ
 
@@ -57,9 +61,9 @@ Luồng đã chốt: Dự báo rủi ro dự án → Đề xuất nhân sự →
 
 **Liên quan đến bước MVP:** Dự báo rủi ro.
 
-**Nguồn requirement:** PRD — Mục tiêu sản phẩm; Phạm vi MVP — Dự báo rủi ro dự án.
+**Nguồn yêu cầu:** PRD — Mục tiêu sản phẩm; Phạm vi MVP — Dự báo rủi ro dự án.
 
-**Trạng thái requirement:** CONFIRMED
+**Trạng thái yêu cầu:** ĐÃ XÁC NHẬN
 
 Bao phủ N-01. Giải thích là một phần của việc hiểu dự báo, không tách thành story khác. Bỏ story này sẽ mất bước nhận diện rủi ro trong luồng đã chốt.
 
@@ -75,9 +79,9 @@ Bao phủ N-01. Giải thích là một phần của việc hiểu dự báo, kh
 
 **Liên quan đến bước MVP:** Đề xuất nhân sự.
 
-**Nguồn requirement:** PRD — Người dùng mục tiêu — PM; Mục tiêu sản phẩm; Phạm vi MVP — Đề xuất nhân sự.
+**Nguồn yêu cầu:** PRD — Người dùng mục tiêu — PM; Mục tiêu sản phẩm; Phạm vi MVP — Đề xuất nhân sự.
 
-**Trạng thái requirement:** CONFIRMED
+**Trạng thái yêu cầu:** ĐÃ XÁC NHẬN
 
 Bao phủ N-02. Yêu cầu đề xuất, thứ hạng và giải thích phục vụ cùng một quyết định. Thứ hạng không chứng minh ứng viên đầu tiên tối ưu tuyệt đối. Người giao việc đã xác nhận nguyên tắc phải thể hiện không có kết quả phù hợp tại AC-US-02-03 và không ép đưa ứng viên không phù hợp tại AC-US-02-05. Đây là căn cứ bổ sung cho tình huống kết quả rỗng, không phải nội dung vốn có trong PRD. Tiêu chí phù hợp và hành động tiếp theo vẫn TBD-03. Bỏ story này sẽ thiếu bước hỗ trợ tìm phương án nhân sự.
 
@@ -93,11 +97,14 @@ Bao phủ N-02. Yêu cầu đề xuất, thứ hạng và giải thích phục v
 
 **Liên quan đến bước MVP:** Mô phỏng thay đổi phân bổ.
 
-**Nguồn requirement:** PRD — Mục tiêu sản phẩm; Phạm vi MVP — Mô phỏng giả định và nguyên tắc không phá hủy dữ liệu.
+**Nguồn yêu cầu:** PRD — Mục tiêu sản phẩm; Phạm vi MVP — Mô phỏng giả định và nguyên tắc không phá hủy dữ liệu.
 
-**Trạng thái requirement:** CONFIRMED
+**Trạng thái yêu cầu:** ĐÃ XÁC NHẬN
 
-Bao phủ N-03. Xác định phương án đang xem xét để mô phỏng, chạy mô phỏng và xem tác động thuộc cùng outcome; không thêm story chọn phương án hoặc quản lý nhiều kịch bản. Cách hình thành/chỉnh phương án còn ở TBD-04. Bỏ story này sẽ mất bước đánh giá trước thay đổi thật.
+Bao phủ N-03. Xác định phương án đang xem xét để mô phỏng, chạy mô phỏng và xem
+tác động thuộc cùng kết quả; không thêm story chọn phương án hoặc quản lý nhiều
+kịch bản. Cách hình thành/chỉnh phương án còn ở TBD-04. Bỏ story này sẽ mất bước
+đánh giá trước thay đổi thật.
 
 ### US-04 — Quyết định áp dụng hoặc từ chối phương án
 
@@ -111,19 +118,26 @@ Bao phủ N-03. Xác định phương án đang xem xét để mô phỏng, ch�
 
 **Liên quan đến bước MVP:** PM chấp nhận / từ chối; áp dụng khi được phép là kết quả có điều kiện của chấp nhận.
 
-**Nguồn requirement:** PRD — Tổng quan sản phẩm; Phạm vi MVP — PM chấp nhận / từ chối và nguyên tắc chấp nhận rõ ràng trước thay đổi thật.
+**Nguồn yêu cầu:** PRD — Tổng quan sản phẩm; Phạm vi MVP — PM chấp nhận / từ chối và nguyên tắc chấp nhận rõ ràng trước thay đổi thật.
 
-**Trạng thái requirement:** CONFIRMED
+**Trạng thái yêu cầu:** ĐÃ XÁC NHẬN
 
 Bao phủ N-04. Chấp nhận và từ chối là hai kết quả của cùng quyết định, không tách story. Không mặc định chấp nhận có hiệu lực ngay hoặc luôn áp dụng thành công. Bỏ story này sẽ không khép kín luồng theo quyền quyết định của PM.
 
 ### Giới hạn phạm vi
 
-Không thêm hệ thống HR, cổng nhân viên/quản trị viên, quản lý dự án đầy đủ, CRUD đầy đủ project/task/sprint/employee/skill, dashboard, thông báo, xuất báo cáo ngoài requirement. Không thêm AI tự phân bổ, quyết định thay PM hoặc quy trình phê duyệt nhiều cấp.
+Không thêm hệ thống HR, cổng nhân viên/quản trị viên, quản lý dự án đầy đủ, CRUD
+đầy đủ project/task/sprint/employee/skill, dashboard, thông báo, xuất báo cáo
+ngoài yêu cầu. Không thêm AI tự phân bổ, quyết định thay PM hoặc quy trình phê
+duyệt nhiều cấp.
 
 Không tạo story về bảng lương, tuyển dụng, chấm công, nghỉ phép, đánh giá hiệu suất, lập kế hoạch dự án đầy đủ, biểu đồ Gantt, trò chuyện AI, quản lý quyền quản trị, quản lý task/sprint đầy đủ hoặc công việc kỹ thuật về API, cơ sở dữ liệu, mô hình ML và hạ tầng.
 
-Dữ liệu hỗ trợ tối thiểu là dependency của cả luồng, theo PRD — Phạm vi sản phẩm. Các ví dụ về trạng thái dự án, tiến độ, kỹ năng, mức độ sẵn sàng, khối lượng công việc và ngữ cảnh phân bổ chưa phải danh sách trường bắt buộc. Dữ liệu tổng hợp là hướng ưu tiên, chưa phải bằng chứng bộ dữ liệu đã tồn tại. Không tạo story CRUD chỉ để giải quyết dependency này.
+Dữ liệu hỗ trợ tối thiểu là phần phụ thuộc của cả luồng, theo PRD — Phạm vi sản
+phẩm. Các ví dụ về trạng thái dự án, tiến độ, kỹ năng, mức độ sẵn sàng, khối
+lượng công việc và ngữ cảnh phân bổ chưa phải danh sách trường bắt buộc. Dữ liệu
+tổng hợp là hướng ưu tiên, chưa phải bằng chứng bộ dữ liệu đã tồn tại. Không tạo
+story CRUD chỉ để giải quyết phần phụ thuộc này.
 
 Không có story Nên có trong bộ này. Không suy ra ngưỡng rủi ro, giới hạn phân bổ, công thức điểm, trọng số xếp hạng, màn hình, API, database hoặc model ML.
 
@@ -142,13 +156,15 @@ Không có story Nên có trong bộ này. Không suy ra ngưỡng rủi ro, gi�
 | TBD-09 | Hành vi khi PM không tiếp tục phương án ngoài việc không được tự áp dụng | US-03, US-04 | Không tự thêm hủy, lưu nháp hoặc hết hạn |
 | TBD-10 | Nhãn huấn luyện rủi ro, chỉ số đánh giá, cách tính điểm/mô hình ghép nối, quy mô demo, dữ liệu thật/kết hợp trong tương lai | Đánh giá chất lượng và dữ liệu | Giữ nguyên các TBD tương ứng của PRD; không quyết định trong tài liệu này |
 
-Các gap không làm thay đổi bốn outcome cốt lõi, nhưng giới hạn mức độ hoàn chỉnh của AC. Chưa dùng tài liệu này để tuyên bố sẵn sàng triển khai toàn bộ hoặc đã nghiệm thu MVP.
+Các khoảng trống không làm thay đổi bốn kết quả cốt lõi, nhưng giới hạn mức độ
+hoàn chỉnh của AC. Chưa dùng tài liệu này để tuyên bố sẵn sàng triển khai toàn
+bộ hoặc đã nghiệm thu MVP.
 
 ## 5. Ma trận truy vết
 
-| User Story | Nhu cầu người dùng | Bước MVP | Nguồn PRD | Mức ưu tiên | Trạng thái requirement |
+| User Story | Nhu cầu người dùng | Bước MVP | Nguồn PRD | Mức ưu tiên | Trạng thái yêu cầu |
 | --- | --- | --- | --- | --- | --- |
-| US-01 | N-01 — Hiểu rủi ro và yếu tố chính | Dự báo | Mục tiêu sản phẩm; Phạm vi MVP — Dự báo rủi ro dự án | Bắt buộc | CONFIRMED |
-| US-02 | N-02 — Cân nhắc ứng viên và lý do phù hợp | Đề xuất | Người dùng mục tiêu — PM; Phạm vi MVP — Đề xuất nhân sự | Bắt buộc | CONFIRMED |
-| US-03 | N-03 — Đánh giá tác động trước thay đổi thật | Mô phỏng | Phạm vi MVP — Mô phỏng giả định; nguyên tắc không phá hủy dữ liệu | Bắt buộc | CONFIRMED |
-| US-04 | N-04 — Kiểm soát quyết định phân bổ | Quyết định và áp dụng khi được phép | Tổng quan sản phẩm; Phạm vi MVP — PM chấp nhận / từ chối; chấp nhận rõ ràng | Bắt buộc | CONFIRMED |
+| US-01 | N-01 — Hiểu rủi ro và yếu tố chính | Dự báo | Mục tiêu sản phẩm; Phạm vi MVP — Dự báo rủi ro dự án | Bắt buộc | ĐÃ XÁC NHẬN |
+| US-02 | N-02 — Cân nhắc ứng viên và lý do phù hợp | Đề xuất | Người dùng mục tiêu — PM; Phạm vi MVP — Đề xuất nhân sự | Bắt buộc | ĐÃ XÁC NHẬN |
+| US-03 | N-03 — Đánh giá tác động trước thay đổi thật | Mô phỏng | Phạm vi MVP — Mô phỏng giả định; nguyên tắc không phá hủy dữ liệu | Bắt buộc | ĐÃ XÁC NHẬN |
+| US-04 | N-04 — Kiểm soát quyết định phân bổ | Quyết định và áp dụng khi được phép | Tổng quan sản phẩm; Phạm vi MVP — PM chấp nhận / từ chối; chấp nhận rõ ràng | Bắt buộc | ĐÃ XÁC NHẬN |
