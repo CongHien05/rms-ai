@@ -1,19 +1,22 @@
 # React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Thư mục này cung cấp cấu hình tối thiểu để chạy React trong Vite với HMR và một
+số quy tắc Oxlint.
 
-Currently, two official plugins are available:
+Hiện có hai plugin chính thức:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) sử dụng [Oxc](https://oxc.rs).
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) sử dụng [SWC](https://swc.rs/).
 
 ## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+React Compiler chưa được bật trong cấu hình này vì ảnh hưởng đến hiệu năng phát
+triển và build. Để bổ sung, xem [tài liệu cài đặt React Compiler](https://react.dev/learn/react-compiler/installation).
 
-## Expanding the Oxlint configuration
+## Mở rộng cấu hình Oxlint
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+Khi phát triển ứng dụng production, nên bật các quy tắc lint nhận biết kiểu dữ
+liệu bằng cách cài đặt `oxlint-tsgolint` và chỉnh sửa `.oxlintrc.json`:
 
 ```json
 {
@@ -29,4 +32,5 @@ If you are developing a production application, we recommend enabling type-aware
 }
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Xem [tài liệu quy tắc Oxlint](https://oxc.rs/docs/guide/usage/linter/rules) để biết
+danh sách đầy đủ các quy tắc và nhóm quy tắc.

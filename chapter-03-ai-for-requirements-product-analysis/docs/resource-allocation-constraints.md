@@ -265,7 +265,7 @@ này được xem là đã xác nhận chỉ vì nó hợp lý về kỹ thuật
 - hành vi quyết định lặp;
 - kết quả PM nhìn thấy khi thất bại.
 
-Không thiết kế giao dịch hoặc thuật toán áp dụng trong artifact này.
+Không thiết kế giao dịch hoặc thuật toán áp dụng trong tài liệu này.
 
 ## 13. Quyết định khác kết quả áp dụng
 
@@ -335,7 +335,7 @@ khi hợp đồng áp dụng riêng được phê duyệt.
 | Bất biến `PMDecision` | SẴN SÀNG | Chấp nhận/từ chối và quyền PM đã xác nhận |
 | Áp dụng | BỊ CHẶN | Điều kiện, ràng buộc, giao dịch và phục hồi khi lỗi còn TBD |
 
-## 17. Checklist tự rà soát
+## 17. Danh sách tự rà soát
 
 - [x] Không biến bản mẫu thành lược đồ hoặc ràng buộc.
 - [x] Không tạo risk score/threshold.
@@ -347,5 +347,5 @@ khi hợp đồng áp dụng riêng được phê duyệt.
 - [x] Không mở rộng HR hoặc quản lý dự án ngoài MVP.
 - [x] Không cài ORM/trình điều khiển và không tạo tệp chuyển đổi lược đồ/mã nguồn.
 - [x] Quan hệ Employee <-> Project không bị nhầm với `ProjectAllocation` production sẵn sàng triển khai.
-- [x] `ProjectAllocation` vận hành vẫn BỊ CHẶN; semantics phân bổ vẫn TBD.
+- [x] `ProjectAllocation` vận hành vẫn BỊ CHẶN; ngữ nghĩa phân bổ vẫn TBD.
 - [x] Mức độ sẵn sàng, mức sử dụng, trạng thái chờ phân bổ, mức kỹ năng và việc áp dụng vẫn giữ TBD.

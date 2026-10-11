@@ -1,22 +1,30 @@
 # RMS-AI
 
-**RMS-AI — AI-powered Project Risk Prediction and Resource Optimization System**
+**RMS-AI — Hệ thống dự báo rủi ro dự án và tối ưu nguồn lực bằng AI**
 
-RMS-AI is an AI-assisted decision-support system for software project resource management. The repository now contains the base services, the Chapter 3 requirement baseline, and Chapter 4 low-fidelity product-design work.
+RMS-AI là hệ thống hỗ trợ ra quyết định bằng AI cho hoạt động quản lý nguồn lực
+trong dự án phần mềm. Repository hiện có các dịch vụ nền tảng, cơ sở yêu cầu
+của Chapter 3 và sản phẩm thiết kế độ trung thực thấp của Chapter 4.
 
-## Current Scope
+## Phạm vi hiện tại
 
-The current product-design scope covers the PM decision flow from Project Risk through Resource Recommendation, What-if Simulation, and Accept/Reject. Existing UI is a scoped prototype used to review that flow; it is not a production implementation and does not provide real AI prediction, matching, simulation, persistence, or allocation changes.
+Phạm vi thiết kế sản phẩm hiện tại bao phủ luồng quyết định của PM từ Đánh giá
+rủi ro dự án, Đề xuất nhân sự, Mô phỏng giả định đến Chấp nhận/Từ chối. UI hiện
+có là bản mẫu giới hạn dùng để rà soát luồng này; đây không phải phần triển khai
+production và không cung cấp dự báo AI, ghép nối nhân sự, mô phỏng, lưu trữ hay
+thay đổi phân bổ thật.
 
-Do not extend the repository into a full HR or project-management platform, or add AI/ML models, production database design, authentication, infrastructure, or business rules that the requirement baseline has not confirmed.
+Không mở rộng repository thành nền tảng HR hoặc quản lý dự án đầy đủ; không bổ
+sung mô hình AI/ML, thiết kế database production, xác thực, hạ tầng hoặc quy tắc
+nghiệp vụ chưa được cơ sở yêu cầu xác nhận.
 
-## Project Structure
+## Cấu trúc dự án
 
 ```text
 /
 ├── frontend/      # React + TypeScript + Vite
-├── backend/       # NestJS + TypeScript API
-├── ai-service/    # FastAPI service
+├── backend/       # API NestJS + TypeScript
+├── ai-service/    # Dịch vụ FastAPI
 ├── chapter-01-ai-in-software-engineering/
 ├── chapter-03-ai-for-requirements-product-analysis/
 ├── chapter-04-ai-for-product-design/
@@ -25,27 +33,26 @@ Do not extend the repository into a full HR or project-management platform, or a
 └── .gitignore
 ```
 
-## Course Artifacts
+## Tài liệu học phần
 
 ```text
 chapter-01-ai-in-software-engineering/
-→ Project clarification and project brief
+→ Làm rõ ý tưởng và bản mô tả dự án
 
 chapter-03-ai-for-requirements-product-analysis/
-→ PRD and requirement-analysis artifacts
+→ PRD và tài liệu phân tích yêu cầu
 
 chapter-04-ai-for-product-design/
-→ User flows, low-fidelity UI design, design prompts, and review artifacts
+→ Luồng người dùng, thiết kế UI độ trung thực thấp, prompt thiết kế và tài liệu rà soát
 ```
 
-No environment variables are required for the base applications.
+Các ứng dụng nền tảng không yêu cầu biến môi trường.
 
 ## Frontend
 
-The React frontend includes a low-fidelity prototype for Project Risk,
-Resource Recommendation, What-if Simulation, and local PM decision states.
-These screens use illustrative presentation data and do not call production
-AI or allocation services.
+Frontend React có bản mẫu độ trung thực thấp cho Đánh giá rủi ro dự án, Đề xuất
+nhân sự, Mô phỏng giả định và các trạng thái quyết định cục bộ của PM. Những màn
+hình này sử dụng dữ liệu minh họa và không gọi dịch vụ AI hoặc phân bổ production.
 
 ```powershell
 cd frontend
@@ -53,7 +60,7 @@ npm install
 npm run dev
 ```
 
-Build validation:
+Kiểm tra build:
 
 ```powershell
 npm run build
@@ -67,21 +74,21 @@ npm install
 npm run start:dev
 ```
 
-Health check:
+Kiểm tra tình trạng dịch vụ:
 
 ```text
 GET http://localhost:3000/health
 { "status": "ok" }
 ```
 
-Validation:
+Kiểm tra xác nhận:
 
 ```powershell
 npm run build
 npm test
 ```
 
-## AI Service
+## Dịch vụ AI
 
 ```powershell
 cd ai-service
@@ -90,14 +97,14 @@ python -m venv .venv
 .\.venv\Scripts\python -m uvicorn main:app --reload --port 8000
 ```
 
-Health check:
+Kiểm tra tình trạng dịch vụ:
 
 ```text
 GET http://localhost:8000/health
 { "status": "ok" }
 ```
 
-Validation:
+Kiểm tra xác nhận:
 
 ```powershell
 .\.venv\Scripts\python -m py_compile main.py

@@ -1,29 +1,29 @@
-# What-if Simulation & PM Decision UI Design — MVP
+# Thiết kế UI Mô phỏng giả định và Quyết định của PM — MVP
 
-## 1. Purpose and Scope
+## 1. Mục tiêu và phạm vi
 
-This document defines a reviewable low-fidelity UI design for the part of the
-RMS-AI PM flow that starts after Resource Recommendation:
+Tài liệu này xác định thiết kế UI độ trung thực thấp có thể rà soát cho phần
+luồng PM của RMS-AI bắt đầu sau bước Đề xuất nhân sự:
 
 ```text
-Resource Recommendation
--> choose a proposal to evaluate
--> What-if Simulation
--> Impact Review
--> PM Accept / Reject
+Đề xuất nhân sự
+-> chọn một phương án để đánh giá
+-> Mô phỏng giả định
+-> Rà soát tác động
+-> PM chấp nhận / từ chối
 ```
 
-It covers scenario context, simulation states, impact presentation, PM
-decision states, and directly related edge cases. It does not define an API,
-database, ML model, simulation formula, allocation rule, or production
-workflow.
+Tài liệu bao phủ ngữ cảnh phương án, trạng thái mô phỏng, cách trình bày tác
+động, trạng thái quyết định của PM và các trường hợp biên liên quan trực tiếp.
+Tài liệu không định nghĩa API, database, mô hình ML, công thức mô phỏng, quy tắc
+phân bổ hoặc quy trình production.
 
-The existing frontend is a scoped prototype and a continuity reference. It is
-not a source of new business requirements.
+Frontend hiện có là bản mẫu giới hạn và nguồn tham chiếu để giữ tính liên tục.
+Nó không phải nguồn của yêu cầu nghiệp vụ mới.
 
-## 2. Requirement Sources and Status Convention
+## 2. Nguồn yêu cầu và quy ước trạng thái
 
-Sources of truth:
+Nguồn tham chiếu có thẩm quyền:
 
 1. `chapter-03-ai-for-requirements-product-analysis/docs/PRD.md`
 2. `chapter-03-ai-for-requirements-product-analysis/docs/user-stories.md`
@@ -31,344 +31,342 @@ Sources of truth:
 4. `chapter-03-ai-for-requirements-product-analysis/docs/pm-risk-ui-design.md`
 5. `chapter-03-ai-for-requirements-product-analysis/docs/resource-recommendation-ui-design.md`
 
-Status convention:
+Quy ước trạng thái:
 
-- **CONFIRMED:** directly supported by the requirement baseline.
-- **PROPOSED UI:** a presentation or interaction choice; not a business rule.
-- **TBD:** the requirement or business rule is not sufficiently defined.
+- **ĐÃ XÁC NHẬN:** có căn cứ trực tiếp từ cơ sở yêu cầu.
+- **GIAO DIỆN ĐỀ XUẤT:** lựa chọn trình bày hoặc tương tác; không phải quy tắc nghiệp vụ.
+- **TBD:** yêu cầu hoặc quy tắc nghiệp vụ chưa được xác định đầy đủ.
 
-## 3. Upstream Handoff and Ownership
+## 3. Bước chuyển từ luồng trước và quyền sở hữu
 
-Project Risk Overview and Project Risk Detail belong to the upstream flow. The
-Resource Recommendation artifact continues that flow and supplies the entry
-context for this design.
+Tổng quan rủi ro dự án và Chi tiết rủi ro dự án thuộc luồng trước. Tài liệu Đề
+xuất nhân sự tiếp tục luồng đó và cung cấp ngữ cảnh đầu vào cho thiết kế này.
 
-The minimum conceptual handoff is:
+Bước chuyển khái niệm tối thiểu gồm:
 
-- the project currently being considered;
-- the recommendation/proposal the PM wants to evaluate.
+- Dự án đang được xem xét.
+- Đề xuất/phương án PM muốn đánh giá.
 
-The exact candidate fields, scenario payload, data contract, and API are
-**TBD**. A candidate may provide context for creating a scenario, but the
-requirement does not confirm that one candidate is a complete allocation
-scenario.
+Các trường ứng viên chính xác, payload phương án, hợp đồng dữ liệu và API là
+**TBD**. Ứng viên có thể cung cấp ngữ cảnh để tạo phương án, nhưng yêu cầu không
+xác nhận một ứng viên là phương án phân bổ hoàn chỉnh.
 
-## 4. Conceptual Flow and Screen Decomposition
+## 4. Luồng khái niệm và phân tách màn hình
 
-Scenario Setup, Run Simulation, Impact Review, and PM Decision are conceptual
-steps. They are not confirmed as separate pages, routes, or modals.
+Thiết lập phương án, Chạy mô phỏng, Rà soát tác động và Quyết định của PM là các
+bước khái niệm. Chúng chưa được xác nhận là các trang, route hoặc modal riêng.
 
-**PROPOSED UI:** use one What-if view with progressive sections:
+**GIAO DIỆN ĐỀ XUẤT:** sử dụng một màn hình Mô phỏng giả định với các phần mở
+dần theo tiến trình:
 
-1. Scenario context.
-2. Run Simulation action and status.
-3. Impact Review after a result is available.
-4. PM Decision after the result is presented.
+1. Ngữ cảnh phương án.
+2. Hành động Chạy mô phỏng và trạng thái.
+3. Rà soát tác động sau khi có kết quả.
+4. Quyết định của PM sau khi kết quả được trình bày.
 
-This keeps the project and proposal visible while avoiding additional
-navigation. Whether a valid simulation result must exist before Accept is
-allowed remains **TBD**; the progressive disclosure is a UI proposal for the
-review flow, not a confirmed approval rule.
+Cách này giữ dự án và phương án luôn hiển thị trong khi tránh điều hướng bổ
+sung. Việc có bắt buộc kết quả mô phỏng hợp lệ trước khi cho phép Chấp nhận hay
+không vẫn là **TBD**; cách mở dần nội dung là đề xuất UI cho luồng rà soát, không
+phải quy tắc phê duyệt đã xác nhận.
 
-## 5. Entry Point
+## 5. Điểm bắt đầu
 
-### PM goal
+### Mục tiêu của PM
 
-Evaluate a proposed allocation change before making a real decision.
+Đánh giá một thay đổi phân bổ được đề xuất trước khi đưa ra quyết định thật.
 
-### Entry condition
+### Điều kiện bắt đầu
 
-The PM has reached Resource Recommendation for a project and has indicated a
-proposal to evaluate. How a candidate becomes a complete proposal is **TBD**.
+PM đã đến bước Đề xuất nhân sự cho một dự án và chỉ ra phương án muốn đánh giá.
+Cách một ứng viên trở thành đề xuất hoàn chỉnh là **TBD**.
 
-### Context to preserve
+### Ngữ cảnh cần giữ
 
-| Information | Purpose | Status |
+| Thông tin | Mục đích | Trạng thái |
 | --- | --- | --- |
-| Current project | Prevent evaluating a proposal under the wrong project context | CONFIRMED at flow level; displayed fields TBD |
-| Current recommendation/proposal | Identify what the PM intends to simulate | CONFIRMED at flow level; scenario structure TBD |
-| Recommendation explanation | Preserve why the proposal was considered | PROPOSED UI; exact content already depends on US-02 |
-| Previous simulation state | Decide whether an old result remains usable | TBD |
+| Dự án hiện tại | Ngăn đánh giá phương án trong sai ngữ cảnh dự án | ĐÃ XÁC NHẬN ở mức luồng; trường hiển thị TBD |
+| Đề xuất/phương án hiện tại | Xác định nội dung PM muốn mô phỏng | ĐÃ XÁC NHẬN ở mức luồng; cấu trúc phương án TBD |
+| Giải thích đề xuất | Giữ lý do phương án được cân nhắc | GIAO DIỆN ĐỀ XUẤT; nội dung chính xác phụ thuộc US-02 |
+| Trạng thái mô phỏng trước | Quyết định kết quả cũ còn sử dụng được hay không | TBD |
 
-No score, threshold, ranking formula, or unconfirmed candidate field is added
-to the handoff.
+Không thêm điểm, ngưỡng, công thức xếp hạng hoặc trường ứng viên chưa được xác
+nhận vào bước chuyển.
 
-## 6. Scenario Setup
+## 6. Thiết lập phương án
 
-### PM goal
+### Mục tiêu của PM
 
-Understand which hypothetical change will be simulated.
+Hiểu thay đổi giả định nào sẽ được mô phỏng.
 
-### Low-fidelity structure
+### Cấu trúc độ trung thực thấp
 
 ```text
 +--------------------------------------------------------------------------+
-| < Back to Resource Recommendation [PROPOSED UI]                           |
-| WHAT-IF SIMULATION                                                       |
-| Project: [Current project context — exact fields TBD]                    |
+| < Quay lại Đề xuất nhân sự [GIAO DIỆN ĐỀ XUẤT]                           |
+| MÔ PHỎNG GIẢ ĐỊNH                                                        |
+| Dự án: [Ngữ cảnh dự án hiện tại — trường chính xác TBD]                 |
 +--------------------------------------------------------------------------+
-| SCENARIO UNDER REVIEW                                                    |
-| Recommendation/proposal: [Illustrative context]                          |
-| Hypothetical allocation change: [TBD]                                    |
-| Constraints and validation: [TBD]                                        |
+| PHƯƠNG ÁN ĐANG XEM XÉT                                                   |
+| Đề xuất/phương án: [Ngữ cảnh minh họa]                                  |
+| Thay đổi phân bổ giả định: [TBD]                                        |
+| Ràng buộc và xác thực: [TBD]                                             |
 +--------------------------------------------------------------------------+
-| This is a simulation. Real allocation has not changed.                   |
-| [Run Simulation]                                                         |
+| Đây là mô phỏng. Phân bổ thật chưa thay đổi.                             |
+| [Chạy mô phỏng]                                                          |
 +--------------------------------------------------------------------------+
 ```
 
-### Information and validation
+### Thông tin và xác thực
 
-| Item | Design treatment | Status |
+| Hạng mục | Cách xử lý trong thiết kế | Trạng thái |
 | --- | --- | --- |
-| Project context | Keep visible in the What-if view | CONFIRMED at flow level |
-| Proposal being evaluated | Identify the proposal throughout simulation and impact review | CONFIRMED; content TBD |
-| Candidate as scenario context | May be shown as illustrative context | PROPOSED UI |
-| Allocation change fields | Do not invent fields or numeric values | TBD |
-| Availability/workload constraints | Do not assume missing data means available or unallocated | TBD |
-| Allocation limit, duration, workload rule | Do not define | TBD |
-| Scenario validation result | A place may be reserved, but rules and blocking behavior are undecided | PROPOSED UI / TBD |
+| Ngữ cảnh dự án | Giữ hiển thị trong màn hình Mô phỏng giả định | ĐÃ XÁC NHẬN ở mức luồng |
+| Phương án đang đánh giá | Xác định phương án xuyên suốt bước mô phỏng và rà soát tác động | ĐÃ XÁC NHẬN; nội dung TBD |
+| Ứng viên làm ngữ cảnh phương án | Có thể hiển thị như ngữ cảnh minh họa | GIAO DIỆN ĐỀ XUẤT |
+| Trường thay đổi phân bổ | Không tự tạo trường hoặc giá trị số | TBD |
+| Ràng buộc về mức độ sẵn sàng/khối lượng công việc | Không giả định dữ liệu thiếu có nghĩa là sẵn sàng hoặc chưa được phân bổ | TBD |
+| Giới hạn phân bổ, thời lượng, quy tắc khối lượng công việc | Không định nghĩa | TBD |
+| Kết quả xác thực phương án | Có thể dành vị trí hiển thị, nhưng quy tắc và hành vi chặn chưa được quyết định | GIAO DIỆN ĐỀ XUẤT / TBD |
 
-### Insufficient-data state
+### Trạng thái thiếu dữ liệu
 
-The UI must not present an incomplete scenario as ready based on invented
-values. The minimum data, message, and next action are **TBD**. Whether the PM
-may edit, go back, or retry is not a confirmed business behavior.
+UI không được trình bày phương án chưa đầy đủ là đã sẵn sàng dựa trên các giá
+trị tự tạo. Dữ liệu tối thiểu, thông báo và hành động tiếp theo là **TBD**. Việc
+PM có thể chỉnh sửa, quay lại hay thử lại không phải hành vi nghiệp vụ đã xác nhận.
 
-## 7. Run Simulation
+## 7. Chạy mô phỏng
 
-### PM action
+### Hành động của PM
 
-The PM explicitly starts a simulation for the proposal under review.
+PM chủ động bắt đầu mô phỏng cho phương án đang xem xét.
 
-### Invariant
+### Bất biến
 
-Running, viewing, or failing a simulation does not change real allocation.
-This is **CONFIRMED** by the PRD and AC-US-03-02.
+Việc chạy, xem hoặc mô phỏng thất bại không thay đổi phân bổ thật. Nội dung này
+được **ĐÃ XÁC NHẬN** bởi PRD và AC-US-03-02.
 
-### State model
+### Mô hình trạng thái
 
-| State | UI behavior | Requirement status |
+| Trạng thái | Hành vi UI | Trạng thái yêu cầu |
 | --- | --- | --- |
-| Ready | Show the proposal context and Run Simulation action | PROPOSED UI; readiness rule TBD |
-| Loading | Show that simulation is in progress; do not present impact as a completed result | PROPOSED UI |
-| Success | Present impact for the exact proposal that was simulated | CONFIRMED; presentation TBD |
-| Insufficient data | Do not fabricate a result; explain that a reliable result is unavailable | PROPOSED UI / TBD |
-| Failure | Do not show a successful impact result; real allocation remains unchanged | CONFIRMED invariant / TBD recovery |
+| Sẵn sàng | Hiển thị ngữ cảnh phương án và hành động Chạy mô phỏng | GIAO DIỆN ĐỀ XUẤT; quy tắc sẵn sàng TBD |
+| Đang tải | Thể hiện mô phỏng đang chạy; không trình bày tác động như kết quả đã hoàn tất | GIAO DIỆN ĐỀ XUẤT |
+| Thành công | Trình bày tác động cho đúng phương án đã mô phỏng | ĐÃ XÁC NHẬN; cách trình bày TBD |
+| Thiếu dữ liệu | Không tạo kết quả giả; giải thích rằng chưa có kết quả đáng tin cậy | GIAO DIỆN ĐỀ XUẤT / TBD |
+| Thất bại | Không hiển thị kết quả tác động thành công; phân bổ thật giữ nguyên | Bất biến ĐÃ XÁC NHẬN / cách phục hồi TBD |
 
-Timeout, cancellation, retry policy, and whether the PM may continue to a
-decision after failure are **TBD**.
+Timeout, hủy, chính sách thử lại và việc PM có thể tiếp tục đến bước quyết định
+sau khi mô phỏng thất bại hay không đều là **TBD**.
 
-## 8. Impact Review
+## 8. Rà soát tác động
 
-### PM goal
+### Mục tiêu của PM
 
-Understand the expected impact of the exact proposal that was simulated before
-making a decision.
+Hiểu tác động dự kiến của đúng phương án đã mô phỏng trước khi đưa ra quyết định.
 
-### Low-fidelity structure
+### Cấu trúc độ trung thực thấp
 
 ```text
 +--------------------------------------------------------------------------+
-| EXPECTED IMPACT                                                          |
-| Applies to: [Proposal just simulated]                                    |
+| TÁC ĐỘNG DỰ KIẾN                                                        |
+| Áp dụng cho: [Phương án vừa mô phỏng]                                   |
 +------------------------------------+-------------------------------------+
-| Baseline                           | Simulated scenario                  |
-| [Representation TBD]               | [Representation TBD]              |
+| Mốc cơ sở                         | Phương án đã mô phỏng               |
+| [Cách biểu diễn TBD]               | [Cách biểu diễn TBD]               |
 +------------------------------------+-------------------------------------+
-| Impact indicator and comparison point: [TBD]                            |
-| This result has not changed real allocation.                             |
+| Chỉ báo tác động và mốc so sánh: [TBD]                                  |
+| Kết quả này chưa thay đổi phân bổ thật.                                  |
 +--------------------------------------------------------------------------+
 ```
 
-The two-column comparison is **PROPOSED UI**. It is not a confirmed output
-format.
+Cách so sánh hai cột là **GIAO DIỆN ĐỀ XUẤT**. Đây không phải định dạng đầu ra
+đã xác nhận.
 
-### Impact information
+### Thông tin tác động
 
-| Item | Status |
+| Hạng mục | Trạng thái |
 | --- | --- |
-| Result belongs to the exact simulated proposal | CONFIRMED — AC-US-03-01 |
-| Result is an expected impact, not a real allocation change | CONFIRMED |
-| Baseline representation | TBD |
-| Impact metric, scale, threshold, or formula | TBD |
-| Risk, workload, skill coverage, delivery, or cross-project impact | TBD |
-| Explanation of why impact changed | TBD |
+| Kết quả thuộc đúng phương án đã mô phỏng | ĐÃ XÁC NHẬN — AC-US-03-01 |
+| Kết quả là tác động dự kiến, không phải thay đổi phân bổ thật | ĐÃ XÁC NHẬN |
+| Cách biểu diễn mốc cơ sở | TBD |
+| Chỉ số, thang đo, ngưỡng hoặc công thức tác động | TBD |
+| Tác động đến rủi ro, khối lượng công việc, độ phủ kỹ năng, bàn giao hoặc liên dự án | TBD |
+| Giải thích lý do tác động thay đổi | TBD |
 
-### Outcome patterns
+### Mẫu kết quả
 
-The design must not assume every simulation improves the situation.
+Thiết kế không được giả định mọi mô phỏng đều cải thiện tình hình.
 
-| Outcome | Design treatment | Status |
+| Kết quả | Cách xử lý trong thiết kế | Trạng thái |
 | --- | --- | --- |
-| Positive impact | Present only if supported by an actual result; metric and wording TBD | PROPOSED UI / TBD |
-| No improvement | Keep the comparison neutral; do not manufacture a benefit | PROPOSED UI / TBD |
-| Negative impact | Show the returned direction without hiding it; representation TBD | PROPOSED UI / TBD |
-| Insufficient result | Do not present placeholders as real impact | PROPOSED UI / TBD |
-| Error | Keep real allocation unchanged and do not show success | CONFIRMED invariant / TBD recovery |
+| Tác động tích cực | Chỉ trình bày khi kết quả thật hỗ trợ; chỉ số và câu chữ TBD | GIAO DIỆN ĐỀ XUẤT / TBD |
+| Không cải thiện | Giữ so sánh trung lập; không tạo ra lợi ích giả | GIAO DIỆN ĐỀ XUẤT / TBD |
+| Tác động tiêu cực | Hiển thị chiều tác động được trả về mà không che giấu; cách biểu diễn TBD | GIAO DIỆN ĐỀ XUẤT / TBD |
+| Kết quả không đầy đủ | Không trình bày nội dung giữ chỗ như tác động thật | GIAO DIỆN ĐỀ XUẤT / TBD |
+| Lỗi | Giữ nguyên phân bổ thật và không hiển thị thành công | Bất biến ĐÃ XÁC NHẬN / cách phục hồi TBD |
 
-No percentage, probability, risk reduction, workload calculation, score, or
-benefit formula is introduced by this artifact.
+Tài liệu này không đưa ra tỷ lệ phần trăm, xác suất, mức giảm rủi ro, phép tính
+khối lượng công việc, điểm hoặc công thức lợi ích.
 
-## 9. PM Decision — Accept / Reject
+## 9. Quyết định của PM — Chấp nhận / Từ chối
 
-### PM goal
+### Mục tiêu của PM
 
-Make the final human decision about the proposal being considered.
+Đưa ra quyết định cuối cùng của con người cho phương án đang được xem xét.
 
-### Context before decision
+### Ngữ cảnh trước quyết định
 
-- Current project.
-- Exact proposal under review.
-- Impact result associated with that proposal, when available.
-- Clear statement that real allocation has not changed before an allowed and
-  successful apply operation.
+- Dự án hiện tại.
+- Đúng phương án đang xem xét.
+- Kết quả tác động gắn với phương án đó, khi có.
+- Tuyên bố rõ rằng phân bổ thật chưa thay đổi trước một thao tác áp dụng được
+  cho phép và thành công.
 
-Whether a valid simulation result is mandatory before Accept is **TBD-06**.
+Việc có bắt buộc kết quả mô phỏng hợp lệ trước khi Chấp nhận hay không là **TBD-06**.
 
-### Low-fidelity structure
+### Cấu trúc độ trung thực thấp
 
 ```text
 +--------------------------------------------------------------------------+
-| PM DECISION                                                              |
-| Proposal: [Proposal under review]                                        |
-| [Accept Proposal]                         [Reject Proposal]               |
-| Apply timing and sufficient conditions: [TBD]                            |
+| QUYẾT ĐỊNH CỦA PM                                                       |
+| Phương án: [Phương án đang xem xét]                                     |
+| [Chấp nhận phương án]                    [Từ chối phương án]             |
+| Thời điểm áp dụng và điều kiện đầy đủ: [TBD]                            |
 +--------------------------------------------------------------------------+
 ```
 
-### Decision outcomes
+### Kết quả quyết định
 
-| Event | Required outcome | Status |
+| Sự kiện | Kết quả bắt buộc | Trạng thái |
 | --- | --- | --- |
-| PM accepts and apply is allowed and succeeds | Real change corresponds to the exact accepted proposal | CONFIRMED — AC-US-04-01 |
-| PM rejects | Proposal is not applied | CONFIRMED — AC-US-04-02 |
-| PM does not explicitly accept | Proposal is not applied; silence and AI output are not acceptance | CONFIRMED — AC-US-04-03 |
-| Apply fails | Do not report that the proposal was applied successfully | CONFIRMED — AC-US-04-07 |
-| State after apply failure | Allocation state, recovery, and retry behavior | TBD — AC-US-04-06 |
-| Data changed after simulation | Validity check and next action | TBD — AC-US-04-04 |
-| Duplicate decision | Detection and response | TBD — AC-US-04-05 |
+| PM chấp nhận, việc áp dụng được cho phép và thành công | Thay đổi thật tương ứng đúng phương án đã chấp nhận | ĐÃ XÁC NHẬN — AC-US-04-01 |
+| PM từ chối | Phương án không được áp dụng | ĐÃ XÁC NHẬN — AC-US-04-02 |
+| PM không chấp nhận rõ ràng | Phương án không được áp dụng; sự im lặng và đầu ra AI không phải chấp nhận | ĐÃ XÁC NHẬN — AC-US-04-03 |
+| Áp dụng thất bại | Không báo phương án đã được áp dụng thành công | ĐÃ XÁC NHẬN — AC-US-04-07 |
+| Trạng thái sau khi áp dụng thất bại | Trạng thái phân bổ, phục hồi và hành vi thử lại | TBD — AC-US-04-06 |
+| Dữ liệu thay đổi sau mô phỏng | Kiểm tra tính hợp lệ và hành động tiếp theo | TBD — AC-US-04-04 |
+| Quyết định lặp | Phát hiện và phản hồi | TBD — AC-US-04-05 |
 
-Accept does not necessarily mean immediate apply. Apply timing, sufficient
-conditions, partial failure handling, and persistence are **TBD**.
+Chấp nhận không nhất thiết đồng nghĩa với áp dụng ngay. Thời điểm áp dụng, điều
+kiện đầy đủ, cách xử lý thất bại một phần và lưu trữ là **TBD**.
 
-**PROPOSED UI:** while a local prototype records an Accept or Reject choice,
-label it as a prototype decision and do not claim that a production allocation
-was updated.
+**GIAO DIỆN ĐỀ XUẤT:** khi bản mẫu cục bộ ghi nhận lựa chọn Chấp nhận hoặc Từ
+chối, phải gắn nhãn đây là quyết định trong bản mẫu và không tuyên bố phân bổ
+production đã được cập nhật.
 
-## 10. Back, Cancel, and Context Preservation
+## 10. Quay lại, hủy và giữ ngữ cảnh
 
-| Interaction | Treatment | Status |
+| Tương tác | Cách xử lý | Trạng thái |
 | --- | --- | --- |
-| Back to Resource Recommendation | Preserve project context; handling of old simulation state remains undecided | PROPOSED UI / TBD |
-| Back after a result | Do not imply the result applies to a different proposal | CONFIRMED invariant / PROPOSED UI |
-| Cancel Simulation | Do not define it as a separate business action without a requirement | TBD |
-| Leave without a decision | Do not apply the proposal | CONFIRMED; save/discard/expiry TBD |
+| Quay lại Đề xuất nhân sự | Giữ ngữ cảnh dự án; cách xử lý trạng thái mô phỏng cũ chưa được quyết định | GIAO DIỆN ĐỀ XUẤT / TBD |
+| Quay lại sau khi có kết quả | Không hàm ý kết quả áp dụng cho phương án khác | Bất biến ĐÃ XÁC NHẬN / GIAO DIỆN ĐỀ XUẤT |
+| Hủy mô phỏng | Không định nghĩa đây là hành động nghiệp vụ riêng khi chưa có yêu cầu | TBD |
+| Rời màn hình mà không quyết định | Không áp dụng phương án | ĐÃ XÁC NHẬN; lưu/hủy/hết hạn TBD |
 
-Back and navigation behavior must not mutate real allocation.
+Hành vi quay lại và điều hướng không được làm thay đổi phân bổ thật.
 
-## 11. State and Edge-case Matrix
+## 11. Ma trận trạng thái và trường hợp biên
 
-| Area | State or edge case | Confirmed behavior | Remaining TBD |
+| Khu vực | Trạng thái hoặc trường hợp biên | Hành vi đã xác nhận | Nội dung còn TBD |
 | --- | --- | --- | --- |
-| Upstream | No suitable candidate | Do not force an unsuitable candidate into the list | Suitability criteria and next action |
-| Entry | Missing project/proposal context | Do not invent context | Message and recovery path |
-| Scenario | Missing availability/workload | Do not infer availability | Validation and continuation behavior |
-| Scenario | Possible constraint violation | No unconfirmed limit or threshold | Warn, block, or simulate behavior |
-| Simulation | Loading | Real allocation remains unchanged | Timeout and cancel behavior |
-| Simulation | Failure | Real allocation remains unchanged | Retry and transition behavior |
-| Impact | No improvement | Do not manufacture improvement | Metric and wording |
-| Impact | Negative outcome | Do not hide an unfavorable result | Metric and presentation |
-| Impact | Insufficient data | Do not show an unreliable result as factual | Recovery behavior |
-| Freshness | Data changes after simulation | Old result remains tied to the old context | Stale policy and re-simulation rule |
-| Decision | Reject | Do not apply | Subsequent navigation/persistence |
-| Decision | No explicit Accept | Do not apply | Save, discard, and expiry |
-| Decision | Duplicate submission | No new rule is defined | Idempotency and response policy |
-| Apply | Failure or partial failure | Do not report successful apply | Allocation state, rollback, and retry |
+| Luồng trước | Không có ứng viên phù hợp | Không buộc ứng viên không phù hợp vào danh sách | Tiêu chí phù hợp và hành động tiếp theo |
+| Điểm bắt đầu | Thiếu ngữ cảnh dự án/phương án | Không tự tạo ngữ cảnh | Thông báo và đường phục hồi |
+| Phương án | Thiếu mức độ sẵn sàng/khối lượng công việc | Không suy diễn mức độ sẵn sàng | Hành vi xác thực và tiếp tục |
+| Phương án | Có thể vi phạm ràng buộc | Không dùng giới hạn hoặc ngưỡng chưa xác nhận | Cảnh báo, chặn hoặc mô phỏng |
+| Mô phỏng | Đang tải | Phân bổ thật giữ nguyên | Timeout và hành vi hủy |
+| Mô phỏng | Thất bại | Phân bổ thật giữ nguyên | Thử lại và hành vi chuyển tiếp |
+| Tác động | Không cải thiện | Không tạo ra cải thiện giả | Chỉ số và câu chữ |
+| Tác động | Kết quả tiêu cực | Không che giấu kết quả bất lợi | Chỉ số và cách trình bày |
+| Tác động | Thiếu dữ liệu | Không hiển thị kết quả không đáng tin cậy như sự thật | Hành vi phục hồi |
+| Độ mới | Dữ liệu thay đổi sau mô phỏng | Kết quả cũ vẫn gắn với ngữ cảnh cũ | Chính sách lỗi thời và quy tắc mô phỏng lại |
+| Quyết định | Từ chối | Không áp dụng | Điều hướng/lưu trữ sau đó |
+| Quyết định | Không Chấp nhận rõ ràng | Không áp dụng | Lưu, hủy và hết hạn |
+| Quyết định | Gửi lặp | Không định nghĩa quy tắc mới | Tính lũy đẳng và chính sách phản hồi |
+| Áp dụng | Thất bại hoặc thất bại một phần | Không báo áp dụng thành công | Trạng thái phân bổ, rollback và thử lại |
 
-## 12. Requirement Invariants
+## 12. Bất biến yêu cầu
 
-- AI supports the PM and does not make the final decision.
-- Recommendation does not automatically allocate a candidate.
-- A recommendation includes a basic explanation of suitability.
-- No suitable candidate means the UI does not force an unsuitable result.
-- Simulation and simulation failure do not change real allocation.
-- Reject does not apply the proposal.
-- Without explicit PM acceptance, real allocation does not change.
-- If an allowed apply succeeds, the change corresponds to the accepted
-  proposal.
-- If apply fails, the UI does not report success.
+- AI hỗ trợ PM và không đưa ra quyết định cuối cùng.
+- Đề xuất không tự động phân bổ ứng viên.
+- Đề xuất bao gồm giải thích cơ bản về mức phù hợp.
+- Khi không có ứng viên phù hợp, UI không buộc đưa ra kết quả không phù hợp.
+- Mô phỏng và mô phỏng thất bại không thay đổi phân bổ thật.
+- Từ chối không áp dụng phương án.
+- Nếu PM không chấp nhận rõ ràng, phân bổ thật không thay đổi.
+- Nếu một thao tác áp dụng được cho phép và thành công, thay đổi phải tương ứng
+  với phương án đã chấp nhận.
+- Nếu áp dụng thất bại, UI không báo thành công.
 
-## 13. Requirement Traceability
+## 13. Truy vết yêu cầu
 
-| UI step or state | User Story | Acceptance Criteria | Requirement source | Status |
+| Bước hoặc trạng thái UI | User Story | Acceptance Criteria | Nguồn yêu cầu | Trạng thái |
 | --- | --- | --- | --- | --- |
-| Recommendation handoff and proposal context | US-02 — PM considers ranked candidates with explanations | AC-US-02-01, AC-US-02-02 | PRD — Resource Recommendation | CONFIRMED; scenario mapping TBD |
-| No suitable candidate upstream | US-02 | AC-US-02-03, AC-US-02-05 | Confirmed supplemental requirement | CONFIRMED |
-| Recommendation unavailable or missing data | US-02 | AC-US-02-04 | TBD-01, TBD-03, TBD-07 | TBD |
-| Scenario under review | US-03 — PM evaluates a proposed allocation change | AC-US-03-01 | PRD — What-if Simulation | CONFIRMED; structure TBD |
-| Run Simulation | US-03 | AC-US-03-02 | PRD non-destructive simulation rule | CONFIRMED |
-| Constraint issue | US-03 | AC-US-03-03 | TBD-04 | TBD |
-| Simulation failure | US-03 | AC-US-03-04 | TBD-07 | CONFIRMED invariant / TBD recovery |
-| Scenario or data changes | US-03, US-04 | AC-US-03-05, AC-US-04-04 | TBD-08 | TBD |
-| Impact Review | US-03 | AC-US-03-01 | PRD expected-impact requirement | CONFIRMED; metrics TBD |
-| Accept | US-04 — PM controls the real allocation decision | AC-US-04-01, AC-US-04-03 | PRD — PM Accept / Reject | CONFIRMED with conditions; timing TBD |
-| Reject | US-04 | AC-US-04-02, AC-US-04-03 | PRD — PM Accept / Reject | CONFIRMED |
-| Duplicate decision | US-04 | AC-US-04-05 | TBD-08 | TBD |
-| Apply failure | US-04 | AC-US-04-06, AC-US-04-07 | TBD-07 plus confirmed failure constraint | CONFIRMED constraint / TBD recovery |
+| Bước chuyển đề xuất và ngữ cảnh phương án | US-02 — PM xem xét ứng viên có thứ hạng và giải thích | AC-US-02-01, AC-US-02-02 | PRD — Đề xuất nhân sự | ĐÃ XÁC NHẬN; ánh xạ phương án TBD |
+| Không có ứng viên phù hợp ở luồng trước | US-02 | AC-US-02-03, AC-US-02-05 | Yêu cầu bổ sung đã xác nhận | ĐÃ XÁC NHẬN |
+| Không thể tạo đề xuất hoặc thiếu dữ liệu | US-02 | AC-US-02-04 | TBD-01, TBD-03, TBD-07 | TBD |
+| Phương án đang xem xét | US-03 — PM đánh giá thay đổi phân bổ được đề xuất | AC-US-03-01 | PRD — Mô phỏng giả định | ĐÃ XÁC NHẬN; cấu trúc TBD |
+| Chạy mô phỏng | US-03 | AC-US-03-02 | Quy tắc mô phỏng không phá hủy dữ liệu trong PRD | ĐÃ XÁC NHẬN |
+| Vấn đề ràng buộc | US-03 | AC-US-03-03 | TBD-04 | TBD |
+| Mô phỏng thất bại | US-03 | AC-US-03-04 | TBD-07 | Bất biến ĐÃ XÁC NHẬN / cách phục hồi TBD |
+| Phương án hoặc dữ liệu thay đổi | US-03, US-04 | AC-US-03-05, AC-US-04-04 | TBD-08 | TBD |
+| Rà soát tác động | US-03 | AC-US-03-01 | Yêu cầu tác động dự kiến trong PRD | ĐÃ XÁC NHẬN; chỉ số TBD |
+| Chấp nhận | US-04 — PM kiểm soát quyết định phân bổ thật | AC-US-04-01, AC-US-04-03 | PRD — PM chấp nhận / từ chối | ĐÃ XÁC NHẬN kèm điều kiện; thời điểm TBD |
+| Từ chối | US-04 | AC-US-04-02, AC-US-04-03 | PRD — PM chấp nhận / từ chối | ĐÃ XÁC NHẬN |
+| Quyết định lặp | US-04 | AC-US-04-05 | TBD-08 | TBD |
+| Áp dụng thất bại | US-04 | AC-US-04-06, AC-US-04-07 | TBD-07 và ràng buộc thất bại đã xác nhận | Ràng buộc ĐÃ XÁC NHẬN / cách phục hồi TBD |
 
-## 14. Open Questions / TBD
+## 14. Câu hỏi mở / TBD
 
-### Scenario
+### Phương án
 
-- Exact content of an allocation proposal.
-- Whether a candidate is a complete proposal or an input to create one.
-- Editable inputs and allocation constraints.
-- Minimum data and validation rules.
-- Whether multiple scenarios, reruns, or resets are required.
+- Nội dung chính xác của một đề xuất phân bổ.
+- Ứng viên là đề xuất hoàn chỉnh hay là đầu vào để tạo đề xuất.
+- Đầu vào có thể chỉnh sửa và ràng buộc phân bổ.
+- Dữ liệu tối thiểu và quy tắc xác thực.
+- Có yêu cầu nhiều phương án, chạy lại hoặc đặt lại hay không.
 
-### Simulation and Impact
+### Mô phỏng và tác động
 
-- Simulation formula and success criteria.
-- Impact indicators, baseline, comparison point, and representation.
-- Risk, workload, skill coverage, delivery, and cross-project scope.
-- Loading timeout, retry, and failure recovery.
-- Stale-result and re-simulation policy.
+- Công thức mô phỏng và tiêu chí thành công.
+- Chỉ báo tác động, mốc cơ sở, mốc so sánh và cách biểu diễn.
+- Phạm vi rủi ro, khối lượng công việc, độ phủ kỹ năng, bàn giao và liên dự án.
+- Timeout khi tải, thử lại và phục hồi khi thất bại.
+- Chính sách kết quả lỗi thời và mô phỏng lại.
 
-### Decision
+### Quyết định
 
-- Whether a valid simulation is mandatory before Accept.
-- Sufficient conditions and timing for apply.
-- State after Accept or Reject.
-- Persistence, history, expiry, and optional rejection reason.
-- Duplicate decision and partial apply behavior.
-- Recovery and retry after apply failure.
+- Có bắt buộc mô phỏng hợp lệ trước khi Chấp nhận hay không.
+- Điều kiện đầy đủ và thời điểm áp dụng.
+- Trạng thái sau khi Chấp nhận hoặc Từ chối.
+- Lưu trữ, lịch sử, hết hạn và lý do từ chối tùy chọn.
+- Quyết định lặp và hành vi áp dụng một phần.
+- Phục hồi và thử lại sau khi áp dụng thất bại.
 
-## 15. Scope Guardrails
+## 15. Giới hạn phạm vi
 
-This design does not add:
+Thiết kế này không bổ sung:
 
-- candidate scores, thresholds, ranking weights, or Top N;
-- candidate fields not confirmed by the requirement baseline;
-- allocation limits, workload rules, or duration rules;
-- simulation, prediction, or benefit formulas;
-- automatic optimization or AI approval;
-- production persistence or real allocation mutation;
-- a full HR, employee-management, or project-management workflow;
-- API, database, ML, authentication, notification, or infrastructure design.
+- Điểm ứng viên, ngưỡng, trọng số xếp hạng hoặc Top N.
+- Trường ứng viên chưa được cơ sở yêu cầu xác nhận.
+- Giới hạn phân bổ, quy tắc khối lượng công việc hoặc quy tắc thời lượng.
+- Công thức mô phỏng, dự báo hoặc lợi ích.
+- Tối ưu tự động hoặc AI phê duyệt.
+- Lưu trữ production hoặc thay đổi phân bổ thật.
+- Quy trình HR, quản lý nhân sự hoặc quản lý dự án đầy đủ.
+- Thiết kế API, database, ML, xác thực, thông báo hoặc hạ tầng.
 
-## 16. Design Review Check
+## 16. Kiểm tra rà soát thiết kế
 
-The conceptual MVP continuation is covered:
+Phần tiếp nối khái niệm của MVP đã được bao phủ:
 
 ```text
-Resource Recommendation
--> proposal context
--> Run Simulation
--> Impact Review
--> PM Accept / Reject
+Đề xuất nhân sự
+-> ngữ cảnh phương án
+-> Chạy mô phỏng
+-> Rà soát tác động
+-> PM chấp nhận / từ chối
 ```
 
-The artifact preserves all confirmed invariants and exposes unresolved rules as
-TBD. The proposed single-view decomposition and progressive disclosure remain
-PROPOSED UI and require human review before being treated as approved design.
+Tài liệu giữ toàn bộ bất biến đã xác nhận và để lộ các quy tắc chưa giải quyết
+dưới dạng TBD. Cách phân tách một màn hình và mở dần nội dung vẫn là GIAO DIỆN
+ĐỀ XUẤT, cần con người rà soát trước khi được xem là thiết kế đã phê duyệt.

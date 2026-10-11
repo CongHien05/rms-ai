@@ -4,20 +4,20 @@ Tài liệu đi cùng [User Stories](user-stories.md), dựa trên [PRD v0.1](PR
 
 ## Quy ước và căn cứ
 
-- CONFIRMED: hành vi có căn cứ từ PRD hoặc nguyên tắc MVP được người giao việc xác nhận rõ; nguồn ghi tại từng tiêu chí. Không gán constraint bổ sung của người giao việc thành nội dung vốn có trong PRD.
-- PROPOSED: tiêu chí đề xuất để nhóm review, không phải điều kiện nghiệm thu đã được duyệt.
+- ĐÃ XÁC NHẬN: hành vi có căn cứ từ PRD hoặc nguyên tắc MVP được người giao việc xác nhận rõ; nguồn ghi tại từng tiêu chí. Không gán ràng buộc bổ sung của người giao việc thành nội dung vốn có trong PRD.
+- ĐỀ XUẤT: tiêu chí đề xuất để nhóm rà soát, không phải điều kiện nghiệm thu đã được duyệt.
 - TBD: tình huống đã nhận diện nhưng chưa xác định được kết quả kỳ vọng. Phần Then ghi quyết định còn thiếu, không được dùng như kiểm thử đạt/trượt.
-- Given / When / Then lần lượt diễn đạt điều kiện có trước / hành động hoặc sự kiện / kết quả quan sát được.
+- Given / When / Then lần lượt diễn đạt điều kiện có trước / hành động hoặc sự kiện / kết quả quan sát được theo quy ước BDD.
 - Điều kiện dữ liệu đủ hoặc áp dụng được phép trong tình huống thành công không tự định nghĩa ràng buộc dữ liệu/phân bổ; xem TBD-01, TBD-04 và TBD-06.
 - Các tiêu chí dưới đây kiểm tra hành vi, không chứng minh độ chính xác mô hình hay khả năng giảm rủi ro thực tế. Không có ngưỡng, trọng số hoặc thiết kế kỹ thuật được chốt thêm.
 
 ## AC-US-01 — Xem và hiểu rủi ro bàn giao dự án
 
-### AC-US-01-01 — Kết quả dự báo và giải thích — CONFIRMED
+### AC-US-01-01 — Kết quả dự báo và giải thích — ĐÃ XÁC NHẬN
 
 **Liên quan:** US-01
 
-**Trạng thái:** CONFIRMED
+**Trạng thái:** ĐÃ XÁC NHẬN
 
 **Nguồn:** PRD — Mục tiêu sản phẩm; Phạm vi MVP — Dự báo rủi ro dự án.
 
@@ -55,11 +55,11 @@ Tài liệu đi cùng [User Stories](user-stories.md), dựa trên [PRD v0.1](PR
 
 **Then:** TBD — nhóm cần xác định mức độ cập nhật cần thiết và cách xử lý kết quả cũ; chưa yêu cầu tự chạy lại hoặc tự chặn luồng.
 
-### AC-US-01-04 — Không khẳng định kết quả thiếu căn cứ — CONFIRMED
+### AC-US-01-04 — Không khẳng định kết quả thiếu căn cứ — ĐÃ XÁC NHẬN
 
 **Liên quan:** US-01
 
-**Trạng thái:** CONFIRMED
+**Trạng thái:** ĐÃ XÁC NHẬN
 
 **Nguồn:** Constraint người giao việc — Thiếu dữ liệu; không phải quy tắc dữ liệu chi tiết đã có trong PRD.
 
@@ -71,11 +71,11 @@ Tài liệu đi cùng [User Stories](user-stories.md), dựa trên [PRD v0.1](PR
 
 ## AC-US-02 — Cân nhắc ứng viên được đề xuất
 
-### AC-US-02-01 — Nhận danh sách có thứ hạng và giải thích — CONFIRMED
+### AC-US-02-01 — Nhận danh sách có thứ hạng và giải thích — ĐÃ XÁC NHẬN
 
 **Liên quan:** US-02
 
-**Trạng thái:** CONFIRMED
+**Trạng thái:** ĐÃ XÁC NHẬN
 
 **Nguồn:** PRD — Người dùng mục tiêu — PM; Phạm vi MVP — Đề xuất nhân sự.
 
@@ -87,11 +87,11 @@ Tài liệu đi cùng [User Stories](user-stories.md), dựa trên [PRD v0.1](PR
 
 Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiên tối ưu tuyệt đối. Căn cứ: PRD — Tổng quan sản phẩm xác định AI hỗ trợ và PM quyết định; nguyên tắc không đồng nhất thứ hạng với tối ưu tuyệt đối cũng được người giao việc yêu cầu rõ. Không đặt công thức hay tiêu chí kiểm thử tối ưu tuyệt đối.
 
-### AC-US-02-02 — Đề xuất không tự phân bổ — CONFIRMED
+### AC-US-02-02 — Đề xuất không tự phân bổ — ĐÃ XÁC NHẬN
 
 **Liên quan:** US-02
 
-**Trạng thái:** CONFIRMED
+**Trạng thái:** ĐÃ XÁC NHẬN
 
 **Nguồn:** PRD — Tổng quan sản phẩm; Phạm vi MVP — PM chấp nhận / từ chối.
 
@@ -101,11 +101,11 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 **Then:** Phân bổ thật không thay đổi do việc cung cấp/xem đề xuất; thứ hạng không được xem là sự chấp nhận của PM.
 
-### AC-US-02-03 — Thể hiện không có kết quả phù hợp — CONFIRMED
+### AC-US-02-03 — Thể hiện không có kết quả phù hợp — ĐÃ XÁC NHẬN
 
 **Liên quan:** US-02
 
-**Trạng thái:** CONFIRMED
+**Trạng thái:** ĐÃ XÁC NHẬN
 
 **Nguồn:** Yêu cầu bổ sung đã được người giao việc xác nhận — Không có ứng viên phù hợp: hệ thống phải thể hiện rằng không có kết quả phù hợp. PRD chưa quy định trực tiếp tình huống này; tiêu chí phù hợp vẫn TBD-03. Trạng thái được cập nhật nhờ xác nhận mới này, không phải để lấp khoảng trống tài liệu.
 
@@ -129,11 +129,11 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 **Then:** TBD — xác định việc loại/giữ ứng viên thiếu thông tin, cách thể hiện độ thiếu và phân biệt lỗi với kết quả rỗng. Không mặc định thiếu khối lượng công việc nghĩa là đang rảnh hoặc thiếu thông tin sẵn sàng nghĩa là có thể phân bổ; không tự gán giá trị thiếu.
 
-### AC-US-02-05 — Không ép đưa ứng viên không phù hợp — CONFIRMED
+### AC-US-02-05 — Không ép đưa ứng viên không phù hợp — ĐÃ XÁC NHẬN
 
 **Liên quan:** US-02
 
-**Trạng thái:** CONFIRMED
+**Trạng thái:** ĐÃ XÁC NHẬN
 
 **Nguồn:** Constraint người giao việc — Không có ứng viên phù hợp; tiêu chí phù hợp chưa được PRD chốt.
 
@@ -145,11 +145,11 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 ## AC-US-03 — Đánh giá phương án bằng mô phỏng
 
-### AC-US-03-01 — Xem tác động của đúng phương án — CONFIRMED
+### AC-US-03-01 — Xem tác động của đúng phương án — ĐÃ XÁC NHẬN
 
 **Liên quan:** US-03
 
-**Trạng thái:** CONFIRMED
+**Trạng thái:** ĐÃ XÁC NHẬN
 
 **Nguồn:** PRD — Phạm vi MVP — Mô phỏng giả định.
 
@@ -159,11 +159,11 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 **Then:** Kết quả cho biết tác động dự kiến của chính phương án đã mô phỏng, để PM xem xét trước quyết định thật. Chỉ báo tác động và mốc so sánh cụ thể thuộc TBD-05.
 
-### AC-US-03-02 — Mô phỏng không phá hủy dữ liệu — CONFIRMED
+### AC-US-03-02 — Mô phỏng không phá hủy dữ liệu — ĐÃ XÁC NHẬN
 
 **Liên quan:** US-03
 
-**Trạng thái:** CONFIRMED
+**Trạng thái:** ĐÃ XÁC NHẬN
 
 **Nguồn:** PRD — Phạm vi MVP — nguyên tắc không phá hủy dữ liệu.
 
@@ -217,11 +217,11 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 ## AC-US-04 — Quyết định áp dụng hoặc từ chối phương án
 
-### AC-US-04-01 — Chấp nhận và áp dụng thành công — CONFIRMED
+### AC-US-04-01 — Chấp nhận và áp dụng thành công — ĐÃ XÁC NHẬN
 
 **Liên quan:** US-04
 
-**Trạng thái:** CONFIRMED
+**Trạng thái:** ĐÃ XÁC NHẬN
 
 **Nguồn:** PRD — Phạm vi MVP — PM chấp nhận / từ chối; Tổng quan sản phẩm.
 
@@ -231,11 +231,11 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 **Then:** Thay đổi phân bổ thật tương ứng với phương án PM đã chấp nhận. Không thay bằng phương án khác do AI lựa chọn. Tiêu chí này không khẳng định chấp nhận luôn thành công hoặc áp dụng ngay; xem TBD-04, TBD-06.
 
-### AC-US-04-02 — Từ chối phương án — CONFIRMED
+### AC-US-04-02 — Từ chối phương án — ĐÃ XÁC NHẬN
 
 **Liên quan:** US-04
 
-**Trạng thái:** CONFIRMED
+**Trạng thái:** ĐÃ XÁC NHẬN
 
 **Nguồn:** PRD — Phạm vi MVP — PM chấp nhận / từ chối.
 
@@ -245,11 +245,11 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 **Then:** Phương án bị từ chối không được áp dụng vào phân bổ thật. Không bắt buộc lý do từ chối hoặc thêm phê duyệt của vai trò khác.
 
-### AC-US-04-03 — Không có chấp nhận rõ ràng — CONFIRMED
+### AC-US-04-03 — Không có chấp nhận rõ ràng — ĐÃ XÁC NHẬN
 
 **Liên quan:** US-04
 
-**Trạng thái:** CONFIRMED
+**Trạng thái:** ĐÃ XÁC NHẬN
 
 **Nguồn:** PRD — Phạm vi MVP — chỉ thay đổi thật khi PM chấp nhận rõ ràng.
 
@@ -301,11 +301,11 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 **Then:** TBD — nhóm xác định trạng thái phân bổ, thông tin kết quả cho PM và cách phục hồi/thử lại. Không tự cam kết khôi phục toàn bộ hoặc yêu cầu PM chấp nhận lại.
 
-### AC-US-04-07 — Không báo thành công khi áp dụng thất bại — CONFIRMED
+### AC-US-04-07 — Không báo thành công khi áp dụng thất bại — ĐÃ XÁC NHẬN
 
 **Liên quan:** US-04
 
-**Trạng thái:** CONFIRMED
+**Trạng thái:** ĐÃ XÁC NHẬN
 
 **Nguồn:** Constraint người giao việc — Áp dụng thay đổi thất bại.
 

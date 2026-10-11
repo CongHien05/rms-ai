@@ -5,7 +5,7 @@
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+  <p align="center">Framework <a href="http://nodejs.org" target="_blank">Node.js</a> hiện đại để xây dựng ứng dụng phía máy chủ hiệu quả và có khả năng mở rộng.</p>
     <p align="center">
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
@@ -21,11 +21,11 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## Mô tả
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Repository khởi tạo TypeScript với framework [Nest](https://github.com/nestjs/nest).
 
-## Project setup
+## Thiết lập dự án
 
 ```bash
 $ npm install
@@ -55,84 +55,93 @@ $ npm run migration:run
 $ npm run migration:revert
 ```
 
-## Compile and run the project
+## Biên dịch và chạy dự án
 
 ```bash
-# development
+# phát triển
 $ npm run start
 
-# watch mode
+# chế độ theo dõi thay đổi
 $ npm run start:dev
 
-# production mode
+# chế độ production
 $ npm run start:prod
 ```
 
-## Run tests
+## Chạy test
 
 ```bash
-# unit tests
+# unit test
 $ npm run test
 
-# e2e tests
+# e2e test
 $ npm run test:e2e
 
-# test coverage
+# độ bao phủ test
 $ npm run test:cov
 ```
 
-## Deployment
+## Triển khai
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Khi sẵn sàng triển khai ứng dụng NestJS lên môi trường production, cần thực hiện
+các bước cần thiết để ứng dụng vận hành hiệu quả. Xem [tài liệu triển khai](https://docs.nestjs.com/deployment)
+để biết thêm thông tin.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Nếu cần nền tảng cloud để triển khai ứng dụng NestJS, có thể tham khảo
+[Mau](https://mau.nestjs.com), nền tảng chính thức để triển khai ứng dụng NestJS
+trên AWS. Mau hỗ trợ triển khai qua một số bước ngắn:
 
 ```bash
 $ npm install -g @nestjs/mau
 $ mau deploy
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Mau cho phép triển khai ứng dụng bằng một số thao tác, giúp nhóm tập trung vào
+phát triển chức năng thay vì quản lý hạ tầng.
 
-## Observability
+## Khả năng quan sát
 
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
+Trong ứng dụng production, khả năng quan sát giúp hiểu hành vi hệ thống, phát
+hiện vấn đề sớm và duy trì hiệu năng ổn định.
 
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
+[NestJS Observe](https://observe.nestjs.com) tự động bổ sung cơ chế quan sát cho
+ứng dụng NestJS, giúp theo dõi hệ thống với cấu hình tối thiểu:
 
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
+- **Theo dõi phân tán:** Theo dõi request qua các dịch vụ và hiểu luồng xử lý trong hệ thống.
+- **Phân tích waterfall:** Trực quan hóa quá trình xử lý request và xác định thao tác chậm, điểm nghẽn hoặc độ trễ bất thường.
+- **Phân tích hiệu năng:** Phân tích hiệu năng ứng dụng theo thời gian thực và nhanh chóng xác định khu vực cần tối ưu.
+- **Chỉ số:** Theo dõi chỉ số chính của ứng dụng và hạ tầng để hiểu tình trạng hệ thống và xu hướng hiệu năng.
+- **Ghi log:** Tập trung log và liên kết với trace cùng dữ liệu đo lường khác để hỗ trợ gỡ lỗi.
+- **Theo dõi lỗi:** Phát hiện lỗi nhanh và điều tra nguyên nhân gốc với ngữ cảnh liên quan.
+- **Theo dõi SLA:** Theo dõi mục tiêu cấp độ dịch vụ và nhận biết khi ứng dụng tiến gần hoặc vượt ngưỡng đã xác định.
+- **Cảnh báo:** Thiết lập cảnh báo cho lỗi nghiêm trọng, suy giảm hiệu năng, vi phạm SLA và bất thường khác để nhóm phản ứng kịp thời.
 
-## Resources
+## Tài nguyên tham khảo
 
-Check out a few resources that may come in handy when working with NestJS:
+Các tài nguyên có thể hữu ích khi làm việc với NestJS:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observer](https://observer.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- Xem [tài liệu NestJS](https://docs.nestjs.com) để tìm hiểu thêm về framework.
+- Khi cần đặt câu hỏi hoặc hỗ trợ, truy cập [kênh Discord](https://discord.gg/G7Qnnhy).
+- Xem các [khóa học](https://courses.nestjs.com/) video chính thức để thực hành chuyên sâu.
+- Dùng [NestJS Mau](https://mau.nestjs.com) để hỗ trợ triển khai ứng dụng lên AWS.
+- Dùng [NestJS Observer](https://observer.nestjs.com) để tự động bổ sung trace phân tán, chỉ số, log, theo dõi lỗi và hiệu năng.
+- Dùng [NestJS Devtools](https://devtools.nestjs.com) để trực quan hóa đồ thị ứng dụng và tương tác với ứng dụng NestJS theo thời gian thực.
+- Xem dịch vụ [hỗ trợ doanh nghiệp](https://enterprise.nestjs.com) khi dự án cần hỗ trợ chuyên môn.
+- Theo dõi [X](https://x.com/nestframework) và [LinkedIn](https://linkedin.com/company/nestjs) để nhận thông tin cập nhật.
+- Xem [bảng việc làm](https://jobs.nestjs.com) để tìm hoặc đăng cơ hội việc làm.
 
-## Support
+## Hỗ trợ
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Nest là dự án mã nguồn mở theo giấy phép MIT và được duy trì nhờ các nhà tài trợ
+cùng cộng đồng hỗ trợ. Xem [thông tin hỗ trợ NestJS](https://docs.nestjs.com/support)
+để biết thêm chi tiết.
 
-## Stay in touch
+## Thông tin liên hệ
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
+- Tác giả - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
 - Website - [https://nestjs.com](https://nestjs.com/)
 - Twitter - [@nestframework](https://twitter.com/nestframework)
 
-## License
+## Giấy phép
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Nest sử dụng [giấy phép MIT](https://github.com/nestjs/nest/blob/master/LICENSE).
