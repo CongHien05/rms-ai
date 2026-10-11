@@ -5,15 +5,25 @@ import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module.js';
+import { EmployeeSkill } from './../src/employee-skills/employee-skill.entity.js';
+import { Employee } from './../src/employees/employee.entity.js';
 import { Project } from './../src/projects/project.entity.js';
+import { Skill } from './../src/skills/skill.entity.js';
 import { Sprint } from './../src/sprints/sprint.entity.js';
 import { Task } from './../src/tasks/task.entity.js';
 
-describe('Project foundation (e2e)', () => {
+function employeeSkillKey(employeeId: string, skillId: string): string {
+  return `${employeeId}:${skillId}`;
+}
+
+describe('Backend foundations (e2e)', () => {
   let app: INestApplication<App>;
   let projects: Map<string, Project>;
   let sprints: Map<string, Sprint>;
   let tasks: Map<string, Task>;
+  let employees: Map<string, Employee>;
+  let skills: Map<string, Skill>;
+  let employeeSkills: Map<string, EmployeeSkill>;
 
   beforeEach(async () => {
     process.env.DB_HOST = 'test-host';
@@ -25,6 +35,9 @@ describe('Project foundation (e2e)', () => {
     projects = new Map();
     sprints = new Map();
     tasks = new Map();
+    employees = new Map();
+    skills = new Map();
+    employeeSkills = new Map();
 
     const projectRepository = {
       create: vi.fn((input: Pick<Project, 'name'>) => ({
@@ -74,6 +87,62 @@ describe('Project foundation (e2e)', () => {
       ),
     };
 
+    const employeeRepository = {
+      create: vi.fn((input: Pick<Employee, 'displayName'>) => ({
+        id: randomUUID(),
+        ...input,
+      })),
+      save: vi.fn(async (employee: Employee) => {
+        employees.set(employee.id, employee);
+        return employee;
+      }),
+      find: vi.fn(async () => [...employees.values()]),
+      findOneBy: vi.fn(
+        async ({ id }: { id: string }) => employees.get(id) ?? null,
+      ),
+    };
+
+    const skillRepository = {
+      create: vi.fn((input: Pick<Skill, 'name'>) => ({
+        id: randomUUID(),
+        ...input,
+      })),
+      save: vi.fn(async (skill: Skill) => {
+        skills.set(skill.id, skill);
+        return skill;
+      }),
+      find: vi.fn(async () => [...skills.values()]),
+      findOneBy: vi.fn(
+        async ({ id }: { id: string }) => skills.get(id) ?? null,
+      ),
+    };
+
+    const employeeSkillRepository = {
+      create: vi.fn(
+        (input: Pick<EmployeeSkill, 'employeeId' | 'skillId'>) => input,
+      ),
+      save: vi.fn(async (employeeSkill: EmployeeSkill) => {
+        employeeSkills.set(
+          employeeSkillKey(employeeSkill.employeeId, employeeSkill.skillId),
+          employeeSkill,
+        );
+        return employeeSkill;
+      }),
+      findOneBy: vi.fn(
+        async ({ employeeId, skillId }: EmployeeSkill) =>
+          employeeSkills.get(employeeSkillKey(employeeId, skillId)) ?? null,
+      ),
+      find: vi.fn(
+        async ({ where: { employeeId } }: { where: { employeeId: string } }) =>
+          [...employeeSkills.values()]
+            .filter((relation) => relation.employeeId === employeeId)
+            .map((relation) => ({
+              ...relation,
+              skill: skills.get(relation.skillId) as Skill,
+            })),
+      ),
+    };
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
@@ -85,6 +154,12 @@ describe('Project foundation (e2e)', () => {
       .useValue(sprintRepository)
       .overrideProvider(getRepositoryToken(Task))
       .useValue(taskRepository)
+      .overrideProvider(getRepositoryToken(Employee))
+      .useValue(employeeRepository)
+      .overrideProvider(getRepositoryToken(Skill))
+      .useValue(skillRepository)
+      .overrideProvider(getRepositoryToken(EmployeeSkill))
+      .useValue(employeeSkillRepository)
       .compile();
 
     app = moduleFixture.createNestApplication();
@@ -177,6 +252,101 @@ describe('Project foundation (e2e)', () => {
       .post(`/sprints/${randomUUID()}/tasks`)
       .send({ title: 'Task 1' })
       .expect(404);
+  });
+
+  it('creates Employee and Skill, assigns the relation, and lists it', async () => {
+    const employeeResponse = await request(app.getHttpServer())
+      .post('/employees')
+      .send({ displayName: '  Nguyen Van An  ' })
+      .expect(201);
+    expect(employeeResponse.body).toMatchObject({
+      displayName: 'Nguyen Van An',
+    });
+
+    const skillResponse = await request(app.getHttpServer())
+      .post('/skills')
+      .send({ name: '  TypeScript  ' })
+      .expect(201);
+    expect(skillResponse.body).toMatchObject({ name: 'TypeScript' });
+
+    await request(app.getHttpServer())
+      .post(`/employees/${employeeResponse.body.id}/skills`)
+      .send({ skillId: skillResponse.body.id })
+      .expect(201)
+      .expect({
+        employeeId: employeeResponse.body.id,
+        skillId: skillResponse.body.id,
+      });
+
+    await request(app.getHttpServer())
+      .get('/employees')
+      .expect(200)
+      .expect([
+        {
+          id: employeeResponse.body.id,
+          displayName: 'Nguyen Van An',
+        },
+      ]);
+    await request(app.getHttpServer())
+      .get(`/employees/${employeeResponse.body.id}`)
+      .expect(200)
+      .expect({
+        id: employeeResponse.body.id,
+        displayName: 'Nguyen Van An',
+      });
+    await request(app.getHttpServer())
+      .get('/skills')
+      .expect(200)
+      .expect([{ id: skillResponse.body.id, name: 'TypeScript' }]);
+    await request(app.getHttpServer())
+      .get(`/skills/${skillResponse.body.id}`)
+      .expect(200)
+      .expect({ id: skillResponse.body.id, name: 'TypeScript' });
+    await request(app.getHttpServer())
+      .get(`/employees/${employeeResponse.body.id}/skills`)
+      .expect(200)
+      .expect([{ id: skillResponse.body.id, name: 'TypeScript' }]);
+  });
+
+  it('rejects invalid or missing EmployeeSkill relations and duplicates', async () => {
+    const employeeResponse = await request(app.getHttpServer())
+      .post('/employees')
+      .send({ displayName: 'Nguyen Van An' })
+      .expect(201);
+    const skillResponse = await request(app.getHttpServer())
+      .post('/skills')
+      .send({ name: 'TypeScript' })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post('/employees/not-a-uuid/skills')
+      .send({ skillId: skillResponse.body.id })
+      .expect(400);
+    await request(app.getHttpServer())
+      .post(`/employees/${employeeResponse.body.id}/skills`)
+      .send({ skillId: 'not-a-uuid' })
+      .expect(400);
+    await request(app.getHttpServer())
+      .post(`/employees/${randomUUID()}/skills`)
+      .send({ skillId: skillResponse.body.id })
+      .expect(404);
+    await request(app.getHttpServer())
+      .post(`/employees/${employeeResponse.body.id}/skills`)
+      .send({ skillId: randomUUID() })
+      .expect(404);
+
+    await request(app.getHttpServer())
+      .post(`/employees/${employeeResponse.body.id}/skills`)
+      .send({ skillId: skillResponse.body.id })
+      .expect(201);
+    await request(app.getHttpServer())
+      .post(`/employees/${employeeResponse.body.id}/skills`)
+      .send({ skillId: skillResponse.body.id })
+      .expect(409);
+    await request(app.getHttpServer())
+      .post(`/employees/${employeeResponse.body.id}/skills`)
+      .send({ skillId: skillResponse.body.id, level: 'senior' })
+      .expect(400);
   });
 
   afterEach(async () => {
