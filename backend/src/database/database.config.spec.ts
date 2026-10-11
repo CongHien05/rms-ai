@@ -1,10 +1,14 @@
+import { EmployeeSkill } from '../employee-skills/employee-skill.entity.js';
+import { Employee } from '../employees/employee.entity.js';
 import { Project } from '../projects/project.entity.js';
+import { Skill } from '../skills/skill.entity.js';
 import { Sprint } from '../sprints/sprint.entity.js';
 import { Task } from '../tasks/task.entity.js';
 import {
   createDataSourceOptions,
   createTypeOrmModuleOptions,
 } from './database.config.js';
+import { CreateEmployeeSkillFoundation1791123398274 } from './migrations/1791123398274-create-employee-skill-foundation.js';
 import { CreateProjectSprintTaskFoundation1791120736172 } from './migrations/1791120736172-create-project-sprint-task-foundation.js';
 
 describe('database configuration', () => {
@@ -33,8 +37,11 @@ describe('database configuration', () => {
       type: 'mysql',
       synchronize: false,
       migrationsRun: false,
-      entities: [Project, Sprint, Task],
-      migrations: [CreateProjectSprintTaskFoundation1791120736172],
+      entities: [Project, Sprint, Task, Employee, Skill, EmployeeSkill],
+      migrations: [
+        CreateProjectSprintTaskFoundation1791120736172,
+        CreateEmployeeSkillFoundation1791123398274,
+      ],
     });
     expect(moduleOptions).not.toHaveProperty('autoLoadEntities');
     expect(createDataSourceOptions()).toEqual(moduleOptions);

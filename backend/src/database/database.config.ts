@@ -1,8 +1,12 @@
 import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import type { DataSourceOptions } from 'typeorm';
+import { EmployeeSkill } from '../employee-skills/employee-skill.entity.js';
+import { Employee } from '../employees/employee.entity.js';
 import { Project } from '../projects/project.entity.js';
+import { Skill } from '../skills/skill.entity.js';
 import { Sprint } from '../sprints/sprint.entity.js';
 import { Task } from '../tasks/task.entity.js';
+import { CreateEmployeeSkillFoundation1791123398274 } from './migrations/1791123398274-create-employee-skill-foundation.js';
 import { CreateProjectSprintTaskFoundation1791120736172 } from './migrations/1791120736172-create-project-sprint-task-foundation.js';
 
 function readRequiredEnvironment(name: string): string {
@@ -34,8 +38,11 @@ function createBaseOptions() {
     username: readRequiredEnvironment('DB_USERNAME'),
     password: readRequiredEnvironment('DB_PASSWORD'),
     database: readRequiredEnvironment('DB_DATABASE'),
-    entities: [Project, Sprint, Task],
-    migrations: [CreateProjectSprintTaskFoundation1791120736172],
+    entities: [Project, Sprint, Task, Employee, Skill, EmployeeSkill],
+    migrations: [
+      CreateProjectSprintTaskFoundation1791120736172,
+      CreateEmployeeSkillFoundation1791123398274,
+    ],
     migrationsRun: false,
     synchronize: false,
   };
