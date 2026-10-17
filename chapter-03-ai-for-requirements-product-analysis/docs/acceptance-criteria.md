@@ -10,6 +10,7 @@ Tài liệu đi cùng [User Stories](user-stories.md), dựa trên [PRD v0.1](PR
 - Given / When / Then lần lượt diễn đạt điều kiện có trước / hành động hoặc sự kiện / kết quả quan sát được theo quy ước BDD.
 - Điều kiện dữ liệu đủ hoặc áp dụng được phép trong tình huống thành công không tự định nghĩa ràng buộc dữ liệu/phân bổ; xem TBD-01, TBD-04 và TBD-06.
 - Các tiêu chí dưới đây kiểm tra hành vi, không chứng minh độ chính xác mô hình hay khả năng giảm rủi ro thực tế. Không có ngưỡng, trọng số hoặc thiết kế kỹ thuật được chốt thêm.
+- Các tiêu chí cho DEV, PM và HR xác nhận capability ở mức sản phẩm sau khi danh tính/role được xác định; chúng không định nghĩa cơ chế xác thực, RBAC, API hoặc lược đồ User.
 
 ## AC-US-01 — Xem và hiểu rủi ro bàn giao dự án
 
@@ -315,6 +316,180 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 **Then:** Hệ thống không báo phương án đã được áp dụng thành công. Trạng thái phân bổ và cách phục hồi/thử lại vẫn TBD-07; không tự quy định rollback hoặc transaction.
 
+## AC-US-05 — HR duy trì dữ liệu nguồn lực cho RMS-AI
+
+### AC-US-05-01 — Xem dữ liệu Employee và Skill trong phạm vi RMS-AI — ĐÃ XÁC NHẬN
+
+**Liên quan:** US-05
+
+**Trạng thái:** ĐÃ XÁC NHẬN
+
+**Nguồn:** Quyết định sản phẩm ba vai trò; PRD — Người dùng mục tiêu — HR; Phạm vi MVP.
+
+**Given:** Danh tính và role HR đã được xác định, và RMS-AI có dữ liệu Employee, Skill hoặc Employee ↔ Skill.
+
+**When:** HR xem dữ liệu nguồn lực.
+
+**Then:** HR có thể xem dữ liệu Employee, Skill và các mối quan hệ Employee ↔ Skill thuộc phạm vi RMS-AI. Tiêu chí này không mở rộng dữ liệu sang payroll, attendance, leave, recruitment, performance review, rewards, contracts hoặc finance.
+
+### AC-US-05-02 — Duy trì Employee, Skill và quan hệ kỹ năng — ĐÃ XÁC NHẬN
+
+**Liên quan:** US-05
+
+**Trạng thái:** ĐÃ XÁC NHẬN
+
+**Nguồn:** Quyết định sản phẩm ba vai trò; PRD — Người dùng mục tiêu — HR; Phạm vi MVP.
+
+**Given:** Danh tính và role HR đã được xác định, capability duy trì dữ liệu tương ứng đã được cung cấp, và dữ liệu đáp ứng các điều kiện hợp lệ sẽ được chốt tại TBD-01.
+
+**When:** HR duy trì Employee, Skill hoặc mối quan hệ Employee ↔ Skill trong phạm vi RMS-AI.
+
+**Then:** Hệ thống phản ánh dữ liệu nguồn lực đã được duy trì để downstream Resource Recommendation có thể sử dụng khi năng lực đó được triển khai. Trường dữ liệu, lifecycle, cách kiểm tra hợp lệ, UI, API và lưu trữ vẫn là TBD; tiêu chí không xác nhận CRUD đầy đủ.
+
+### AC-US-05-03 — Thiếu dữ liệu được thể hiện trung thực — ĐÃ XÁC NHẬN
+
+**Liên quan:** US-05
+
+**Trạng thái:** ĐÃ XÁC NHẬN
+
+**Nguồn:** Quyết định sản phẩm ba vai trò — không bịa dữ liệu nguồn lực; TBD-01, TBD-03.
+
+**Given:** Một Employee thiếu Skill, quan hệ Employee ↔ Skill hoặc dữ liệu nguồn lực chưa được xác nhận.
+
+**When:** HR xem dữ liệu hoặc dữ liệu đó được chuẩn bị cho downstream Resource Recommendation.
+
+**Then:** Hệ thống thể hiện phần dữ liệu đang thiếu và không tự tạo Skill, quan hệ kỹ năng, availability, utilization, workload hoặc bench status. Hành vi downstream khi thiếu dữ liệu vẫn là TBD-01 và TBD-03.
+
+### AC-US-05-04 — HR không thay PM quyết định — ĐÃ XÁC NHẬN
+
+**Liên quan:** US-05, US-07
+
+**Trạng thái:** ĐÃ XÁC NHẬN
+
+**Nguồn:** Quyết định sản phẩm ba vai trò; PRD — PM là người quyết định cuối cùng.
+
+**Given:** Danh tính và role HR đã được xác định.
+
+**When:** HR sử dụng workspace của mình.
+
+**Then:** Chấp nhận hoặc Từ chối recommendation/simulation không được cung cấp như capability quyết định của HR; dữ liệu do HR duy trì không được xem là quyết định của PM.
+
+## AC-US-06 — DEV xem ngữ cảnh công việc của bản thân
+
+### AC-US-06-01 — Xem thông tin và Skills của chính DEV — ĐÃ XÁC NHẬN
+
+**Liên quan:** US-06
+
+**Trạng thái:** ĐÃ XÁC NHẬN
+
+**Nguồn:** Quyết định sản phẩm ba vai trò; PRD — Người dùng mục tiêu — DEV.
+
+**Given:** Danh tính và role DEV đã được xác định, và RMS-AI có thông tin cá nhân hoặc Skills liên quan tới DEV đó.
+
+**When:** DEV xem thông tin của mình.
+
+**Then:** DEV có thể xem thông tin cá nhân liên quan tới RMS-AI và bộ kỹ năng của chính mình. Tiêu chí không xác nhận quyền xem hồ sơ của DEV khác hoặc toàn bộ dữ liệu Employee.
+
+### AC-US-06-02 — Xem Project/Sprint/Task context khi tồn tại — ĐÃ XÁC NHẬN
+
+**Liên quan:** US-06
+
+**Trạng thái:** ĐÃ XÁC NHẬN
+
+**Nguồn:** Quyết định sản phẩm ba vai trò; PRD — Người dùng mục tiêu — DEV; Phạm vi MVP.
+
+**Given:** RMS-AI có Project/Sprint/Task context được cung cấp cho DEV đã xác định.
+
+**When:** DEV xem ngữ cảnh công việc của mình.
+
+**Then:** DEV có thể xem đúng Project/Sprint/Task context được cung cấp cho mình. Tiêu chí không mở rộng RMS-AI thành bộ quản lý dự án tổng quát.
+
+### AC-US-06-03 — Không có ngữ cảnh công việc — ĐÃ XÁC NHẬN
+
+**Liên quan:** US-06
+
+**Trạng thái:** ĐÃ XÁC NHẬN
+
+**Nguồn:** Quyết định sản phẩm ba vai trò — thể hiện trung thực dữ liệu không tồn tại.
+
+**Given:** Không có Project/Sprint/Task context được cung cấp cho DEV đã xác định.
+
+**When:** DEV xem ngữ cảnh công việc của mình.
+
+**Then:** Hệ thống thể hiện trạng thái không có dữ liệu phù hợp và không tự tạo Project, Sprint, Task hoặc assignment để lấp khoảng trống.
+
+### AC-US-06-04 — Write action của DEV — TBD
+
+**Liên quan:** US-06
+
+**Trạng thái:** TBD
+
+**Nguồn khoảng trống:** TBD-12.
+
+**Given:** DEV đang xem thông tin, Skills hoặc ngữ cảnh công việc của mình.
+
+**When:** DEV muốn sửa Skill, gửi tiến độ, thay đổi allocation hoặc tự nhận task.
+
+**Then:** TBD — các write action này chưa được xác nhận là capability của DEV; không dùng story xem dữ liệu để suy ra quyền ghi.
+
+### AC-US-06-05 — DEV không quyết định recommendation — ĐÃ XÁC NHẬN
+
+**Liên quan:** US-06, US-07
+
+**Trạng thái:** ĐÃ XÁC NHẬN
+
+**Nguồn:** Quyết định sản phẩm ba vai trò; PRD — PM là người quyết định cuối cùng.
+
+**Given:** Danh tính và role DEV đã được xác định.
+
+**When:** DEV sử dụng workspace của mình.
+
+**Then:** Chấp nhận hoặc Từ chối recommendation/simulation không được cung cấp như capability quyết định của DEV; việc DEV xem ngữ cảnh không được xem là quyết định của PM.
+
+## AC-US-07 — Truy cập workspace theo role
+
+### AC-US-07-01 — Capability phù hợp với role — ĐÃ XÁC NHẬN
+
+**Liên quan:** US-07
+
+**Trạng thái:** ĐÃ XÁC NHẬN
+
+**Nguồn:** Quyết định sản phẩm ba vai trò; PRD — Người dùng mục tiêu.
+
+**Given:** Danh tính người dùng và một role DEV, PM hoặc HR đã được xác định.
+
+**When:** Người dùng truy cập RMS-AI.
+
+**Then:** Sản phẩm trình bày workspace, điều hướng và capability phù hợp với role đã xác định: PM sử dụng luồng quyết định AI, HR duy trì dữ liệu nguồn lực trong phạm vi, và DEV xem ngữ cảnh của chính mình. Cách xác định danh tính/role và thực thi quyền vẫn là TBD-11.
+
+### AC-US-07-02 — PM giữ quyền quyết định cuối cùng — ĐÃ XÁC NHẬN
+
+**Liên quan:** US-04, US-07
+
+**Trạng thái:** ĐÃ XÁC NHẬN
+
+**Nguồn:** PRD — Tổng quan sản phẩm; quyết định sản phẩm ba vai trò.
+
+**Given:** Một recommendation hoặc phương án mô phỏng đang được xem xét.
+
+**When:** RMS-AI cung cấp capability quyết định Chấp nhận/Từ chối.
+
+**Then:** Capability quyết định thuộc về PM; HR và DEV không được thực hiện quyết định thay PM. AI, dữ liệu do HR duy trì và hành vi xem của DEV không được suy diễn thành sự chấp nhận.
+
+### AC-US-07-03 — Quan hệ User Account và Employee — TBD
+
+**Liên quan:** US-05, US-06, US-07
+
+**Trạng thái:** TBD
+
+**Nguồn khoảng trống:** TBD-11.
+
+**Given:** Một người dùng có role DEV, PM hoặc HR và có thể đồng thời là nhân viên của tổ chức.
+
+**When:** Hệ thống cần liên kết danh tính người dùng với dữ liệu Employee.
+
+**Then:** TBD — nhóm cần xác định quan hệ User Account ↔ Employee và quyền xem chi tiết; không mặc định hai khái niệm là một hoặc thiết kế schema trong Acceptance Criteria.
+
 ## Giới hạn nghiệm thu
 
-Mỗi story có tình huống thành công; các nhánh thiếu căn cứ được ghi rõ thay vì tự tạo quy tắc nghiệp vụ. Nguyên tắc thể hiện kết quả rỗng và không ép đưa ứng viên không phù hợp đã được người giao việc xác nhận; tiêu chí phù hợp vẫn TBD. Các tình huống TBD chưa có kết quả kỳ vọng hoàn chỉnh. Bốn mục tiêu người dùng và quyền quyết định của PM được mô tả nhất quán, nhưng còn cần nhóm chốt TBD trước khi nghiệm thu đầy đủ các nhánh tương ứng.
+Mỗi story có tình huống thành công; các nhánh thiếu căn cứ được ghi rõ thay vì tự tạo quy tắc nghiệp vụ. Nguyên tắc thể hiện kết quả rỗng, dữ liệu thiếu và không ép đưa ứng viên không phù hợp đã được xác nhận; tiêu chí phù hợp vẫn TBD. Các tình huống TBD chưa có kết quả kỳ vọng hoàn chỉnh. Bảy mục tiêu người dùng, ranh giới DEV/PM/HR và quyền quyết định của PM được mô tả nhất quán, nhưng còn cần nhóm chốt TBD trước khi nghiệm thu đầy đủ các nhánh tương ứng.
