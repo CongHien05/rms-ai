@@ -3,29 +3,27 @@ export function EmployeesView() {
     <section className="workspace-view" aria-labelledby="employees-view-title">
       <header className="page-heading">
         <div>
-          <p className="eyebrow">Nền tảng trình bày</p>
+          <p className="eyebrow">HR · Nền tảng dữ liệu</p>
           <h1 id="employees-view-title">Nhân sự</h1>
           <p className="page-description">
-            Khu vực chung cho dữ liệu nhân sự và kỹ năng phục vụ luồng hỗ trợ
-            quyết định.
+            Nền tảng Employee tối thiểu phục vụ RMS-AI.
           </p>
         </div>
         <p className="scope-note">Chưa kết nối dữ liệu</p>
       </header>
 
       <section className="empty-workspace" aria-labelledby="employees-empty-title">
-        <p className="section-index">01</p>
+        <p className="empty-workspace__mark" aria-hidden="true">—</p>
         <div>
           <h2 id="employees-empty-title">
             Chưa có dữ liệu nhân sự để hiển thị
           </h2>
           <p>
-            Employee và Skill đã có foundation ở backend; kết nối dữ liệu
-            frontend sẽ được thực hiện ở bước tích hợp.
+            Nền tảng Employee có ở Backend nhưng chưa kết nối vào giao diện.
+            Bản mẫu không tạo danh sách thay thế.
           </p>
           <p className="tbd-note">
-            Trường dữ liệu và cách trình bày nhân sự trong sản phẩm vẫn cần
-            được xác nhận.
+            Trường dữ liệu, vòng đời và cách duy trì Employee: TBD.
           </p>
         </div>
       </section>

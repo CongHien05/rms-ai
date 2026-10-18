@@ -13,11 +13,12 @@ không phải bằng chứng của công cụ dự báo AI, ghép nối nhân s�
 
 ## 3. Tài liệu hiện có
 
+- [Thiết kế không gian làm việc cho 3 vai trò RMS-AI](docs/three-role-workspace-ui-design.md)
 - [Thiết kế UI mô phỏng giả định và quyết định của PM](docs/what-if-simulation-ui-design.md)
 - [Thiết kế UI tổng quan vận hành](docs/operations-overview-ui-design.md)
 - [Thiết kế UI đánh giá rủi ro dự án](../chapter-03-ai-for-requirements-product-analysis/docs/pm-risk-ui-design.md)
 - [Thiết kế UI đề xuất nhân sự](../chapter-03-ai-for-requirements-product-analysis/docs/resource-recommendation-ui-design.md)
-- [Prompt thiết kế What-if Simulation](prompts/generate-simulation-ui.prompt.md)
+- [Prompt thiết kế mô phỏng giả định](prompts/generate-simulation-ui.prompt.md)
 - [Hướng dẫn Chapter 4](GUIDELINE.md)
 - [Bản mẫu Frontend](../frontend/README.md)
 
@@ -30,6 +31,8 @@ Hai tài liệu UI đầu tiên đã được tạo trước khi cấu trúc the
 - [x] Ghi nhận các trạng thái rỗng, không hợp lệ, đang tải và thiếu dữ liệu quan trọng.
 - [x] Truy vết các quyết định UI về PRD, User Stories và Acceptance Criteria.
 - [x] Xây dựng bản mẫu Frontend theo phạm vi thiết kế hiện tại.
+- [x] Bổ sung thiết kế và bản mẫu không gian làm việc PM, HR, DEV ở mức trình bày; xác
+  thực và phân quyền kỹ thuật vẫn là TBD.
 - [ ] Hoàn tất rà soát của con người cho toàn bộ `GIAO DIỆN ĐỀ XUẤT` và câu hỏi `TBD`.
 
 ## 5. Bằng chứng quy trình có AI hỗ trợ

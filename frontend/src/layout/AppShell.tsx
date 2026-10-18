@@ -1,6 +1,11 @@
 import type { ReactNode } from 'react'
 
-export type GlobalSection = 'overview' | 'projects' | 'employees' | 'risk'
+export type PrototypeRole = 'PM' | 'HR' | 'DEV'
+
+export type NavigationItem<Section extends string = string> = {
+  readonly label: string
+  readonly section: Section
+}
 
 export type DecisionFlowStep =
   | 'risk-detail'
@@ -8,22 +13,16 @@ export type DecisionFlowStep =
   | 'simulation'
   | 'decision'
 
-type AppShellProps = {
-  activeSection: GlobalSection
+type AppShellProps<Section extends string> = {
+  workspaceTitle: string
+  role: PrototypeRole
+  navigationItems: readonly NavigationItem<Section>[]
+  activeSection: Section
   contextualStep: DecisionFlowStep | null
   children: ReactNode
-  onNavigate: (section: GlobalSection) => void
+  onNavigate: (section: Section) => void
+  onExitRolePreview: () => void
 }
-
-const navigationItems: readonly {
-  label: string
-  section: GlobalSection
-}[] = [
-  { label: 'Tổng quan', section: 'overview' },
-  { label: 'Dự án', section: 'projects' },
-  { label: 'Nhân sự', section: 'employees' },
-  { label: 'Trung tâm rủi ro', section: 'risk' },
-]
 
 const decisionFlow: readonly {
   label: string
@@ -43,32 +42,45 @@ const contextualStepIndex: Record<DecisionFlowStep, number> = {
   decision: 4,
 }
 
-export function AppShell({
+export function AppShell<Section extends string>({
+  workspaceTitle,
+  role,
+  navigationItems,
   activeSection,
   contextualStep,
   children,
   onNavigate,
-}: AppShellProps) {
+  onExitRolePreview,
+}: AppShellProps<Section>) {
   const currentStepIndex = contextualStep
     ? contextualStepIndex[contextualStep]
     : null
+  const homeSection = navigationItems[0]?.section
 
   return (
     <div className="app-shell">
-      <header className="app-header">
-        <div className="app-header__inner">
+      <aside className="app-sidebar">
+        <div>
           <button
             type="button"
             className="brand"
-            onClick={() => onNavigate('overview')}
-            aria-label="Mở tổng quan RMS-AI"
+            onClick={() => homeSection && onNavigate(homeSection)}
+            aria-label={`Mở trang đầu ${workspaceTitle}`}
           >
             <strong>RMS-AI</strong>
-            <span>Hỗ trợ quyết định nguồn lực</span>
+            <span>Hỗ trợ quyết định</span>
           </button>
 
-          <nav className="app-nav" aria-label="Điều hướng chính">
-            {navigationItems.map((item) => {
+          <div
+            className="workspace-identity"
+            aria-label="Không gian làm việc hiện tại"
+          >
+            <span className="workspace-identity__role">{role}</span>
+            <span>{workspaceTitle}</span>
+          </div>
+
+          <nav className="app-nav" aria-label={`Điều hướng ${workspaceTitle}`}>
+            {navigationItems.map((item, index) => {
               const isActive = item.section === activeSection
 
               return (
@@ -81,37 +93,50 @@ export function AppShell({
                   onClick={() => onNavigate(item.section)}
                   key={item.section}
                 >
+                  <span aria-hidden="true">0{index + 1}</span>
                   {item.label}
                 </button>
               )
             })}
           </nav>
         </div>
-      </header>
 
-      {currentStepIndex !== null && (
-        <nav className="context-flow" aria-label="Luồng quyết định hiện tại">
-          <ol>
-            {decisionFlow.map((item, index) => (
-              <li
-                className={
-                  index === currentStepIndex
-                    ? 'context-flow__current'
-                    : index < currentStepIndex
-                      ? 'context-flow__past'
-                      : undefined
-                }
-                aria-current={index === currentStepIndex ? 'step' : undefined}
-                key={item.step}
-              >
-                {item.label}
-              </li>
-            ))}
-          </ol>
-        </nav>
-      )}
+        <button
+          type="button"
+          className="role-preview-exit"
+          onClick={onExitRolePreview}
+        >
+          <span aria-hidden="true">←</span>
+          Đổi vai trò bản mẫu
+        </button>
+      </aside>
 
-      <main className="app-main">{children}</main>
+      <div className="app-workspace">
+        {currentStepIndex !== null && (
+          <nav className="context-flow" aria-label="Luồng quyết định hiện tại">
+            <ol>
+              {decisionFlow.map((item, index) => (
+                <li
+                  className={
+                    index === currentStepIndex
+                      ? 'context-flow__current'
+                      : index < currentStepIndex
+                        ? 'context-flow__past'
+                        : undefined
+                  }
+                  aria-current={index === currentStepIndex ? 'step' : undefined}
+                  key={item.step}
+                >
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  {item.label}
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )}
+
+        <main className="app-main">{children}</main>
+      </div>
     </div>
   )
 }

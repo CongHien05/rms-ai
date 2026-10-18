@@ -39,10 +39,10 @@ export function WhatIfSimulationView({
 
       <header className="page-heading">
         <div>
-          <p className="eyebrow">Luồng quyết định · Mô phỏng</p>
-          <h1 id="what-if-title">Mô phỏng giả định</h1>
+          <p className="eyebrow">{project.name} · Bước mô phỏng</p>
+          <h1 id="what-if-title">Mô phỏng và quyết định</h1>
           <p className="page-description">
-            Xem tác động dự kiến của một phương án minh họa cho {project.name}.
+            Xem tác động dự kiến trước khi PM ghi nhận quyết định.
           </p>
         </div>
         <p className="scope-note scope-note--guardrail">
@@ -53,30 +53,31 @@ export function WhatIfSimulationView({
       <section className="scenario-panel" aria-labelledby="scenario-title">
         <p className="section-index">01</p>
         <div>
-          <h2 id="scenario-title">Phương án đang xem xét</h2>
+          <h2 id="scenario-title">Đề xuất / phương án đang xem</h2>
           <p>
-            <strong>{candidate.displayLabel}</strong> chỉ là ngữ cảnh minh họa
-            để trình bày luồng mô phỏng.
+            <strong>{candidate.displayLabel}</strong> là ngữ cảnh minh họa cho
+            luồng mô phỏng.
           </p>
           <p className="tbd-note">
-            Cấu trúc phương án phân bổ thật và cách hình thành phương án: Chưa
-            xác định. Đây chưa phải là phân bổ thật.
+            Cấu trúc và cách hình thành phương án: TBD. Đây chưa phải phân bổ
+            thật.
           </p>
         </div>
       </section>
 
-      <div className="simulation-guardrail" role="note">
-        Đây là mô phỏng. Chạy mô phỏng không thay đổi dữ liệu phân bổ thật.
+      <div className="simulation-runner">
+        <div className="simulation-guardrail" role="note">
+          Mô phỏng không thay đổi dữ liệu phân bổ thật.
+        </div>
+        <button
+          type="button"
+          className="button button--primary simulation-action"
+          onClick={handleRunSimulation}
+          disabled={hasResult}
+        >
+          {hasResult ? 'Đã chạy mô phỏng' : 'Chạy mô phỏng'}
+        </button>
       </div>
-
-      <button
-        type="button"
-        className="button button--primary simulation-action"
-        onClick={handleRunSimulation}
-        disabled={hasResult}
-      >
-        {hasResult ? 'Đã chạy mô phỏng' : 'Chạy mô phỏng'}
-      </button>
 
       {hasResult && (
         <>
@@ -85,8 +86,7 @@ export function WhatIfSimulationView({
             <div>
               <h2 id="impact-title">Tác động dự kiến</h2>
               <p className="tbd-note">
-                Kết quả áp dụng cho phương án minh họa đang xem xét. Chỉ báo
-                tác động và mốc so sánh: Chưa xác định.
+                Chỉ báo tác động và mốc so sánh: TBD.
               </p>
               <div className="impact-layout">
                 <div>
@@ -98,9 +98,7 @@ export function WhatIfSimulationView({
                   <p>[Cách biểu diễn: Chưa xác định]</p>
                 </div>
               </div>
-              <p className="simulation-guardrail">
-                Kết quả mô phỏng chưa thay đổi phân bổ thật.
-              </p>
+              <p className="simulation-guardrail">Phân bổ thật chưa thay đổi.</p>
             </div>
           </section>
 
@@ -109,8 +107,7 @@ export function WhatIfSimulationView({
             <div>
               <h2 id="decision-title">Quyết định của PM</h2>
               <p>
-                Ghi nhận quyết định đối với phương án minh họa sau khi xem tác
-                động dự kiến.
+                Ghi nhận lựa chọn sau khi xem tác động dự kiến.
               </p>
               <div className="decision-actions">
                 <button
