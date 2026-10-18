@@ -25,11 +25,10 @@ export function ResourceRecommendationView({
 
       <header className="page-heading">
         <div>
-          <p className="eyebrow">Luồng quyết định · Đề xuất</p>
+          <p className="eyebrow">{project.name} · Bước đề xuất</p>
           <h1 id="recommendation-title">Đề xuất nhân sự</h1>
           <p className="page-description">
-            Xem các ứng viên được đề xuất cho {project.name} và lý do phù hợp ở
-            mức cơ bản.
+            Ứng viên được đề xuất và lý do phù hợp ở mức cơ bản.
           </p>
         </div>
         <p className="scope-note">Dữ liệu minh họa</p>
@@ -47,9 +46,7 @@ export function ResourceRecommendationView({
             Hệ thống không đưa ứng viên không phù hợp vào danh sách chỉ để có
             kết quả.
           </p>
-          <p className="tbd-note">
-            Tiêu chí phù hợp và hành động tiếp theo: Chưa xác định.
-          </p>
+          <p className="tbd-note">Tiêu chí phù hợp và bước tiếp theo: TBD.</p>
         </div>
       )}
     </section>
@@ -69,11 +66,11 @@ function RecommendationList({
     <section aria-labelledby="candidate-list-title">
       <div className="section-heading">
         <div>
-          <p className="section-index">01</p>
+          <p className="section-index">Ứng viên</p>
           <h2 id="candidate-list-title">Danh sách ứng viên có thứ hạng</h2>
         </div>
         <p className="tbd-note">
-          Quy tắc xếp hạng và số lượng ứng viên: Chưa xác định.
+          Quy tắc xếp hạng và số lượng: TBD.
         </p>
       </div>
 
@@ -89,8 +86,7 @@ function RecommendationList({
                 {candidate.explanation}
               </p>
               <p className="tbd-note">
-                Thông tin nhận diện ứng viên và cấu trúc phương án phân bổ:
-                Chưa xác định.
+                Nhận diện ứng viên và cấu trúc phân bổ: TBD.
               </p>
             </div>
             <button

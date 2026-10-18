@@ -21,11 +21,10 @@ export function ProjectRiskDetail({
 
       <header className="page-heading page-heading--detail">
         <div>
-          <p className="eyebrow">Trung tâm rủi ro · Chi tiết</p>
+          <p className="eyebrow">Chi tiết rủi ro</p>
           <h1 id="risk-detail-title">{project.name}</h1>
           <p className="page-description">
-            Xem đánh giá hiện tại và các yếu tố giải thích trước khi cân nhắc
-            can thiệp nguồn lực.
+            Đánh giá và các yếu tố giải thích trước khi cân nhắc nguồn lực.
           </p>
         </div>
         <p className="scope-note">Dữ liệu minh họa</p>
@@ -40,21 +39,17 @@ export function ProjectRiskDetail({
               <div className="assessment-result">
                 <strong>{project.assessmentText}</strong>
                 <p>
-                  Cách biểu diễn cuối cùng, thang đo, ngưỡng và cách phân loại
-                  chưa được xác định.
+                  Thang đo, ngưỡng và cách phân loại: TBD.
                 </p>
               </div>
             ) : (
               <div className="unavailable-state" role="status">
                 <h3>{project.assessmentText}</h3>
                 <p>
-                  Hiện chưa đủ căn cứ để trình bày một kết quả đánh giá đáng tin
-                  cậy. Không được diễn giải trạng thái này là dự án đang an
-                  toàn.
+                  Chưa đủ căn cứ cho kết quả đáng tin cậy. Trạng thái này không
+                  có nghĩa dự án an toàn.
                 </p>
-                <p className="tbd-note">
-                  Dữ liệu tối thiểu và hành vi tiếp theo: Chưa xác định.
-                </p>
+                <p className="tbd-note">Dữ liệu tối thiểu và bước tiếp theo: TBD.</p>
               </div>
             )}
           </div>
@@ -72,8 +67,7 @@ export function ProjectRiskDetail({
                   ))}
                 </ul>
                 <p className="tbd-note">
-                  Định nghĩa, thứ tự, mức đóng góp và ý nghĩa nhân quả của các
-                  yếu tố: Chưa xác định.
+                  Thứ tự, mức đóng góp và ý nghĩa nhân quả: TBD.
                 </p>
               </>
             ) : (
@@ -88,12 +82,9 @@ export function ProjectRiskDetail({
 
       <section className="handoff" aria-labelledby="handoff-title">
         <div>
-          <p className="eyebrow">Bước tiếp theo trong MVP</p>
+          <p className="eyebrow">Bước tiếp theo</p>
           <h2 id="handoff-title">Đề xuất nhân sự</h2>
-          <p>
-            Mở danh sách đề xuất cho dự án đang xem xét. Điều kiện sử dụng thao
-            tác chưa được xác định.
-          </p>
+          <p>Mở đề xuất trong đúng ngữ cảnh dự án. Điều kiện sử dụng: TBD.</p>
         </div>
         <button
           type="button"

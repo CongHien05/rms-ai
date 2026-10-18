@@ -19,15 +19,18 @@ export function OperationsOverview({
     <section className="operations-overview" aria-labelledby="operations-title">
       <header className="page-heading operations-heading">
         <div>
-          <p className="eyebrow">Giao diện đề xuất · Dữ liệu minh họa</p>
+          <p className="eyebrow">PM · Dữ liệu minh họa</p>
           <h1 id="operations-title">Tổng quan vận hành</h1>
+          <p className="page-description">
+            Điểm vào cho dự án, rủi ro và luồng hỗ trợ quyết định.
+          </p>
         </div>
         <button
           type="button"
           className="button button--secondary"
           onClick={onOpenRiskOverview}
         >
-          Xem tất cả đánh giá
+          Mở trung tâm rủi ro
         </button>
       </header>
 
@@ -43,9 +46,7 @@ export function OperationsOverview({
           >
             {featuredProject.assessmentText}
           </p>
-          <p className="tbd-note">
-            Lý do, mức độ ưu tiên và quy tắc chọn dự án: Chưa xác định.
-          </p>
+          <p className="tbd-note">Quy tắc chọn dự án ưu tiên: TBD.</p>
           <button
             type="button"
             className="button button--primary"
@@ -55,14 +56,27 @@ export function OperationsOverview({
           </button>
         </section>
 
-        <section className="operations-panel" aria-labelledby="activity-title">
+        <section className="operations-panel operations-panel--status" aria-labelledby="activity-title">
           <p className="panel-label">Hoạt động gần đây</p>
-          <h2 id="activity-title">Chưa có hoạt động minh họa</h2>
-          <p className="activity-empty">
-            Nguồn dữ liệu và phạm vi hoạt động cần hiển thị đang để TBD.
-          </p>
+          <h2 id="activity-title">Chưa có dữ liệu</h2>
+          <p className="activity-empty">Nguồn và phạm vi hoạt động: TBD.</p>
         </section>
       </div>
+
+      <section className="workflow-overview" aria-labelledby="workflow-title">
+        <div className="workflow-overview__heading">
+          <p className="section-index">Luồng hỗ trợ quyết định</p>
+          <h2 id="workflow-title">Từ tín hiệu rủi ro đến quyết định của PM</h2>
+        </div>
+        <ol className="workflow-overview__stages">
+          {workflowStages.map((stage, index) => (
+            <li key={stage}>
+              <span className="workflow-overview__number">0{index + 1}</span>
+              <strong>{stage}</strong>
+            </li>
+          ))}
+        </ol>
+      </section>
 
       <section className="project-directory" aria-labelledby="projects-title">
         <div className="section-heading project-directory__heading">
@@ -70,7 +84,7 @@ export function OperationsOverview({
             <p className="section-index">Danh mục</p>
             <h2 id="projects-title">Dự án</h2>
           </div>
-          <p className="tbd-note">Quy tắc hiển thị và thứ tự: Chưa xác định.</p>
+          <p className="tbd-note">Thứ tự hiển thị: TBD.</p>
         </div>
 
         <ul className="project-directory__list">
@@ -82,28 +96,11 @@ export function OperationsOverview({
                 onClick={() => onSelectProject(project.id)}
               >
                 <span>{project.name}</span>
-                <span className="project-directory__action">Xem dự án</span>
+                <span className="project-directory__action">Xem dự án <span aria-hidden="true">→</span></span>
               </button>
             </li>
           ))}
         </ul>
-      </section>
-
-      <section className="workflow-overview" aria-labelledby="workflow-title">
-        <div className="workflow-overview__heading">
-          <p className="section-index">Luồng MVP</p>
-          <h2 id="workflow-title" className="visually-hidden">
-            Luồng hỗ trợ quyết định RMS-AI
-          </h2>
-        </div>
-        <ol className="workflow-overview__stages">
-          {workflowStages.map((stage, index) => (
-            <li key={stage}>
-              <span className="workflow-overview__number">0{index + 1}</span>
-              <strong>{stage}</strong>
-            </li>
-          ))}
-        </ol>
       </section>
     </section>
   )
