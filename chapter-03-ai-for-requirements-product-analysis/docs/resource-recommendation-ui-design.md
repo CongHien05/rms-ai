@@ -99,15 +99,15 @@ phỏng chưa tồn tại vào màn hình.
 +----------------------------------------------------------------------------+
 | DANH SÁCH ỨNG VIÊN CÓ THỨ HẠNG                                             |
 |                                                                            |
-| 1. Ứng viên A [Minh họa]                                                   |
+| 1. Ứng viên A [Minh họa — chưa phải phương án phân bổ hoàn chỉnh]          |
 |    Thông tin nhận diện: [Chưa xác định]                                    |
 |    Giải thích mức độ phù hợp: [Nội dung minh họa]                          |
-|    [Thử phương án — cách hình thành phương án: Chưa xác định]              |
+|    [Dùng làm ngữ cảnh mô phỏng — cấu trúc phương án: Chưa xác định]         |
 |                                                                            |
-| 2. Ứng viên B [Minh họa]                                                   |
+| 2. Ứng viên B [Minh họa — chưa phải phương án phân bổ hoàn chỉnh]          |
 |    Thông tin nhận diện: [Chưa xác định]                                    |
 |    Giải thích mức độ phù hợp: [Nội dung minh họa]                          |
-|    [Thử phương án — cách hình thành phương án: Chưa xác định]              |
+|    [Dùng làm ngữ cảnh mô phỏng — cấu trúc phương án: Chưa xác định]         |
 +----------------------------------------------------------------------------+
 | Không hiển thị phần trăm phù hợp, điểm số hoặc độ tin cậy của AI khi chưa   |
 | được xác nhận.                                                             |
@@ -122,7 +122,7 @@ phỏng chưa tồn tại vào màn hình.
 | Nhận diện ứng viên | Cách phân biệt và các trường hiển thị chưa được yêu cầu xác nhận | TBD |
 | Giải thích mức độ phù hợp | Trả lời vì sao ứng viên được đề xuất ở mức cơ bản | ĐÃ XÁC NHẬN; nội dung/định dạng TBD |
 | Kỹ năng, mức độ sẵn sàng, khối lượng công việc | Có thể hỗ trợ giải thích nhưng chưa được xác nhận là trường độc lập | TBD |
-| Thử phương án | Nối ứng viên/phương án sang mô phỏng; vị trí hành động và cách ứng viên trở thành phương án chưa được chốt | TBD |
+| Dùng làm ngữ cảnh mô phỏng | Chuyển candidate ID làm ngữ cảnh minh họa cho prototype; ứng viên không phải phương án phân bổ hoàn chỉnh hoặc đã được xác thực | GIAO DIỆN ĐỀ XUẤT / TBD |
 
 ### Trạng thái không có ứng viên phù hợp
 
@@ -285,6 +285,10 @@ thử lại vẫn là **TBD**.
 
 Thiết kế không yêu cầu router. Hai màn hình có thể là các trạng thái liên tiếp
 trong khung ứng dụng hiện tại; lựa chọn kỹ thuật thuộc lượt triển khai sau.
+
+Trong prototype hiện tại, `candidateId` chỉ giúp giữ đúng ngữ cảnh minh họa khi
+chuyển màn hình. Nó không phải allocation payload, không chứng minh phương án
+đã đầy đủ và không xác nhận availability, workload, duration hoặc utilization.
 
 ## 10. TBD / Câu hỏi mở
 

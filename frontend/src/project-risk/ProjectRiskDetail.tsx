@@ -84,14 +84,21 @@ export function ProjectRiskDetail({
         <div>
           <p className="eyebrow">Bước tiếp theo</p>
           <h2 id="handoff-title">Đề xuất nhân sự</h2>
-          <p>Mở đề xuất trong đúng ngữ cảnh dự án. Điều kiện sử dụng: TBD.</p>
+          <p id="recommendation-transition-note">
+            {hasAssessment
+              ? 'Mở đề xuất trong đúng ngữ cảnh dự án. Điều kiện sử dụng: TBD.'
+              : 'Điều hướng này chỉ phục vụ rà soát prototype. Khi không thể đánh giá rủi ro, yêu cầu chưa xác nhận việc cho phép hoặc khóa bước đề xuất.'}
+          </p>
         </div>
         <button
           type="button"
           className="button button--primary"
           onClick={onRequestRecommendation}
+          aria-describedby="recommendation-transition-note"
         >
-          Yêu cầu đề xuất nhân sự
+          {hasAssessment
+            ? 'Yêu cầu đề xuất nhân sự'
+            : 'Mở bước đề xuất trong bản mẫu'}
         </button>
       </section>
     </section>

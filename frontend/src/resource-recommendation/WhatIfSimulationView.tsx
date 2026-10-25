@@ -39,10 +39,13 @@ export function WhatIfSimulationView({
 
       <header className="page-heading">
         <div>
-          <p className="eyebrow">{project.name} · Bước mô phỏng</p>
+          <p className="eyebrow">
+            {project.name} · Bản mẫu trạng thái mô phỏng
+          </p>
           <h1 id="what-if-title">Mô phỏng và quyết định</h1>
           <p className="page-description">
-            Xem tác động dự kiến trước khi PM ghi nhận quyết định.
+            Rà soát cách trình bày tác động trước khi PM ghi nhận quyết định;
+            đây không phải kết quả từ simulation engine.
           </p>
         </div>
         <p className="scope-note scope-note--guardrail">
@@ -56,7 +59,8 @@ export function WhatIfSimulationView({
           <h2 id="scenario-title">Đề xuất / phương án đang xem</h2>
           <p>
             <strong>{candidate.displayLabel}</strong> là ngữ cảnh minh họa cho
-            luồng mô phỏng.
+            luồng mô phỏng, không phải phương án phân bổ hoàn chỉnh hoặc đã
+            được xác thực.
           </p>
           <p className="tbd-note">
             Cấu trúc và cách hình thành phương án: TBD. Đây chưa phải phân bổ
@@ -66,16 +70,25 @@ export function WhatIfSimulationView({
       </section>
 
       <div className="simulation-runner">
-        <div className="simulation-guardrail" role="note">
-          Mô phỏng không thay đổi dữ liệu phân bổ thật.
+        <div
+          id="simulation-prototype-note"
+          className="simulation-guardrail"
+          role="note"
+        >
+          Prototype chỉ chuyển trạng thái cục bộ từ sẵn sàng sang kết quả minh
+          họa. Loading, thiếu dữ liệu và thất bại chưa có tương tác; mô phỏng
+          không thay đổi dữ liệu phân bổ thật.
         </div>
         <button
           type="button"
           className="button button--primary simulation-action"
           onClick={handleRunSimulation}
           disabled={hasResult}
+          aria-describedby="simulation-prototype-note"
         >
-          {hasResult ? 'Đã chạy mô phỏng' : 'Chạy mô phỏng'}
+          {hasResult
+            ? 'Đã hiển thị kết quả minh họa'
+            : 'Hiển thị kết quả minh họa'}
         </button>
       </div>
 
@@ -84,8 +97,9 @@ export function WhatIfSimulationView({
           <section className="impact-section" aria-labelledby="impact-title">
             <p className="section-index">02</p>
             <div>
-              <h2 id="impact-title">Tác động dự kiến</h2>
+              <h2 id="impact-title">Khung tác động dự kiến</h2>
               <p className="tbd-note">
+                Nội dung dưới đây là placeholder UI, không phải đầu ra AI.
                 Chỉ báo tác động và mốc so sánh: TBD.
               </p>
               <div className="impact-layout">

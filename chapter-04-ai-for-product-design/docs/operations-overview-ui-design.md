@@ -19,8 +19,8 @@ RMS-AI
 Tổng quan vận hành
 ────────────────────────────────────
 
-Dự án cần chú ý                 Hoạt động gần đây
-Dự án Alpha                     [Trạng thái rỗng / TBD]
+Dự án minh họa để rà soát       Hoạt động gần đây — chưa kết nối
+Dự án Alpha [Dữ liệu minh họa]  [Không có dữ liệu vận hành / TBD]
 Chưa thể đánh giá rủi ro
 [Xem đánh giá]
 
@@ -51,16 +51,19 @@ Rủi ro → Đề xuất → Mô phỏng → Quyết định
 ## 4. Quyết định ở mức bản mẫu
 
 - `Dự án Alpha`, `Dự án A`, `Dự án B` và `Dự án C` là nhãn minh họa.
-- Trạng thái dự án nổi bật được lấy từ dữ liệu trình bày hiện có; không
+- Trạng thái dự án nổi bật được lấy từ dữ liệu minh họa hiện có chỉ để rà soát
+  bố cục; đây không phải dự án được ưu tiên bởi dữ liệu vận hành. Không
   hard-code mức rủi ro hoặc điểm rủi ro.
 - Quy tắc chọn dự án cần chú ý và thứ tự danh sách chưa được triển khai thành
   quy tắc nghiệp vụ; các nội dung này vẫn là TBD.
-- Hoạt động gần đây chủ động dùng trạng thái rỗng vì yêu cầu chưa định nghĩa sự
-  kiện hoặc cơ chế theo dõi hoạt động.
+- Hoạt động gần đây chủ động ghi `Chưa kết nối` và `Không có dữ liệu vận hành`
+  vì yêu cầu chưa định nghĩa sự kiện hoặc cơ chế theo dõi hoạt động. Bản mẫu
+  không tạo activity log giả.
 - Dải luồng chỉ có mục đích định hướng. Đề xuất, Mô phỏng và Quyết định phụ
   thuộc ngữ cảnh dự án nên không được đưa thành điều hướng toàn cục.
-- Điều hướng toàn cục gồm Tổng quan, Dự án, Nhân sự và Trung tâm rủi ro. Đây là
-  kiến trúc thông tin cho bản mẫu, không xác nhận vai trò, RBAC hoặc
+- Điều hướng toàn cục của PM gồm Tổng quan, Dự án và Trung tâm rủi ro. Dữ liệu
+  Employee/Skill thuộc không gian làm việc HR theo US-05 và thiết kế ba vai trò
+  hiện tại. Đây là kiến trúc thông tin của bản mẫu, không xác nhận RBAC hoặc
   quyền truy cập production.
 - Không suy diễn mức đánh giá, điểm số, ngưỡng, quy tắc phân bổ hoặc mức
   ưu tiên từ màn hình này.

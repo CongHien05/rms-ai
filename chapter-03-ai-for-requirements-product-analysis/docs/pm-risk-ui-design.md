@@ -153,6 +153,12 @@ cứ như một kết quả chính xác. Dữ liệu tối thiểu, lý do cụ 
 liệu lỗi thời, hành vi thử lại và hành vi Backend đều là **TBD**. Thiếu dữ liệu
 không được ngầm hiểu là rủi ro thấp.
 
+**GIAO DIỆN ĐỀ XUẤT — C4-HDR-005:** nếu prototype vẫn cho phép người review mở
+bước Đề xuất nhân sự từ trạng thái này, nhãn và mô tả phải nói rõ đây chỉ là
+điều hướng bản mẫu. Việc yêu cầu nghiệp vụ cho phép hay khóa bước đề xuất khi
+không thể đánh giá rủi ro vẫn là **TBD**; trạng thái enabled/disabled trong
+prototype không được dùng làm quyết định nghiệp vụ.
+
 ## 7. Chuyển sang Đề xuất nhân sự
 
 Điểm kết thúc phần Hiền là hành động **Yêu cầu đề xuất nhân sự** trên màn hình
@@ -161,6 +167,10 @@ Chi tiết rủi ro dự án.
 Ngữ cảnh tối thiểu ở góc nhìn luồng là **dự án hiện đang được PM xem xét**. Tài
 liệu không định nghĩa payload JSON, tham số API, hợp đồng dữ liệu hoặc điều kiện
 kỹ thuật để chuyển màn hình.
+
+Điều kiện khả dụng của hành động khi đánh giá rủi ro không tồn tại vẫn là TBD.
+Prototype có thể cung cấp điều hướng phục vụ review nếu ghi rõ điều này không
+xác nhận quyền tiếp tục trong sản phẩm production.
 
 Phần tiếp theo — Đề xuất nhân sự, Mô phỏng giả định, xem tác động và Chấp
 nhận/Từ chối — thuộc phạm vi của Khánh.

@@ -86,7 +86,8 @@ function RecommendationList({
                 {candidate.explanation}
               </p>
               <p className="tbd-note">
-                Nhận diện ứng viên và cấu trúc phân bổ: TBD.
+                Ứng viên chỉ là ngữ cảnh minh họa, không phải phương án phân bổ
+                hoàn chỉnh. Nhận diện ứng viên và cấu trúc phương án: TBD.
               </p>
             </div>
             <button
@@ -94,7 +95,7 @@ function RecommendationList({
               className="button button--secondary"
               onClick={() => onTryCandidate(candidate.id)}
             >
-              Thử phương án minh họa
+              Dùng làm ngữ cảnh mô phỏng
             </button>
           </li>
         ))}

@@ -158,6 +158,24 @@ Việc chạy, xem hoặc mô phỏng thất bại không thay đổi phân bổ
 Timeout, hủy, chính sách thử lại và việc PM có thể tiếp tục đến bước quyết định
 sau khi mô phỏng thất bại hay không đều là **TBD**.
 
+### Trạng thái của prototype tại C4-HDR-010
+
+Rà soát mã nguồn tại baseline `1fa4d47` cho thấy prototype chỉ có hai trạng thái
+cục bộ có thể quan sát bằng thao tác: chưa hiển thị kết quả và đã trình bày
+placeholder kết quả. Hành động này không gọi API hoặc simulation engine.
+
+| Trạng thái thiết kế | Có trong tài liệu | Có trong prototype tương tác | Diễn giải |
+| --- | --- | --- | --- |
+| Ready | Có | Có, ở dạng trạng thái ban đầu cục bộ | Không chứng minh phương án hợp lệ theo business rule |
+| Loading | Có | Không | Chưa có thời gian chờ hoặc Backend để quan sát |
+| Success | Có | Chỉ có placeholder trình bày | Không phải kết quả AI hoặc simulation production |
+| Missing data | Có | Không | Quy tắc dữ liệu tối thiểu vẫn TBD-01 |
+| Failure | Có | Không | Retry/recovery vẫn TBD-07 |
+
+Microcopy của prototype phải gọi hành động là hiển thị kết quả minh họa, ghi rõ
+loading/missing/failure chưa có tương tác và không tuyên bố mô phỏng thật đã
+thành công. C4-HDR-010 tiếp tục `Pending / Awaiting re-review`.
+
 ## 8. Rà soát tác động
 
 ### Mục tiêu của PM

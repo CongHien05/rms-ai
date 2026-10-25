@@ -19,7 +19,7 @@ export function OperationsOverview({
     <section className="operations-overview" aria-labelledby="operations-title">
       <header className="page-heading operations-heading">
         <div>
-          <p className="eyebrow">PM · Dữ liệu minh họa</p>
+          <p className="eyebrow">PM · Bản mẫu giao diện · Dữ liệu minh họa</p>
           <h1 id="operations-title">Tổng quan vận hành</h1>
           <p className="page-description">
             Điểm vào cho dự án, rủi ro và luồng hỗ trợ quyết định.
@@ -39,14 +39,16 @@ export function OperationsOverview({
           className="operations-panel operations-panel--attention"
           aria-labelledby="attention-title"
         >
-          <p className="panel-label">Dự án cần chú ý</p>
+          <p className="panel-label">Dự án minh họa để rà soát</p>
           <h2 id="attention-title">{featuredProject.name}</h2>
           <p
             className={`attention-status attention-status--${featuredProject.assessmentState}`}
           >
             {featuredProject.assessmentText}
           </p>
-          <p className="tbd-note">Quy tắc chọn dự án ưu tiên: TBD.</p>
+          <p className="tbd-note">
+            Đây không phải ưu tiên vận hành. Quy tắc chọn dự án cần chú ý: TBD.
+          </p>
           <button
             type="button"
             className="button button--primary"
@@ -57,9 +59,11 @@ export function OperationsOverview({
         </section>
 
         <section className="operations-panel operations-panel--status" aria-labelledby="activity-title">
-          <p className="panel-label">Hoạt động gần đây</p>
-          <h2 id="activity-title">Chưa có dữ liệu</h2>
-          <p className="activity-empty">Nguồn và phạm vi hoạt động: TBD.</p>
+          <p className="panel-label">Hoạt động gần đây · Chưa kết nối</p>
+          <h2 id="activity-title">Không có dữ liệu vận hành</h2>
+          <p className="activity-empty">
+            Bản mẫu không ghi nhận sự kiện thật. Nguồn và phạm vi hoạt động: TBD.
+          </p>
         </section>
       </div>
 
