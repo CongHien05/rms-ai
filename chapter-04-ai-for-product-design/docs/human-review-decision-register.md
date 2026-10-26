@@ -23,9 +23,10 @@ thông tin còn thiếu.
 
 | Trường | Giá trị |
 | --- | --- |
-| Branch / commit | `main` / `1fa4d47` |
+| Branch / baseline commit | `main` / `1fa4d47` |
+| HEAD at final QA | `43f8c35`; external commit already contains the recorded decisions/revisions; final QA evidence remains uncommitted |
 | AI preparation date | 2026-10-25 |
-| Decision recording date | 2026-10-25 |
+| Decision recording date | 2026-10-26 |
 | Reviewer identity | Chưa ghi nhận; không tạo tên hoặc chữ ký giả |
 | Decision provenance | User-provided, AI-assisted delegated design review decisions |
 | Verification evidence | Tách riêng theo từng ID; approval không đồng nghĩa QA hoặc production acceptance |
@@ -106,7 +107,8 @@ thông tin còn thiếu.
   vận hành thật. Giữ các quy tắc chọn dự án và nguồn sự kiện là TBD.
 - **Decision provenance:** User-provided, AI-assisted delegated design review decisions.
 - **Revision evidence:** Microcopy trong `OperationsOverview.tsx` và
-  `operations-overview-ui-design.md` đã được làm rõ; chưa tự phê duyệt lại.
+  `operations-overview-ui-design.md` đã được làm rõ. Browser QA xác nhận nhãn
+  dữ liệu minh họa/chưa kết nối và TBD hiển thị; chưa tự phê duyệt lại.
 
 ### C4-HDR-003 — Danh sách Dự án và Trung tâm rủi ro
 
@@ -156,6 +158,8 @@ thông tin còn thiếu.
 - **Decision provenance:** User-provided, AI-assisted delegated design review decisions.
 - **Revision evidence:** `ProjectRiskDetail.tsx` và `pm-risk-ui-design.md` ghi
   rõ CTA chỉ là điều hướng prototype; business eligibility tiếp tục TBD.
+  Browser QA xác nhận trạng thái không khả dụng không bị gọi Low Risk và CTA
+  có tên `Mở bước đề xuất trong bản mẫu`.
 
 ## 5. Chi tiết quyết định — PM: Recommendation, Simulation và Decision
 
@@ -209,7 +213,8 @@ thông tin còn thiếu.
 - **Decision provenance:** User-provided, AI-assisted delegated design review decisions.
 - **Revision evidence:** Microcopy trong `ResourceRecommendationView.tsx`,
   `WhatIfSimulationView.tsx` và tài liệu Recommendation đã phân biệt candidate
-  context với allocation scenario; cấu trúc phương án vẫn TBD.
+  context với allocation scenario; cấu trúc phương án vẫn TBD. Browser QA xác
+  nhận CTA và ngữ cảnh mô phỏng dùng đúng microcopy mới.
 
 ### C4-HDR-009 — Màn hình mô phỏng mở dần
 
@@ -245,7 +250,8 @@ thông tin còn thiếu.
 - **Decision provenance:** User-provided, AI-assisted delegated design review decisions.
 - **Revision evidence:** Prototype ghi rõ chỉ có chuyển trạng thái cục bộ sang
   placeholder kết quả; tài liệu ghi Ready có thể quan sát, Success chỉ là
-  placeholder, còn Loading/Missing/Failure chưa có tương tác.
+  placeholder, còn Loading/Missing/Failure chưa có tương tác. Browser QA đã
+  quan sát Ready và Success; ba trạng thái còn lại không được gọi là đã chạy.
 
 ### C4-HDR-011 — Bố cục tác động hai cột
 
@@ -278,9 +284,10 @@ thông tin còn thiếu.
 - **Requested Decision:** Approve proposed UI. **Review Status:** Approved.
 - **Lý do:** Giữ Accept/Reject, nhưng Accept không được hiện thành áp dụng thành công.
 - **Decision provenance:** User-provided, AI-assisted delegated design review decisions.
-- **Verification:** Static review xác nhận thông điệp chỉ ghi quyết định trong
-  prototype, nói rõ phân bổ thật chưa thay đổi; browser interaction được ghi
-  riêng trong hồ sơ QA.
+- **Verification:** Static review và thao tác trình duyệt xác nhận cả Accept lẫn
+  Reject chỉ ghi quyết định trong prototype. Accept nói điều kiện/thời điểm áp
+  dụng thật chưa xác định và phân bổ thật chưa thay đổi; Reject nói phương án
+  không được áp dụng. Không có thông báo `Applied Successfully`.
 
 ## 6. Chi tiết quyết định — HR
 
@@ -406,8 +413,9 @@ thông tin còn thiếu.
 - **Lý do:** Reset trạng thái khi đổi role; cần xác minh bằng thao tác.
 - **Decision provenance:** User-provided, AI-assisted delegated design review decisions.
 - **Verification:** Static review xác nhận `exitRolePreview()` đặt AppState về
-  `role-preview` và việc chọn lại PM mở `operations-overview`; browser evidence
-  được ghi riêng, không suy ra production session behavior.
+  `role-preview`. Thao tác trình duyệt PM → HR → DEV → PM xác nhận workspace
+  được đổi đúng; khi quay lại PM, `h1` là `Tổng quan vận hành`, không còn
+  context flow hoặc `Ứng viên A`. Không suy ra production session behavior.
 
 ### C4-HDR-020 — Responsive và accessibility
 
@@ -418,15 +426,24 @@ thông tin còn thiếu.
 - **User Story / AC:** US-01 đến US-07; không có AC trực tiếp cho breakpoint.
 - **Artifact liên quan:** `three-role-workspace-ui-design.md`, `App.css`,
   `index.css`, các component Frontend.
-- **Đề xuất AI:** Request revision/verification; code tĩnh có hỗ trợ nhưng chưa
-  có bằng chứng visual, keyboard hoặc screen-reader.
+- **Đề xuất AI:** Giữ Pending cho tới khi người review quyết định trên bằng
+  chứng visual/keyboard hiện có và giới hạn screen-reader chưa chạy.
 - **Ảnh hưởng:** Khả năng review và tiếp cận prototype.
 - **Requested Decision:** Pending. **Review Status:** Pending.
 - **Lý do:** Chưa duyệt cho tới khi có kết quả visual QA tại
   1440/1280/1024/768px và kiểm thử bàn phím/accessibility.
 - **Decision provenance:** User-provided, AI-assisted delegated design review decisions.
-- **Verification:** Chỉ cập nhật từ các phép kiểm thực sự chạy; screen-reader
-  giữ `NOT RUN` nếu không có công cụ.
+- **Verification:**
+  - Visual QA bằng trình duyệt thật tại 1440/1280/1024/768 px: `PASS` cho các
+    màn Role Preview, PM Overview, Risk Detail và luồng Recommendation →
+    Simulation → Decision sau khi sửa lỗi context-flow bị cắt ở 1024 px.
+  - Keyboard: Tab, Shift+Tab, Enter, Space, focus-visible và kiểm tra không có
+    keyboard trap trong luồng đã thao tác: `PASS`.
+  - Browser accessibility/DOM: semantic button/nav/main, heading, tên điều
+    khiển, text cho empty state, `aria-current="page"` và
+    `aria-current="step"`: `PASS với giới hạn`.
+  - Screen-reader test: `NOT RUN`.
+  - Review Status vẫn `Pending`; bằng chứng công cụ không tự tạo human approval.
 
 ## 9. Chi tiết quyết định — Business/Product TBD
 
@@ -623,17 +640,20 @@ thông tin còn thiếu.
 - **Decision provenance:** User-provided, AI-assisted delegated design review decisions.
 - **Phạm vi sau:** Tiếp tục không hiển thị các action này cho tới khi có requirement.
 
-## 10. Phản hồi mong đợi
+## 10. Phản hồi còn cần thiết
 
-Người review phản hồi theo mẫu:
+Giai đoạn B không yêu cầu phản hồi lại cho 15 mục Approved hoặc 12 mục đã chủ
+động Keep as TBD. Người review chỉ cần xử lý năm mục còn Pending theo mẫu:
 
 ```text
-C4-HDR-XXX
+C4-HDR-002 | C4-HDR-005 | C4-HDR-008 | C4-HDR-010 | C4-HDR-020
 Reviewer choice: Approve proposed UI | Reject proposed UI | Request revision | Keep as TBD
 Reason: ...
 Human decision evidence: ...
 ```
 
-Các mục chưa có phản hồi tiếp tục là `Pending`. Không dùng một câu “duyệt hết”
-để tự suy ra lý do hoặc bằng chứng còn thiếu cho các quyết định nghiệp vụ.
+C4-HDR-002/005/008/010 phải được tái duyệt sau revision. C4-HDR-020 cần quyết
+định dựa trên bằng chứng QA và giới hạn screen-reader `NOT RUN`. Các mục này
+tiếp tục `Pending` cho tới khi có phản hồi; không dùng một câu “duyệt hết” để
+tự suy ra lý do hoặc bằng chứng còn thiếu.
 
