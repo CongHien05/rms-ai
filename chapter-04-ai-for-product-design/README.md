@@ -36,16 +36,22 @@ Hai tài liệu UI đầu tiên đã được tạo trước khi cấu trúc the
 - [x] Xây dựng bản mẫu Frontend theo phạm vi thiết kế hiện tại.
 - [x] Bổ sung thiết kế và bản mẫu không gian làm việc PM, HR, DEV ở mức trình bày; xác
   thực và phân quyền kỹ thuật vẫn là TBD.
-- [ ] Hoàn tất rà soát của con người cho toàn bộ `GIAO DIỆN ĐỀ XUẤT` và câu hỏi `TBD`.
+- [x] Hoàn tất rà soát của con người: 20 `GIAO DIỆN ĐỀ XUẤT` được Approved và
+  12 câu hỏi `TBD` được chủ động giữ lại với lý do/phạm vi đã ghi.
+
+Trạng thái Chapter 4: **Ready with retained TBDs**. Close-out này xác nhận sản
+phẩm thiết kế và bằng chứng review, không xác nhận AI/ML, API, database,
+Auth/RBAC, matching, simulation hoặc allocation production đã hoàn thành.
 
 ## 5. Bằng chứng quy trình có AI hỗ trợ
 
 Prompt thiết kế có thể tái sử dụng, tài liệu thiết kế, vòng thiết kế lại để hiệu
-chỉnh Frontend và lịch sử Git của các Pull Request thiết kế/bản mẫu là bằng
-chứng hiện có. Quyết định rà soát của con người chưa được tập trung đầy đủ vào
-chapter này.
+chỉnh Frontend, lịch sử Git và ba hồ sơ Human Review là bằng chứng hiện có.
+Final human approval cho năm lựa chọn cuối được ghi ngày 2026-11-03 dựa trên
+báo cáo kỹ thuật. Screen-reader test chưa chạy và không được ghi PASS.
 
 ## 6. Việc tiếp theo
 
-Ghi nhận kết quả rà soát của con người, chốt hoặc giữ `TBD` cho từng quyết định
-còn mở và đối chiếu bản mẫu với định nghĩa hoàn thành của Chapter 4.
+Chapter 5. Các TBD được giữ lại chỉ mở lại khi có căn cứ ở giai đoạn phù hợp;
+không dùng close-out Chapter 4 để suy ra quy tắc nghiệp vụ hoặc chức năng
+production.

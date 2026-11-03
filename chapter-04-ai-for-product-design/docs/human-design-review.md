@@ -13,6 +13,11 @@ kiểm tra mọi màn hình, chạy accessibility test hoặc ký biên bản ng
 AI không chuyển một lựa chọn giao diện hoặc TBD thành yêu cầu sản phẩm đã xác
 nhận.
 
+Ngày 2026-11-03, người dùng phê duyệt trực tiếp qua hội thoại năm đề xuất còn
+Pending dựa trên báo cáo kỹ thuật. Phê duyệt này hoàn tất quyết định thiết kế,
+nhưng không được diễn giải là người dùng đã trực tiếp chạy QA hoặc nghiệm thu
+production; screen-reader test vẫn `NOT RUN`.
+
 ## 2. Phạm vi và giới hạn
 
 Phạm vi rà soát:
@@ -31,8 +36,9 @@ Giới hạn:
   Chapter 4.
 - Không xác nhận hành vi production, tích hợp dữ liệu, API, database, AI/ML,
   xác thực, phân quyền hoặc thay đổi phân bổ thật.
-- Giai đoạn B đã thực hiện visual QA và kiểm thử bàn phím bằng trình duyệt thật;
-  kết quả và giới hạn được ghi tại mục 12. Không có screen-reader test.
+- Giai đoạn B và final re-review ngày 2026-10-31 đã thực hiện visual QA và kiểm
+  thử bàn phím bằng trình duyệt thật; kết quả và giới hạn được ghi tại mục 12.
+  Không có screen-reader test.
 - Các nội dung chưa được thực thi vẫn ghi `NOT RUN` hoặc `NOT VERIFIED`, không
   được suy diễn là `PASS`.
 
@@ -43,14 +49,18 @@ Giới hạn:
 | Repository | `https://github.com/CongHien05/rms-ai.git` |
 | Nhánh | `main` |
 | Baseline commit khi bắt đầu Giai đoạn B | `1fa4d47` — `Merge pull request #20 from CongHien05/feat/add-three-role-workspaces` |
-| HEAD khi hoàn tất QA/validation | `43f8c35` — commit bên ngoài đã ghi các revision Giai đoạn B; các cập nhật QA cuối vẫn chưa commit |
-| Working tree khi bắt đầu Giai đoạn B | Có thay đổi Giai đoạn A chưa commit: `README.md` và ba hồ sơ Human Review |
+| HEAD tại final re-review | `3d9ae40` — `end day`; đã chứa các revision Giai đoạn B và bản sửa responsive |
+| Working tree khi bắt đầu final re-review | Clean; `git status --short`, `git diff --check` và `git diff --stat` không có output |
 | Ngày AI chuẩn bị hồ sơ | 2026-10-25 |
 | Ngày ghi nhận quyết định Giai đoạn B | 2026-10-26 |
-| Người review | Chưa ghi nhận |
-| Decision provenance | User-provided, AI-assisted delegated design review decisions |
+| Ngày final technical re-review | 2026-10-31 |
+| Ngày final human approval | 2026-11-03 |
+| Ngày close-out validation | 2026-11-03 |
+| Người review | Người dùng xác nhận qua hội thoại; danh tính định danh chưa ghi nhận |
+| Provenance của 27 quyết định trước | User-provided, AI-assisted delegated design review decisions |
+| Provenance của 5 phê duyệt cuối | Explicit user approval of AI-assisted design recommendations, based on reported technical review; screen-reader testing not performed. |
 | Chữ ký / biên bản review trực tiếp | Không có |
-| Trạng thái Human Review | Đang mở: 15 Approved, 5 Pending, 12 Keep as TBD |
+| Trạng thái Human Review | Hoàn tất ở mức thiết kế: 20 Approved, 0 Pending, 12 Keep as TBD |
 
 ## 4. Nguồn tham chiếu
 
@@ -101,12 +111,12 @@ biến thành yêu cầu đã xác nhận nếu chưa cập nhật cơ sở yêu
 
 | Mục Chapter 4 | Checklist hiện tại | Bằng chứng | Kết quả kiểm chứng | Khoảng trống | Đủ điều kiện hoàn thành |
 | --- | --- | --- | --- | --- | --- |
-| Luồng và wireframe chính của PM | `[x]` | `pm-risk-ui-design.md`, `resource-recommendation-ui-design.md`, `what-if-simulation-ui-design.md` | Có tài liệu cho chuỗi Risk → Recommendation → Simulation → Decision | C4-HDR-002/005/008/010 chờ tái duyệt | Có bằng chứng thiết kế và revision; chưa đóng review |
+| Luồng và wireframe chính của PM | `[x]` | `pm-risk-ui-design.md`, `resource-recommendation-ui-design.md`, `what-if-simulation-ui-design.md` | Có tài liệu cho chuỗi Risk → Recommendation → Simulation → Decision | Bốn revision đã được người dùng phê duyệt | Có |
 | Loading, empty, invalid và missing data | `[x]` | Các ma trận trạng thái trong tài liệu UI; component có trạng thái rỗng/không khả dụng | Các trạng thái quan trọng đã được xem xét ở mức thiết kế | Prototype không hiện thực đầy đủ loading/error/retry | Có đủ bằng chứng “đã xem xét”; mức thực thi ghi Not verified |
 | Traceability PRD/US/AC | `[x]` | Bảng truy vết trong tài liệu UI và ma trận review mới | US-01 đến US-07 và các AC liên quan có thể đối chiếu | Một số lựa chọn UI không có căn cứ trực tiếp và phải giữ đúng nhãn đề xuất | Có đủ bằng chứng chuẩn bị cho review |
 | Frontend prototype | `[x]` | `frontend/src/App.tsx`, component PM/HR/DEV và QA trình duyệt Giai đoạn B | Prototype giới hạn tồn tại; đã kiểm tra ở 1440/1280/1024/768 px | Screen reader chưa chạy; năm trạng thái simulation chưa hiện thực đầy đủ | Có ở mức prototype; không phải production |
 | Workspace PM, HR, DEV | `[x]` | `three-role-workspace-ui-design.md`, `RolePreview.tsx`, `AppShell.tsx`, component HR/DEV | Ba workspace và Role Preview tồn tại | Auth/RBAC và liên kết dữ liệu vẫn TBD đúng chủ đích | Có ở mức trình bày prototype |
-| Human Design Review | `[ ]` | Decision Register, Traceability và kết quả QA Giai đoạn B | Đã ghi nhận 15 Approved, 5 Pending, 12 Keep as TBD | Bốn revision chờ tái duyệt; C4-HDR-020 còn Pending | **Không** |
+| Human Design Review | `[x]` | Decision Register, Traceability, final human approval và kết quả QA | Đã ghi nhận 20 Approved, 0 Pending, 12 Keep as TBD | Screen reader `NOT RUN`; 12 TBD được giữ có chủ đích | **Có — Ready with retained TBDs** |
 
 ## 7. Tổng quan phát hiện thiết kế
 
@@ -133,14 +143,15 @@ biến thành yêu cầu đã xác nhận nếu chưa cập nhật cơ sở yêu
 
 ### 7.2 AI recommendations
 
-- Tái duyệt C4-HDR-002, C4-HDR-005, C4-HDR-008 và C4-HDR-010 sau revision;
-  không tự chuyển chúng sang Approved.
+- C4-HDR-002, C4-HDR-005, C4-HDR-008, C4-HDR-010 và C4-HDR-020 đã được người
+  dùng phê duyệt ngày 2026-11-03 dựa trên báo cáo kỹ thuật.
 - Giữ C4-HDR-021 đến C4-HDR-032 là `Keep as TBD` cho tới khi có căn cứ nghiệp
   vụ; không dùng prototype làm nguồn yêu cầu thay thế.
-- Hoàn tất bằng chứng accessibility còn thiếu cho C4-HDR-020, đặc biệt là
-  screen-reader test nếu đây là điều kiện close-out của nhóm.
-- Chỉ đề xuất cập nhật `COURSE_PROGRESS.md` cho C4-CONFLICT-01 trong một phạm
-  vi riêng; không sửa tài liệu này ở Giai đoạn B.
+- Quyết định C4-HDR-020 dựa trên bằng chứng visual/keyboard/DOM hiện có. AGENTS
+  và GUIDELINE không yêu cầu screen-reader test như điều kiện bắt buộc; tiếp tục
+  ghi `NOT RUN` và khuyến nghị thực hiện ở Chapter 8 hoặc phạm vi accessibility.
+- Có thể cập nhật `COURSE_PROGRESS.md` trong phạm vi riêng; độ lệch lịch sử này
+  không chặn close-out vì artifact hiện hành và baseline đã được xác minh.
 
 ## 8. Mâu thuẫn và khoảng trống
 
@@ -153,7 +164,8 @@ biến thành yêu cầu đã xác nhận nếu chưa cập nhật cơ sở yêu
 - Frontend hiện có `RolePreview`, `AppShell`, HR workspace và DEV workspace.
 - Phân loại: độ lệch trạng thái tài liệu, không phải mâu thuẫn nghiệp vụ.
 - Ảnh hưởng: `COURSE_PROGRESS.md` không còn phản ánh baseline mới nhất.
-- Xử lý trong lượt này: ghi nhận; không sửa theo ràng buộc nhiệm vụ.
+- Xử lý close-out: ghi nhận là độ lệch lịch sử không chặn thiết kế; không sửa
+  ngoài bốn file close-out.
 
 ### C4-CONFLICT-02 — “Nhân sự” trong điều hướng PM
 
@@ -175,24 +187,24 @@ biến thành yêu cầu đã xác nhận nếu chưa cập nhật cơ sở yêu
 - Không có biên bản người dùng trực tiếp thực hiện visual QA; bằng chứng Giai
   đoạn B là kiểm thử trình duyệt do AI-assisted executor thực hiện.
 - Không có screen-reader test hoặc accessibility audit chuyên dụng.
-- Không có chữ ký review hoặc reviewer identity; nguồn quyết định được ghi đúng
-  là `User-provided, AI-assisted delegated design review decisions`.
+- Không có chữ ký hoặc reviewer identity định danh. Người dùng xác nhận năm phê
+  duyệt cuối qua hội thoại; không suy diễn thành trực tiếp thực hiện QA.
 - Không có quy tắc nghiệp vụ mới nào được phép suy ra để lấp TBD-01 đến TBD-12.
 
-## 9. Danh mục cần con người phê duyệt
+## 9. Danh mục quyết định Human Review
 
 Danh mục đầy đủ nằm trong
 [`human-review-decision-register.md`](human-review-decision-register.md).
 
 | Nhóm | Review ID | Số mục | Trạng thái |
 | --- | --- | ---: | --- |
-| PM — Tổng quan và Rủi ro | C4-HDR-001 đến C4-HDR-005 | 5 | 3 Approved; 2 Pending — Awaiting re-review |
-| PM — Recommendation, Simulation, Decision | C4-HDR-006 đến C4-HDR-012 | 7 | 5 Approved; 2 Pending — Awaiting re-review |
+| PM — Tổng quan và Rủi ro | C4-HDR-001 đến C4-HDR-005 | 5 | 5 Approved |
+| PM — Recommendation, Simulation, Decision | C4-HDR-006 đến C4-HDR-012 | 7 | 7 Approved |
 | HR | C4-HDR-013 đến C4-HDR-014 | 2 | 2 Approved |
 | DEV | C4-HDR-015 đến C4-HDR-016 | 2 | 2 Approved |
-| Cross-role | C4-HDR-017 đến C4-HDR-020 | 4 | 3 Approved; 1 Pending |
+| Cross-role | C4-HDR-017 đến C4-HDR-020 | 4 | 4 Approved |
 | Business/Product TBD | C4-HDR-021 đến C4-HDR-032 | 12 | 12 Keep as TBD |
-| **Tổng** |  | **32** | **15 Approved; 5 Pending; 12 Keep as TBD; 0 Rejected** |
+| **Tổng** |  | **32** | **20 Approved; 0 Pending; 12 Keep as TBD; 0 Rejected** |
 
 Phân bố Classification:
 
@@ -222,17 +234,20 @@ ID PRD/US/AC giả.
 
 | Trường | Giá trị |
 | --- | --- |
-| Reviewer | Chưa ghi nhận |
-| Decision recording date | 2026-10-26 |
-| Decision provenance | User-provided, AI-assisted delegated design review decisions |
+| Reviewer | Người dùng xác nhận qua hội thoại; danh tính định danh chưa ghi nhận |
+| Initial decision recording date | 2026-10-26 |
+| Final human approval date | 2026-11-03 |
+| Close-out validation date | 2026-11-03 |
+| Prior 27 decisions provenance | User-provided, AI-assisted delegated design review decisions |
+| Final five approvals provenance | Explicit user approval of AI-assisted design recommendations, based on reported technical review; screen-reader testing not performed. |
 | Direct human visual QA / signature | Không có; không được suy diễn từ bộ quyết định |
-| Số mục Approved | 15 |
+| Số mục Approved | 20 |
 | Số mục Rejected | 0 |
 | Số mục Keep as TBD | 12 |
-| Số mục Pending | 5, gồm 4 Request revision và C4-HDR-020 |
+| Số mục Pending | 0 |
 
 Quyết định được ghi theo Review ID trong Decision Register. `Approved` chỉ là
-quyết định thiết kế theo nguồn ủy quyền, không phải requirement `ĐÃ XÁC NHẬN`,
+quyết định thiết kế, không phải requirement `ĐÃ XÁC NHẬN`,
 kiểm thử production hoặc nghiệm thu của Product Owner.
 
 ## 12. Verification evidence
@@ -241,10 +256,10 @@ kiểm thử production hoặc nghiệm thu của Product Owner.
 | --- | --- | --- |
 | Đối chiếu tài liệu PRD/US/AC/UI | PASS | Rà soát tĩnh các nguồn liệt kê ở mục 4 |
 | Đối chiếu component Frontend | PASS | Rà soát tĩnh `App.tsx`, App Shell, PM/HR/DEV và mock data |
-| Visual QA tại 1440/1280/1024/768 | PASS với giới hạn | Trình duyệt thật, viewport lần lượt 1440, 1280, 1024 và 768 px; kiểm tra Role Preview, PM Overview, Risk Detail và luồng Recommendation → Simulation → Decision. Không thấy tràn ngang ngoài chủ đích, chồng lấp, mất CTA/TBD hoặc biến dạng simulation sau khi sửa thanh bước responsive. Đây không phải review trực tiếp của người dùng. |
+| Visual QA tại 1440/1280/1024/768 | PASS với giới hạn | Chạy lại bằng trình duyệt thật ngày 2026-10-31 trên Role Preview, PM Overview, Risk Detail và luồng Recommendation → Simulation → Decision. Không thấy tràn ngang, chồng lấp, mất CTA/TBD hoặc nhãn bước PM. Đây không phải review trực tiếp của người dùng. |
 | Lỗi responsive phát hiện và sửa | PASS | Ở 1024 px, nhãn cuối của `.context-flow` từng bị cắt; giảm connector width/margin trong `frontend/src/App.css`, sau đó xác minh `scrollWidth === clientWidth` cho context flow tại 1024 và 768 px. |
-| Kiểm thử bàn phím | PASS | Thực hiện Tab, Shift+Tab, Enter và Space trên Role Preview/App Shell; focus-visible quan sát được; thứ tự focus chuyển PM → HR và quay lại; không gặp keyboard trap trong luồng đã kiểm tra. |
-| Accessibility qua browser/DOM | PASS với giới hạn | AX tree cho thấy semantic button/nav/main, một `h1`, các `h2`, tên điều khiển; `aria-current="page"` ở nav và `aria-current="step"` ở bước quyết định; trạng thái rỗng có text và trạng thái không chỉ truyền đạt bằng màu. Không thay thế screen-reader test. |
+| Kiểm thử bàn phím | PASS | Chạy lại Tab, Shift+Tab, Enter và Space; focus-visible quan sát được, thứ tự focus tiến/lùi hợp lý và không gặp keyboard trap trong luồng đã kiểm tra. |
+| Accessibility qua browser/DOM | PASS với giới hạn | AX tree và DOM cho thấy semantic button/nav/main, một `h1`, các heading có thứ bậc và tên điều khiển; `aria-current="page"` ở nav và `aria-current="step"` ở bước hiện tại; trạng thái không chỉ truyền đạt bằng màu. Không thay thế screen-reader test. |
 | Cross-role PM → HR → DEV → PM | PASS | Thao tác thật cho thấy mỗi role mở đúng workspace; quay lại PM mở `Tổng quan vận hành`, không còn context flow hoặc `Ứng viên A`. Role Preview không được gọi Login/Logout. |
 | C4-HDR-012 Accept / Reject | PASS | Cả hai nhánh được thao tác trong trình duyệt. Accept chỉ ghi quyết định trong bản mẫu và nói phân bổ thật chưa thay đổi; Reject nói phương án không được áp dụng; không có `Applied Successfully`. |
 | C4-HDR-019 state reset | PASS | Kiểm tra bằng thao tác cross-role và đối chiếu tĩnh state trong `App.tsx`; candidate/project/decision state không được mang sang role khác và PM quay về điểm bắt đầu hợp lệ. |
@@ -255,33 +270,46 @@ kiểm thử production hoặc nghiệm thu của Product Owner.
 
 | Review ID | Revision đã thực hiện | File chính | Trạng thái sau sửa |
 | --- | --- | --- | --- |
-| C4-HDR-002 | Đổi nhãn dự án và hoạt động thành dữ liệu minh họa/chưa kết nối; nói rõ không phải ưu tiên vận hành và quy tắc/nguồn vẫn TBD | `OperationsOverview.tsx`, `operations-overview-ui-design.md` | Pending — Awaiting re-review |
-| C4-HDR-005 | Trạng thái không thể đánh giá không bị diễn giải là Low Risk; CTA được gọi là bước prototype và điều kiện cho phép/khóa vẫn TBD | `ProjectRiskDetail.tsx`, `pm-risk-ui-design.md` | Pending — Awaiting re-review |
-| C4-HDR-008 | Phân biệt ứng viên với phương án phân bổ hoàn chỉnh; `candidateId` chỉ giữ ngữ cảnh minh họa | `ResourceRecommendationView.tsx`, `WhatIfSimulationView.tsx`, `resource-recommendation-ui-design.md` | Pending — Awaiting re-review |
-| C4-HDR-010 | Gọi kết quả là minh họa/placeholder; ghi rõ Ready và Success có prototype, còn Loading/Missing/Failure chỉ có trong thiết kế | `WhatIfSimulationView.tsx`, `what-if-simulation-ui-design.md` | Pending — Awaiting re-review |
+| C4-HDR-002 | Đổi nhãn dự án và hoạt động thành dữ liệu minh họa/chưa kết nối; nói rõ không phải ưu tiên vận hành và quy tắc/nguồn vẫn TBD | `OperationsOverview.tsx`, `operations-overview-ui-design.md` | Approved 2026-11-03 |
+| C4-HDR-005 | Trạng thái không thể đánh giá không bị diễn giải là Low Risk; CTA được gọi là bước prototype và điều kiện cho phép/khóa vẫn TBD | `ProjectRiskDetail.tsx`, `pm-risk-ui-design.md` | Approved 2026-11-03 |
+| C4-HDR-008 | Phân biệt ứng viên với phương án phân bổ hoàn chỉnh; `candidateId` chỉ giữ ngữ cảnh minh họa | `ResourceRecommendationView.tsx`, `WhatIfSimulationView.tsx`, `resource-recommendation-ui-design.md` | Approved 2026-11-03 |
+| C4-HDR-010 | Gọi kết quả là minh họa/placeholder; ghi rõ Ready và Success có prototype, còn Loading/Missing/Failure chỉ có trong thiết kế | `WhatIfSimulationView.tsx`, `what-if-simulation-ui-design.md` | Approved 2026-11-03 |
 
 Revision không tạo API, simulation engine, matching rule, allocation payload
-hoặc dữ liệu production. Bốn mục vẫn Pending theo đúng quy tắc tái duyệt.
+hoặc dữ liệu production. Bốn revision đã được người dùng phê duyệt ở phạm vi
+lựa chọn thiết kế; các TBD liên quan vẫn được giữ nguyên.
+
+### 12.2 Final re-review summary
+
+| Review ID | Evidence | Findings | Recommendation | Human Decision | Status |
+| --- | --- | --- | --- | --- | --- |
+| C4-HDR-002 | Microcopy tài liệu/prototype; browser QA 1440/1280/1024/768 | Dữ liệu được gọi là minh họa; activity không phải sự kiện thật; quy tắc chọn và nguồn vẫn TBD | Approve proposed UI | Approve proposed UI | Approved |
+| C4-HDR-005 | Risk unavailable screen và CTA trong browser | Không diễn giải thành Low Risk/an toàn; CTA chỉ điều hướng prototype; cho phép/khóa vẫn TBD | Approve proposed UI | Approve proposed UI | Approved |
+| C4-HDR-008 | Candidate list và Simulation Ready trong browser | Candidate chỉ là ngữ cảnh; không phải allocation scenario hợp lệ; cấu trúc/ràng buộc vẫn TBD | Approve proposed UI | Approve proposed UI | Approved |
+| C4-HDR-010 | Ma trận trạng thái thiết kế; Ready/Success quan sát bằng browser | Ready/Success có prototype; Loading/Missing/Failure là design-only; không có simulation engine | Approve proposed UI | Approve proposed UI | Approved |
+| C4-HDR-020 | Responsive, keyboard, DOM/AX và state-reset QA | QA công cụ đạt trong phạm vi đã nêu; screen reader `NOT RUN`, không phải điều kiện bắt buộc trong AGENTS/GUIDELINE | Approve proposed UI và giữ giới hạn kiểm thử | Approve proposed UI | Approved |
 
 ## 13. Chapter 4 Readiness Assessment
 
-### Kết luận: **Not ready**
+### Kết luận: **Ready with retained TBDs**
 
 Lý do:
 
-- C4-HDR-002, C4-HDR-005, C4-HDR-008 và C4-HDR-010 đã sửa nhưng vẫn
-  `Pending — Awaiting re-review`.
-- C4-HDR-020 vẫn `Pending`: visual/keyboard/browser accessibility đã có bằng
-  chứng công cụ, nhưng chưa có screen-reader test hoặc quyết định duyệt cuối.
-- Không có reviewer identity, chữ ký hoặc bằng chứng người dùng trực tiếp kiểm
-  tra toàn bộ màn hình; nguồn quyết định là review ủy quyền có AI hỗ trợ.
-- C4-CONFLICT-01 vẫn là độ lệch trạng thái tài liệu và chỉ được đề xuất xử lý ở
-  phạm vi riêng; không ảnh hưởng thành production requirement.
-- Mục Human Design Review trong Chapter 4 README phải tiếp tục để `[ ]`.
+- 32/32 Review ID có quyết định hợp lệ: 20 `Approved`, 12 `Keep as TBD`, không
+  còn `Pending` hoặc `Rejected`.
+- Người dùng phê duyệt năm lựa chọn cuối ngày 2026-11-03 dựa trên báo cáo kỹ
+  thuật; approval không được trình bày như trực tiếp chạy QA.
+- Visual, keyboard và browser/DOM accessibility có bằng chứng phù hợp phạm vi;
+  screen reader vẫn `NOT RUN` và được giữ như giới hạn kiểm chứng.
+- Traceability PRD/User Story/Acceptance Criteria đầy đủ; các trạng thái quan
+  trọng đã được xem xét ở mức thiết kế/prototype.
+- C4-CONFLICT-01 là độ lệch báo cáo tiến độ lịch sử, không phải mâu thuẫn thiết
+  kế hoặc nghiệp vụ chặn close-out.
+- Checklist Human Design Review trong Chapter 4 README đủ điều kiện chuyển `[x]`.
 
-Các TBD-01 đến TBD-12 có thể được giữ lại khi đóng Chapter 4 nếu con người chủ
-động chọn `Keep as TBD`, ghi lý do, phạm vi ảnh hưởng và xác nhận chúng không
-làm mất khả năng review của thiết kế hiện tại.
+TBD-01 đến TBD-12 được chủ động giữ lại với lý do và phạm vi ảnh hưởng đã ghi.
+Chúng không chặn khả năng rà soát thiết kế hiện tại, nhưng phải được xử lý trước
+khi triển khai các chức năng phụ thuộc.
 
 Điều kiện để chuyển sang **Ready**:
 
@@ -290,7 +318,7 @@ làm mất khả năng review của thiết kế hiện tại.
 - Mâu thuẫn thiết kế ảnh hưởng tới prototype đã được xử lý.
 - Definition of Done và các kiểm tra trực quan cần thiết có bằng chứng.
 
-Điều kiện để chuyển sang **Ready with retained TBDs**:
+Các điều kiện **Ready with retained TBDs** đã được đáp ứng:
 
 - Human Review hoàn tất cho toàn bộ lựa chọn UI.
 - Mỗi TBD còn lại được con người chọn `Keep as TBD`, có lý do và ảnh hưởng rõ.
@@ -298,18 +326,14 @@ làm mất khả năng review của thiết kế hiện tại.
   đã xác nhận.
 - Traceability và bằng chứng review đầy đủ.
 
-## 14. Việc cần làm sau review
+## 14. Việc chuyển sang giai đoạn sau
 
-1. Người dùng/người review tái duyệt C4-HDR-002, C4-HDR-005, C4-HDR-008 và
-   C4-HDR-010 dựa trên revision đã ghi; chỉ họ mới quyết định Approved/Rejected
-   hoặc yêu cầu sửa tiếp.
-2. Quyết định C4-HDR-020 sau khi xem bằng chứng hiện có; nếu screen reader là
-   điều kiện bắt buộc, thực hiện và lưu bằng chứng trước khi duyệt.
-3. Giữ C4-HDR-021 đến C4-HDR-032 là TBD với lý do/phạm vi đã ghi; chỉ mở lại
-   khi có căn cứ nghiệp vụ cho giai đoạn sau.
-4. Cân nhắc cập nhật `COURSE_PROGRESS.md` trong một yêu cầu riêng để xử lý
-   C4-CONFLICT-01; không gọi prototype là hành vi production.
-5. Chạy lại readiness assessment sau khi không còn mục Pending.
-6. Chỉ đánh dấu checklist Human Review `[x]` khi Definition of Done có đủ bằng
-   chứng; không dùng việc tạo ba hồ sơ hoặc build PASS làm điều kiện duy nhất.
+1. Giữ C4-HDR-021 đến C4-HDR-032 là TBD với lý do/phạm vi đã ghi; chỉ mở lại
+   khi có căn cứ nghiệp vụ ở giai đoạn phù hợp.
+2. Giữ screen-reader test là `NOT RUN`; khuyến nghị kiểm thử chuyên sâu ở
+   Chapter 8 hoặc phạm vi accessibility riêng.
+3. Có thể cập nhật `COURSE_PROGRESS.md` trong một yêu cầu riêng để xử lý độ lệch
+   lịch sử; không gọi prototype là hành vi production.
+4. Chapter 4 close-out chỉ xác nhận sản phẩm thiết kế; không xác nhận AI/ML,
+   API, database, Auth/RBAC, matching, simulation hoặc allocation production.
 
