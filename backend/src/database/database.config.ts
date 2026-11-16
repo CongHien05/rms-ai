@@ -31,12 +31,16 @@ function readDatabasePort(): number {
 }
 
 function createBaseOptions() {
+  const password = process.env.DB_PASSWORD;
+  if (password === undefined) {
+    throw new Error('Missing required environment variable: DB_PASSWORD');
+  }
   return {
     type: 'mysql' as const,
     host: readRequiredEnvironment('DB_HOST'),
     port: readDatabasePort(),
     username: readRequiredEnvironment('DB_USERNAME'),
-    password: readRequiredEnvironment('DB_PASSWORD'),
+    password,
     database: readRequiredEnvironment('DB_DATABASE'),
     entities: [Project, Sprint, Task, Employee, Skill, EmployeeSkill],
     migrations: [

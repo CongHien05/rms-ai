@@ -14,6 +14,7 @@ ban đầu và nền tảng database. Các tài liệu này có trước cấu t
 
 ## 3. Tài liệu hiện có
 
+- [Milestone B1 — Kiến trúc hiện trạng và UML tối thiểu](docs/current-state-architecture-b1.md)
 - [Phase A — Architecture Baseline Audit](docs/architecture-baseline-audit.md)
 - [Phase A — Architecture Gap Analysis](docs/architecture-gap-analysis.md)
 - [Phase A — Chapter 5 Traceability Matrix](docs/chapter-05-traceability-matrix.md)
@@ -31,22 +32,25 @@ ban đầu và nền tảng database. Các tài liệu này có trước cấu t
 - [x] Mô tả mô hình dữ liệu, nền tảng database và ràng buộc dữ liệu.
 - [x] Hoàn tất Phase A: kiểm kê baseline, gap/conflict register, retained TBD
   assessment, traceability và kế hoạch Phase B.
+- [x] Soạn Milestone B1: baseline kiến trúc hiện trạng, sơ đồ thành phần/runtime
+  local, bằng chứng pattern và disposition conflict. **B1 chờ human review.**
 - [ ] Hoàn thiện mô hình hóa hệ thống/UML theo phạm vi được duyệt.
 - [ ] Ghi nhận mẫu kiến trúc và mẫu thiết kế có bằng chứng rà soát.
 
-Trạng thái sau Phase A: **Architecture baseline verified; design gaps and
-required decisions documented.** Trạng thái này cho phép đề xuất Phase B, không
-có nghĩa Chapter 5 đã hoàn thành hoặc các capability production đã được xác minh.
+Trạng thái hiện tại: **B1 chờ review**. Tài liệu B1 đã đối chiếu code hiện có
+nhưng chưa được con người phê duyệt; Chapter 5 vẫn đang thực hiện và không có
+capability production mới nào được xác minh.
 
 ## 5. Bằng chứng quy trình có AI hỗ trợ
 
-Phase A tập trung bằng chứng vào chapter này và phân biệt `VERIFIED FROM SOURCE`,
-`VERIFIED BY EXECUTION`, `DOCUMENTED ONLY`, `PROPOSED`, `TBD` và `NOT VERIFIED`.
-Tài liệu audit giữ riêng code tồn tại, runtime được xác minh và production
-readiness; không dùng prototype hoặc migration source làm bằng chứng production.
+AI đã hỗ trợ tổng hợp baseline B1, tạo sơ đồ Mermaid và đối chiếu Frontend,
+Backend, AI Service, TypeORM/entity/migration với audit Phase A. Bằng chứng được
+truy về source path; MySQL runtime, migration applied và hai integration HTTP
+vẫn ghi `CHƯA XÁC MINH KHI CHẠY`. Con người cần review cách dùng addendum, tên
+pattern, hai sơ đồ và disposition conflict trước khi duyệt B1.
 
 ## 6. Việc tiếp theo
 
-Human-review milestone B1 được đề xuất trong Phase B Plan: reconcile current-state
-architecture và tạo minimal UML baseline. Chưa thực hiện B1 trong Phase A; không
-mở endpoint, schema, Auth/RBAC hoặc AI/model work từ đề xuất này.
+Human reviewer xử lý các mục `B1-DEC-01` đến `B1-DEC-04` và `B1-VIEW-01/02`
+trong tài liệu B1. Sau khi B1 được duyệt, nhóm mới chọn một phạm vi tiếp theo;
+không tự mở endpoint, schema, Auth/RBAC hoặc AI/model work.

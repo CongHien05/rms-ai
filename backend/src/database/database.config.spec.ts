@@ -56,6 +56,14 @@ describe('database configuration', () => {
     );
   });
 
+  it('accepts an explicitly empty local password and rejects an absent password', () => {
+    setValidEnvironment();
+    process.env.DB_PASSWORD = '';
+    expect(createDataSourceOptions()).toHaveProperty('password', '');
+    delete process.env.DB_PASSWORD;
+    expect(() => createDataSourceOptions()).toThrow('Missing required environment variable: DB_PASSWORD');
+  });
+
   it.each(['not-a-number', '1.5', '0', '-1', '65536'])(
     'rejects invalid DB_PORT value %s',
     (port) => {

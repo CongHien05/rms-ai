@@ -90,7 +90,11 @@ function getContextualStep(view: PmView): DecisionFlowStep | null {
 }
 
 function App() {
-  const [appState, setAppState] = useState<AppState>({ mode: 'role-preview' })
+  const [appState, setAppState] = useState<AppState>(() =>
+    window.location.hash === '#projects'
+      ? { mode: 'workspace', role: 'PM', view: { name: 'projects' } }
+      : { mode: 'role-preview' },
+  )
 
   function openRole(role: PrototypeRole) {
     if (role === 'PM') {
@@ -111,6 +115,7 @@ function App() {
   }
 
   function exitRolePreview() {
+    window.history.replaceState(null, '', window.location.pathname)
     setAppState({ mode: 'role-preview' })
   }
 
@@ -177,6 +182,7 @@ function renderPmWorkspace(
   onExitRolePreview: () => void,
 ) {
   function setPmView(nextView: PmView) {
+    window.history.replaceState(null, '', nextView.name === 'projects' ? '#projects' : window.location.pathname)
     setAppState({ mode: 'workspace', role: 'PM', view: nextView })
   }
 
@@ -214,10 +220,7 @@ function renderPmWorkspace(
     )
   } else if (view.name === 'projects') {
     content = (
-      <ProjectsView
-        projects={mockProjectRisks}
-        onSelectProject={handleSelectProject}
-      />
+      <ProjectsView />
     )
   } else if (view.name === 'risk-overview' || !selectedProject) {
     content = (

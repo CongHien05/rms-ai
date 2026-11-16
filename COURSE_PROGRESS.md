@@ -23,7 +23,24 @@ Trạng thái Chapter 3 xác nhận cơ sở yêu cầu đã có, không có ngh
 nghiệp vụ `TBD` đã được quyết định. Các chapter còn lại đã có một phần bằng chứng
 trong repository nhưng chưa đủ điều kiện để đánh dấu hoàn thành.
 
-## Mốc cuối tuần hiện tại
+## Tiến độ ngày 2026-11-17
+
+- Đã kiểm chứng luồng PM tạo/xem dự án qua UI → NestJS → MySQL local,
+  dùng `GET /projects` và `POST /projects`. Tải lại trang vẫn thấy dữ liệu;
+  GET API và bản ghi MySQL khớp ID. Hai migration đã áp dụng trên database
+  dev riêng `rms_ai_pm_dev`; dự án thật không dẫn vào risk mock.
+- PASS: Frontend và Backend build/lint; Backend 36/36 unit test và 5/5
+  e2e test dùng mock. Kiểm thử trình duyệt PASS cho danh sách rỗng, tạo/reload,
+  tên trống, chống submit lặp, lỗi API và thử lại sau phục hồi.
+  Chi tiết: [triển khai Chapter 6](chapter-06-ai-coding/README.md) và
+  [minh chứng Chapter 8](chapter-08-ai-software-testing/README.md).
+- Chapter 5 B1 đã chỉnh theo review và vẫn chờ phê duyệt. B1 là snapshot
+  trước tích hợp PM; bằng chứng runtime mới được ghi tại Chapter 6/8.
+- Việc tiếp theo: cải thiện UI/UX và làm rõ luồng thao tác PM. Các chapter
+  đang thực hiện tiếp tục giữ nguyên trạng thái; chưa xác minh Auth/RBAC,
+  AI thật hoặc triển khai production.
+
+## Mốc trước tích hợp PM (lịch sử)
 
 - Cơ sở phân tích yêu cầu và sản phẩm đã có PRD, User Stories, Acceptance
   Criteria và hợp đồng dữ liệu khái niệm.
