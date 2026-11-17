@@ -58,6 +58,37 @@ Proxy mặc định đến `127.0.0.1:3000`, có thể đặt `BACKEND_URL` khi 
 Mở `http://127.0.0.1:5173/#projects`. Proxy này dành cho Vite dev server;
 việc triển khai production chưa được kiểm chứng.
 
+### Minh chứng luồng PM mở dự án thật → tạo/xem sprint → tạo/xem task (2026-11-17)
+
+Theo yêu cầu mở rộng luồng PM, AI triển khai màn chi tiết dự án tại
+`frontend/src/projects/ProjectDetailView.tsx` và `project-detail.css`, cập nhật
+`frontend/src/projects/ProjectsView.tsx` và `frontend/src/App.tsx`.
+- Mở dự án thật bằng ID qua URL `#project/:id`; tải lại trình duyệt vẫn mở đúng
+  dự án thật. Điều hướng quay lại bằng nút "← Quay lại" về danh sách `#projects`.
+- Tận dụng toàn bộ API, DTO (`CreateSprintDto`, `CreateTaskDto`), Controller
+  (`SprintsController`, `TasksController`), Entity (`Sprint`, `Task`) và TypeORM
+  MySQL hiện có: `GET /projects/:id`, `GET /projects/:projectId/sprints`,
+  `POST /projects/:projectId/sprints`, `GET /sprints/:sprintId/tasks`,
+  `POST /sprints/:sprintId/tasks`.
+- Giao diện có đầy đủ validation (chặn tên Sprint trống, tiêu đề Task trống),
+  chống submit lặp (`submitting.current`, disabled buttons), trạng thái loading,
+  empty, error và nút thử lại (retry). Giữ đúng quan hệ Project → Sprint → Task.
+- Mã nguồn nằm tại thư mục kỹ thuật `frontend/`, không copy vào chapter này.
+
+### Minh chứng cập nhật trạng thái Task từ UI (2026-11-17)
+
+Theo quy ước demo được duyệt, AI bổ sung trường `status` cho Task với 4 giá trị:
+`TODO` (Chưa làm), `IN_PROGRESS` (Đang làm), `BLOCKED` (Bị chặn), `DONE` (Hoàn thành).
+- Database & Migration: Migration `1791130000000-add-status-to-tasks.ts` thêm cột
+  `status` (varchar 20, default `'TODO'`) và cập nhật toàn bộ task cũ về `TODO`.
+- Backend: `TaskStatus` enum, `UpdateTaskStatusDto` có validation enum, `TasksService`
+  cập nhật trạng thái kèm kiểm tra Sprint/Task tồn tại, trả về 404 nếu không tìm thấy.
+  `TasksController` mở endpoint `PATCH /sprints/:sprintId/tasks/:taskId` và alias
+  `PATCH /tasks/:taskId`.
+- Frontend: Tại `ProjectDetailView.tsx`, mỗi task hiển thị select trạng thái tiếng Việt,
+  chống thao tác lặp khi đang lưu (`isUpdating` / `disabled`), hiển thị lỗi và phục hồi
+  trạng thái cũ nếu cập nhật thất bại, đảm bảo các task khác không bị ảnh hưởng.
+
 Minh chứng trình duyệt/API/MySQL và kết quả kiểm thử nằm tại
 [Chapter 8](../chapter-08-ai-software-testing/README.md).
 Chờ human review giao diện và phạm vi demo; chưa đóng Chapter 6.

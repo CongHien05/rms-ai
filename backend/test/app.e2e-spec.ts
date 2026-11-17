@@ -10,6 +10,7 @@ import { Employee } from './../src/employees/employee.entity.js';
 import { Project } from './../src/projects/project.entity.js';
 import { Skill } from './../src/skills/skill.entity.js';
 import { Sprint } from './../src/sprints/sprint.entity.js';
+import { TaskStatus } from './../src/tasks/task-status.enum.js';
 import { Task } from './../src/tasks/task.entity.js';
 
 function employeeSkillKey(employeeId: string, skillId: string): string {
@@ -76,6 +77,7 @@ describe('Backend foundations (e2e)', () => {
     const taskRepository = {
       create: vi.fn((input: Pick<Task, 'sprintId' | 'title'>) => ({
         id: randomUUID(),
+        status: TaskStatus.TODO,
         ...input,
       })),
       save: vi.fn(async (task: Task) => {
@@ -84,6 +86,14 @@ describe('Backend foundations (e2e)', () => {
       }),
       findBy: vi.fn(async ({ sprintId }: { sprintId: string }) =>
         [...tasks.values()].filter((task) => task.sprintId === sprintId),
+      ),
+      findOneBy: vi.fn(
+        async ({ id, sprintId }: { id: string; sprintId?: string }) => {
+          const task = tasks.get(id);
+          if (!task) return null;
+          if (sprintId && task.sprintId !== sprintId) return null;
+          return task;
+        },
       ),
     };
 
@@ -203,6 +213,20 @@ describe('Backend foundations (e2e)', () => {
     expect(taskResponse.body).toMatchObject({
       sprintId: sprintResponse.body.id,
       title: 'Task 1',
+      status: 'TODO',
+    });
+
+    const updatedTask = await request(app.getHttpServer())
+      .patch(
+        `/sprints/${sprintResponse.body.id}/tasks/${taskResponse.body.id}`,
+      )
+      .send({ status: 'IN_PROGRESS' })
+      .expect(200);
+    expect(updatedTask.body).toMatchObject({
+      id: taskResponse.body.id,
+      sprintId: sprintResponse.body.id,
+      title: 'Task 1',
+      status: 'IN_PROGRESS',
     });
 
     await request(app.getHttpServer())
@@ -231,6 +255,7 @@ describe('Backend foundations (e2e)', () => {
           id: taskResponse.body.id,
           sprintId: sprintResponse.body.id,
           title: 'Task 1',
+          status: 'IN_PROGRESS',
         },
       ]);
   });
@@ -251,6 +276,18 @@ describe('Backend foundations (e2e)', () => {
     await request(app.getHttpServer())
       .post(`/sprints/${randomUUID()}/tasks`)
       .send({ title: 'Task 1' })
+      .expect(404);
+    await request(app.getHttpServer())
+      .patch(`/sprints/${randomUUID()}/tasks/${randomUUID()}`)
+      .send({ status: 'INVALID_STATUS' })
+      .expect(400);
+    await request(app.getHttpServer())
+      .patch(`/sprints/${randomUUID()}/tasks/not-a-uuid`)
+      .send({ status: 'DONE' })
+      .expect(400);
+    await request(app.getHttpServer())
+      .patch(`/sprints/${randomUUID()}/tasks/${randomUUID()}`)
+      .send({ status: 'DONE' })
       .expect(404);
   });
 

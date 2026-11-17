@@ -8,6 +8,7 @@ import {
   createDataSourceOptions,
   createTypeOrmModuleOptions,
 } from './database.config.js';
+import { AddStatusToTasks1791130000000 } from './migrations/1791130000000-add-status-to-tasks.js';
 import { CreateEmployeeSkillFoundation1791123398274 } from './migrations/1791123398274-create-employee-skill-foundation.js';
 import { CreateProjectSprintTaskFoundation1791120736172 } from './migrations/1791120736172-create-project-sprint-task-foundation.js';
 
@@ -41,6 +42,7 @@ describe('database configuration', () => {
       migrations: [
         CreateProjectSprintTaskFoundation1791120736172,
         CreateEmployeeSkillFoundation1791123398274,
+        AddStatusToTasks1791130000000,
       ],
     });
     expect(moduleOptions).not.toHaveProperty('autoLoadEntities');

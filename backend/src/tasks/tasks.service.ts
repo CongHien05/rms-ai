@@ -1,13 +1,19 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { Repository } from 'typeorm';
 import { SprintsService } from '../sprints/sprints.service.js';
+import { TaskStatus } from './task-status.enum.js';
 import { Task } from './task.entity.js';
 
 export interface TaskResponse {
   id: string;
   sprintId: string;
   title: string;
+  status: TaskStatus;
 }
 
 @Injectable()
@@ -30,6 +36,7 @@ export class TasksService {
     const task = this.tasksRepository.create({
       sprintId,
       title: normalizedTitle,
+      status: TaskStatus.TODO,
     });
     return this.toResponse(await this.tasksRepository.save(task));
   }
@@ -40,7 +47,41 @@ export class TasksService {
     return tasks.map((task) => this.toResponse(task));
   }
 
+  async updateStatus(
+    sprintId: string,
+    taskId: string,
+    status: TaskStatus,
+  ): Promise<TaskResponse> {
+    await this.sprintsService.findOne(sprintId);
+
+    const task = await this.tasksRepository.findOneBy({ id: taskId, sprintId });
+    if (!task) {
+      throw new NotFoundException('Không tìm thấy Task.');
+    }
+
+    task.status = status;
+    return this.toResponse(await this.tasksRepository.save(task));
+  }
+
+  async updateStatusDirect(
+    taskId: string,
+    status: TaskStatus,
+  ): Promise<TaskResponse> {
+    const task = await this.tasksRepository.findOneBy({ id: taskId });
+    if (!task) {
+      throw new NotFoundException('Không tìm thấy Task.');
+    }
+
+    task.status = status;
+    return this.toResponse(await this.tasksRepository.save(task));
+  }
+
   private toResponse(task: Task): TaskResponse {
-    return { id: task.id, sprintId: task.sprintId, title: task.title };
+    return {
+      id: task.id,
+      sprintId: task.sprintId,
+      title: task.title,
+      status: task.status ?? TaskStatus.TODO,
+    };
   }
 }

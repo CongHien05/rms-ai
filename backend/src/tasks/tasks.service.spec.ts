@@ -1,6 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import type { Repository } from 'typeorm';
 import type { SprintsService } from '../sprints/sprints.service.js';
+import { TaskStatus } from './task-status.enum.js';
 import { Task } from './task.entity.js';
 import { TasksService } from './tasks.service.js';
 
@@ -12,6 +13,7 @@ describe('TasksService', () => {
     create: ReturnType<typeof vi.fn>;
     save: ReturnType<typeof vi.fn>;
     findBy: ReturnType<typeof vi.fn>;
+    findOneBy: ReturnType<typeof vi.fn>;
   };
   let sprintsService: { findOne: ReturnType<typeof vi.fn> };
   let service: TasksService;
@@ -21,6 +23,7 @@ describe('TasksService', () => {
       create: vi.fn(),
       save: vi.fn(),
       findBy: vi.fn(),
+      findOneBy: vi.fn(),
     };
     sprintsService = { findOne: vi.fn() };
     service = new TasksService(
@@ -35,7 +38,12 @@ describe('TasksService', () => {
       projectId,
       name: 'Sprint 1',
     });
-    const task = { id: taskId, sprintId, title: 'Task 1' } as Task;
+    const task = {
+      id: taskId,
+      sprintId,
+      title: 'Task 1',
+      status: TaskStatus.TODO,
+    } as Task;
     repository.create.mockReturnValue(task);
     repository.save.mockResolvedValue(task);
 
@@ -43,10 +51,12 @@ describe('TasksService', () => {
       id: taskId,
       sprintId,
       title: 'Task 1',
+      status: TaskStatus.TODO,
     });
     expect(repository.create).toHaveBeenCalledWith({
       sprintId,
       title: 'Task 1',
+      status: TaskStatus.TODO,
     });
   });
 
@@ -75,12 +85,104 @@ describe('TasksService', () => {
       name: 'Sprint 1',
     });
     repository.findBy.mockResolvedValue([
-      { id: taskId, sprintId, title: 'Task 1' } as Task,
+      {
+        id: taskId,
+        sprintId,
+        title: 'Task 1',
+        status: TaskStatus.TODO,
+      } as Task,
     ]);
 
     await expect(service.findAllBySprint(sprintId)).resolves.toEqual([
-      { id: taskId, sprintId, title: 'Task 1' },
+      {
+        id: taskId,
+        sprintId,
+        title: 'Task 1',
+        status: TaskStatus.TODO,
+      },
     ]);
     expect(repository.findBy).toHaveBeenCalledWith({ sprintId });
+  });
+
+  it('updates task status within sprint successfully', async () => {
+    sprintsService.findOne.mockResolvedValue({
+      id: sprintId,
+      projectId,
+      name: 'Sprint 1',
+    });
+    const existingTask = {
+      id: taskId,
+      sprintId,
+      title: 'Task 1',
+      status: TaskStatus.TODO,
+    } as Task;
+    repository.findOneBy.mockResolvedValue(existingTask);
+    repository.save.mockImplementation(async (item: Task) => item);
+
+    await expect(
+      service.updateStatus(sprintId, taskId, TaskStatus.IN_PROGRESS),
+    ).resolves.toEqual({
+      id: taskId,
+      sprintId,
+      title: 'Task 1',
+      status: TaskStatus.IN_PROGRESS,
+    });
+    expect(repository.findOneBy).toHaveBeenCalledWith({
+      id: taskId,
+      sprintId,
+    });
+  });
+
+  it('rejects status update when sprint does not exist', async () => {
+    sprintsService.findOne.mockRejectedValue(
+      new NotFoundException('Không tìm thấy Sprint.'),
+    );
+
+    await expect(
+      service.updateStatus(sprintId, taskId, TaskStatus.DONE),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(repository.findOneBy).not.toHaveBeenCalled();
+  });
+
+  it('rejects status update when task does not exist in sprint', async () => {
+    sprintsService.findOne.mockResolvedValue({
+      id: sprintId,
+      projectId,
+      name: 'Sprint 1',
+    });
+    repository.findOneBy.mockResolvedValue(null);
+
+    await expect(
+      service.updateStatus(sprintId, taskId, TaskStatus.DONE),
+    ).rejects.toThrow('Không tìm thấy Task.');
+  });
+
+  it('updates task status directly by taskId', async () => {
+    const existingTask = {
+      id: taskId,
+      sprintId,
+      title: 'Task 1',
+      status: TaskStatus.TODO,
+    } as Task;
+    repository.findOneBy.mockResolvedValue(existingTask);
+    repository.save.mockImplementation(async (item: Task) => item);
+
+    await expect(
+      service.updateStatusDirect(taskId, TaskStatus.BLOCKED),
+    ).resolves.toEqual({
+      id: taskId,
+      sprintId,
+      title: 'Task 1',
+      status: TaskStatus.BLOCKED,
+    });
+    expect(repository.findOneBy).toHaveBeenCalledWith({ id: taskId });
+  });
+
+  it('rejects direct status update when task does not exist', async () => {
+    repository.findOneBy.mockResolvedValue(null);
+
+    await expect(
+      service.updateStatusDirect(taskId, TaskStatus.BLOCKED),
+    ).rejects.toThrow('Không tìm thấy Task.');
   });
 });

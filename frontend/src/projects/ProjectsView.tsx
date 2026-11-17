@@ -3,7 +3,11 @@ import './projects.css'
 
 type Project = { id: string; name: string }
 
-export function ProjectsView() {
+interface Props {
+  onOpenProject?: (projectId: string) => void
+}
+
+export function ProjectsView({ onOpenProject }: Props = {}) {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -92,8 +96,25 @@ export function ProjectsView() {
       {!loading && !loadError && projects.length === 0 && <p>Chưa có dự án.</p>}
       {!loading && !loadError && <div className="workspace-list" role="list">
         {projects.map(project => <article className="workspace-row" role="listitem" key={project.id}>
-          <div className="workspace-row__identity"><h2>{project.name}</h2></div>
-          <p>Chưa có đánh giá rủi ro</p>
+          <div className="workspace-row__identity">
+            <h2>
+              <button
+                type="button"
+                className="link-button"
+                onClick={() => onOpenProject?.(project.id)}
+                style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', color: 'inherit', cursor: 'pointer', textAlign: 'left', textDecoration: 'underline' }}
+              >
+                {project.name}
+              </button>
+            </h2>
+          </div>
+          <button
+            className="button button--primary"
+            type="button"
+            onClick={() => onOpenProject?.(project.id)}
+          >
+            Mở dự án
+          </button>
         </article>)}
       </div>}
     </section>

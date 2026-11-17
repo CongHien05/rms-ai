@@ -29,9 +29,17 @@ trong repository nhưng chưa đủ điều kiện để đánh dấu hoàn thà
   dùng `GET /projects` và `POST /projects`. Tải lại trang vẫn thấy dữ liệu;
   GET API và bản ghi MySQL khớp ID. Hai migration đã áp dụng trên database
   dev riêng `rms_ai_pm_dev`; dự án thật không dẫn vào risk mock.
-- PASS: Frontend và Backend build/lint; Backend 36/36 unit test và 5/5
-  e2e test dùng mock. Kiểm thử trình duyệt PASS cho danh sách rỗng, tạo/reload,
-  tên trống, chống submit lặp, lỗi API và thử lại sau phục hồi.
+- Đã hoàn thành luồng PM mở dự án thật bằng ID → tạo/xem Sprint → tạo/xem Task
+  trong sprint, lưu MySQL và tải lại vẫn còn dữ liệu. URL hash `#project/:id`
+  giữ đúng dự án khi reload; có validation tên/tiêu đề trống, chống submit lặp,
+  loading/empty/error/retry và điều hướng quay lại `#projects`.
+- Đã hoàn thành tính năng PM cập nhật trạng thái Task từ UI với 4 trạng thái
+  TODO, IN_PROGRESS, BLOCKED, DONE (hiển thị: Chưa làm, Đang làm, Bị chặn, Hoàn thành).
+  Migration `AddStatusToTasks1791130000000` áp dụng thành công trên MySQL; API
+  `PATCH /sprints/:sprintId/tasks/:taskId` kiểm tra trạng thái hợp lệ, UUID và tồn tại.
+- PASS: Frontend và Backend build/lint sạch; Backend 41/41 unit test và 5/5
+  e2e test. Kiểm thử trình duyệt PASS toàn bộ luồng đổi trạng thái, reload giữ nguyên,
+  đối chiếu API và MySQL `rms_ai_pm_dev` khớp 100%.
   Chi tiết: [triển khai Chapter 6](chapter-06-ai-coding/README.md) và
   [minh chứng Chapter 8](chapter-08-ai-software-testing/README.md).
 - Chapter 5 B1 đã chỉnh theo review và vẫn chờ phê duyệt. B1 là snapshot

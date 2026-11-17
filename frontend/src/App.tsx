@@ -1,4 +1,4 @@
-import { useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
+import { useEffect, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
 import './App.css'
 import {
   DevOverview,
@@ -17,6 +17,7 @@ import { OperationsOverview } from './operations-overview/OperationsOverview'
 import { mockProjectRisks } from './project-risk/mockProjectRisks'
 import { ProjectRiskDetail } from './project-risk/ProjectRiskDetail'
 import { ProjectRiskOverview } from './project-risk/ProjectRiskOverview'
+import { ProjectDetailView } from './projects/ProjectDetailView'
 import { ProjectsView } from './projects/ProjectsView'
 import { mockResourceRecommendations } from './resource-recommendation/mockResourceRecommendations'
 import { ResourceRecommendationView } from './resource-recommendation/ResourceRecommendationView'
@@ -26,6 +27,7 @@ import { RolePreview } from './role-preview/RolePreview'
 type PmView =
   | { readonly name: 'operations-overview' }
   | { readonly name: 'projects' }
+  | { readonly name: 'project-detail'; readonly projectId: string }
   | { readonly name: 'risk-overview' }
   | { readonly name: 'risk-detail'; readonly projectId: string }
   | { readonly name: 'resource-recommendation'; readonly projectId: string }
@@ -67,6 +69,7 @@ const devNavigation: readonly NavigationItem<DevSection>[] = [
 const activePmSectionByView: Record<PmView['name'], PmSection> = {
   'operations-overview': 'overview',
   projects: 'projects',
+  'project-detail': 'projects',
   'risk-overview': 'risk',
   'risk-detail': 'risk',
   'resource-recommendation': 'risk',
@@ -90,11 +93,37 @@ function getContextualStep(view: PmView): DecisionFlowStep | null {
 }
 
 function App() {
-  const [appState, setAppState] = useState<AppState>(() =>
-    window.location.hash === '#projects'
-      ? { mode: 'workspace', role: 'PM', view: { name: 'projects' } }
-      : { mode: 'role-preview' },
-  )
+  const [appState, setAppState] = useState<AppState>(() => {
+    const hash = window.location.hash
+    if (hash === '#projects') {
+      return { mode: 'workspace', role: 'PM', view: { name: 'projects' } }
+    }
+    const projectMatch = /^#project\/([0-9a-fA-F-]{36})$/.exec(hash)
+    if (projectMatch) {
+      return { mode: 'workspace', role: 'PM', view: { name: 'project-detail', projectId: projectMatch[1].toLowerCase() } }
+    }
+    return { mode: 'role-preview' }
+  })
+
+  useEffect(() => {
+    function handleHash() {
+      const hash = window.location.hash
+      if (hash === '#projects') {
+        setAppState({ mode: 'workspace', role: 'PM', view: { name: 'projects' } })
+      } else {
+        const projectMatch = /^#project\/([0-9a-fA-F-]{36})$/.exec(hash)
+        if (projectMatch) {
+          setAppState({ mode: 'workspace', role: 'PM', view: { name: 'project-detail', projectId: projectMatch[1].toLowerCase() } })
+        }
+      }
+    }
+    window.addEventListener('hashchange', handleHash)
+    window.addEventListener('popstate', handleHash)
+    return () => {
+      window.removeEventListener('hashchange', handleHash)
+      window.removeEventListener('popstate', handleHash)
+    }
+  }, [])
 
   function openRole(role: PrototypeRole) {
     if (role === 'PM') {
@@ -182,7 +211,10 @@ function renderPmWorkspace(
   onExitRolePreview: () => void,
 ) {
   function setPmView(nextView: PmView) {
-    window.history.replaceState(null, '', nextView.name === 'projects' ? '#projects' : window.location.pathname)
+    let hash = window.location.pathname
+    if (nextView.name === 'projects') hash = '#projects'
+    else if (nextView.name === 'project-detail') hash = `#project/${nextView.projectId}`
+    window.history.replaceState(null, '', hash)
     setAppState({ mode: 'workspace', role: 'PM', view: nextView })
   }
 
@@ -220,7 +252,14 @@ function renderPmWorkspace(
     )
   } else if (view.name === 'projects') {
     content = (
-      <ProjectsView />
+      <ProjectsView onOpenProject={(id) => setPmView({ name: 'project-detail', projectId: id })} />
+    )
+  } else if (view.name === 'project-detail') {
+    content = (
+      <ProjectDetailView
+        projectId={view.projectId}
+        onBack={() => setPmView({ name: 'projects' })}
+      />
     )
   } else if (view.name === 'risk-overview' || !selectedProject) {
     content = (

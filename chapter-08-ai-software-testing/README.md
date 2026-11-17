@@ -63,5 +63,43 @@ thủ công có công cụ hỗ trợ, chưa có bộ regression tự động ch
 Dữ liệu kiểm thử được giữ lại. Backend/Frontend được để chạy local để người dùng
 review; Auth/RBAC, tải lớn và triển khai production chưa kiểm thử trong tác vụ này.
 
+### Kiểm chứng thực tế luồng PM mở dự án → Sprint → Task (2026-11-17)
+
+Kiểm thử tự động trên trình duyệt thật (browser subagent) kết hợp đối chiếu
+trực tiếp API NestJS và database MySQL `rms_ai_pm_dev`.
+
+| Kiểm tra đã chạy | Kết quả / bằng chứng |
+| --- | --- |
+| Frontend build/lint | PASS: `oxlint` 0 lỗi 0 cảnh báo; `tsc -b && vite build` 33 modules thành công |
+| Backend build/lint/test | PASS: 36/36 unit test, 5/5 e2e test, NestJS build sạch |
+| Mở dự án thật bằng ID | PASS: Click "Mở dự án" chuyển URL `#project/685511c0-2ede-48c0-976e-54dac5040b5e`, tiêu đề h1 hiển thị đúng "Dự án Thử Nghiệm PM 20261117" |
+| Validation tên Sprint trống | PASS: Bấm "Tạo sprint" khi ô trống hiển thị lỗi `Tên Sprint không được để trống.` |
+| Tạo Sprint 1 | PASS: Tạo `Sprint 1 - Khởi động` (ID: `1b903123-6b45-4e21-8199-17f130aa0777`), hiện form task và trạng thái `Chưa có task trong sprint này.` |
+| Validation tiêu đề Task trống | PASS: Bấm "Thêm task" khi ô trống hiển thị lỗi `Tiêu đề Task không được để trống.` |
+| Tạo Task vào Sprint 1 | PASS: Thêm `Task 1.1 - Thiết lập môi trường` (ID: `894e38d6-624e-4e4a-a549-25e0748bd9a7`) hiển thị đúng trong Sprint 1 |
+| Tạo Sprint 2 & Task 2.1 | PASS: Tạo `Sprint 2 - Phát triển` và thêm `Task 2.1 - Lập trình giao diện` (ID: `abfc6cb7-c8bd-4f04-83de-f7d3c4e77834`) |
+| Không lẫn lộn giữa Sprint | PASS: Sprint 1 chỉ chứa Task 1.1; Sprint 2 chỉ chứa Task 2.1 |
+| Tải lại trang (Reload URL) | PASS: Tải lại URL `#project/685511c0-2ede-48c0-976e-54dac5040b5e` vẫn mở đúng dự án, giữ nguyên 2 sprint và 2 task |
+| Điều hướng quay lại | PASS: Nút "← Quay lại" đưa về danh sách `#projects` chính xác |
+| Đối chiếu API & MySQL | PASS: Query MySQL và gọi GET API trả về khớp chính xác các ID, projectId, sprintId và title |
+
+### Kiểm chứng thực tế cập nhật trạng thái Task (2026-11-17)
+
+Kiểm thử trên database `rms_ai_pm_dev`, API NestJS và trình duyệt thật (browser subagent):
+
+| Kiểm tra đã chạy | Kết quả / bằng chứng |
+| --- | --- |
+| Migration database | PASS: Migration `AddStatusToTasks1791130000000` chạy thành công; các task cũ được gán `TODO` |
+| Backend unit & e2e test | PASS: 41/41 unit test (`tasks.service.spec.ts` 9 tests), 5/5 e2e test |
+| Backend validation lỗi status | PASS: `PATCH` với `{ status: "INVALID" }` trả về HTTP 400 Bad Request |
+| Backend validation lỗi UUID | PASS: `PATCH` với task ID không phải UUID trả về HTTP 400 Bad Request |
+| Backend validation task không tồn tại | PASS: `PATCH` với UUID ngẫu nhiên không tồn tại trả về HTTP 404 Not Found |
+| Đổi trạng thái trên UI | PASS: Task 1.1 đổi sang "Đang làm" (IN_PROGRESS) và "Hoàn thành" (DONE); hiển thị tiếng Việt chính xác |
+| Chống thao tác lặp | PASS: Dropdown chuyển `disabled` kèm trạng thái "Đang lưu..." khi đang gửi request |
+| Độc lập giữa các task | PASS: Task 1.1 đổi trạng thái nhưng Task 2.1 ở Sprint 2 vẫn giữ nguyên "Chưa làm" |
+| Bền vững sau reload | PASS: Reload URL `#project/:id` giữ nguyên Task 1.1 là "Hoàn thành" và Task 2.1 là "Bị chặn" |
+| Đối chiếu MySQL & API | PASS: Query MySQL và GET API trả về đúng `status`: Task 1.1 là `DONE`, Task 2.1 là `BLOCKED` |
+| Mục chưa kiểm chứng | Chưa có bộ regression tự động riêng cho Frontend; chưa kiểm thử Auth/RBAC thật |
+
 Lập chiến lược kiểm thử dựa trên Acceptance Criteria, xác định ưu tiên cho
 Frontend, Backend và dịch vụ AI trước khi bổ sung test mới trong tác vụ riêng.
