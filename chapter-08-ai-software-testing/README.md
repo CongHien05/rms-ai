@@ -101,5 +101,36 @@ Kiểm thử trên database `rms_ai_pm_dev`, API NestJS và trình duyệt thậ
 | Đối chiếu MySQL & API | PASS: Query MySQL và GET API trả về đúng `status`: Task 1.1 là `DONE`, Task 2.1 là `BLOCKED` |
 | Mục chưa kiểm chứng | Chưa có bộ regression tự động riêng cho Frontend; chưa kiểm thử Auth/RBAC thật |
 
+### Regression race GET/PATCH và ràng buộc Sprint–Task (2026-11-17)
+
+- Frontend có test cô lập cố ý trì hoãn GET đến sau khi PATCH thành công, xác nhận
+  response cũ không đổi trạng thái mới; test riêng xác nhận GET bị chặn khi PATCH
+  đang chạy. Đây là regression test cho guard, chưa thay thế kiểm thử component/UI.
+- Backend có unit test và e2e test xác nhận task thuộc sprint khác trả HTTP 404,
+  không gọi lưu và dữ liệu task gốc giữ nguyên. E2e dùng repository in-memory,
+  không sửa dữ liệu MySQL dev.
+- PASS: Frontend race test 2/2, build và lint; Backend unit 40/40, e2e 6/6,
+  build và lint; `git diff --check` không có lỗi whitespace.
+- PASS trên trình duyệt thật: proxy tạm giữ response PATCH 5 giây; select và nút
+  `Tải lại task` đều bị khóa, hiện `Đang lưu...`, sau response thì mở lại.
+  Task dev được trả về trạng thái ban đầu `IN_PROGRESS`; không tạo/xóa dữ liệu.
+- Chưa có component test tự động cho toàn bộ `ProjectDetailView`; test GET trả
+  muộn hiện kiểm chứng trực tiếp guard dùng trong component, còn browser test
+  kiểm chứng trạng thái khóa reload khi PATCH bị trì hoãn.
+
+### Regression tổng hợp tiến độ Sprint (2026-11-17)
+
+- Test Frontend kiểm tra phép đếm `DONE`/`BLOCKED`, tỷ lệ phần trăm làm tròn,
+  Sprint rỗng và tính lại ngay sau khi áp dụng trạng thái PATCH đã xác nhận.
+- Test riêng xác nhận khi cập nhật lỗi và mảng task xác nhận không đổi thì số liệu
+  tiến độ cũng không đổi. Hàm tổng hợp dùng đúng state `tasks` của component,
+  không mock thêm API đếm.
+- PASS: `npm test` 6/6 (gồm race 2/2 và tiến độ 4/4), Frontend build/lint sạch,
+  `git diff --check` sạch.
+- PASS browser/MySQL: số tổng/`DONE`/`BLOCKED` khớp task hiển thị; đổi Task 1.1
+  `IN_PROGRESS → BLOCKED → DONE` cập nhật lần lượt 0% và 100%, reload vẫn giữ
+  `DONE`. Sau kiểm tra task được trả về `IN_PROGRESS`; sprint rỗng
+  `Sprint Browser Empty 20261117-2119` hiển thị `Chưa có công việc` cả sau reload.
+
 Lập chiến lược kiểm thử dựa trên Acceptance Criteria, xác định ưu tiên cho
 Frontend, Backend và dịch vụ AI trước khi bổ sung test mới trong tác vụ riêng.

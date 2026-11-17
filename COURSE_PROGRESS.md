@@ -37,9 +37,13 @@ trong repository nhưng chưa đủ điều kiện để đánh dấu hoàn thà
   TODO, IN_PROGRESS, BLOCKED, DONE (hiển thị: Chưa làm, Đang làm, Bị chặn, Hoàn thành).
   Migration `AddStatusToTasks1791130000000` áp dụng thành công trên MySQL; API
   `PATCH /sprints/:sprintId/tasks/:taskId` kiểm tra trạng thái hợp lệ, UUID và tồn tại.
-- PASS: Frontend và Backend build/lint sạch; Backend 41/41 unit test và 5/5
-  e2e test. Kiểm thử trình duyệt PASS toàn bộ luồng đổi trạng thái, reload giữ nguyên,
-  đối chiếu API và MySQL `rms_ai_pm_dev` khớp 100%.
+- Màn chi tiết dự án đã có PROPOSED UI tổng hợp tiến độ từng Sprint theo số lượng
+  task: tổng, hoàn thành, bị chặn và tỷ lệ `DONE / tổng task`; dùng dữ liệu đã tải,
+  không thêm request. Quy tắc `progressValue` và việc dùng tiến độ cho AI/rủi ro vẫn TBD.
+- PASS gần nhất: Frontend 6/6 test (race và tổng hợp tiến độ), build/lint sạch;
+  Backend 40/40 unit test, 6/6 e2e test và build/lint sạch. Kiểm thử trình duyệt
+  với MySQL dev PASS tổng/DONE/BLOCKED, cập nhật tỷ lệ sau đổi trạng thái, reload
+  giữ đúng và trạng thái sprint rỗng; task kiểm thử đã được trả về trạng thái cũ.
   Chi tiết: [triển khai Chapter 6](chapter-06-ai-coding/README.md) và
   [minh chứng Chapter 8](chapter-08-ai-software-testing/README.md).
 - Chapter 5 B1 đã chỉnh theo review và vẫn chờ phê duyệt. B1 là snapshot

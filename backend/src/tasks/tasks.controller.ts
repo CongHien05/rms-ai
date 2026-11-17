@@ -38,34 +38,4 @@ export class TasksController {
   ): Promise<TaskResponse> {
     return this.tasksService.updateStatus(sprintId, taskId, body.status);
   }
-
-  @Patch(':taskId/status')
-  updateStatusAlias(
-    @Param('sprintId', ParseUUIDPipe) sprintId: string,
-    @Param('taskId', ParseUUIDPipe) taskId: string,
-    @Body() body: UpdateTaskStatusDto,
-  ): Promise<TaskResponse> {
-    return this.tasksService.updateStatus(sprintId, taskId, body.status);
-  }
-}
-
-@Controller('tasks')
-export class TasksDirectController {
-  constructor(private readonly tasksService: TasksService) {}
-
-  @Patch(':taskId')
-  updateStatus(
-    @Param('taskId', ParseUUIDPipe) taskId: string,
-    @Body() body: UpdateTaskStatusDto,
-  ): Promise<TaskResponse> {
-    return this.tasksService.updateStatusDirect(taskId, body.status);
-  }
-
-  @Patch(':taskId/status')
-  updateStatusAlias(
-    @Param('taskId', ParseUUIDPipe) taskId: string,
-    @Body() body: UpdateTaskStatusDto,
-  ): Promise<TaskResponse> {
-    return this.tasksService.updateStatusDirect(taskId, body.status);
-  }
 }

@@ -83,11 +83,21 @@ Theo quy ước demo được duyệt, AI bổ sung trường `status` cho Task 
   `status` (varchar 20, default `'TODO'`) và cập nhật toàn bộ task cũ về `TODO`.
 - Backend: `TaskStatus` enum, `UpdateTaskStatusDto` có validation enum, `TasksService`
   cập nhật trạng thái kèm kiểm tra Sprint/Task tồn tại, trả về 404 nếu không tìm thấy.
-  `TasksController` mở endpoint `PATCH /sprints/:sprintId/tasks/:taskId` và alias
-  `PATCH /tasks/:taskId`.
+  `TasksController` mở endpoint duy nhất
+  `PATCH /sprints/:sprintId/tasks/:taskId`; các alias không có caller đã được bỏ
+  sau vòng review mã nguồn.
 - Frontend: Tại `ProjectDetailView.tsx`, mỗi task hiển thị select trạng thái tiếng Việt,
   chống thao tác lặp khi đang lưu (`isUpdating` / `disabled`), hiển thị lỗi và phục hồi
   trạng thái cũ nếu cập nhật thất bại, đảm bảo các task khác không bị ảnh hưởng.
+
+### Minh chứng tổng hợp tiến độ Sprint theo số lượng task (2026-11-17)
+
+- PROPOSED UI: mỗi Sprint tổng hợp trực tiếp danh sách task đã tải để hiển thị
+  tổng task, số `DONE`, số `BLOCKED` và tỷ lệ `DONE / tổng task × 100`, làm tròn
+  số nguyên; Sprint rỗng hiển thị `Chưa có công việc`.
+- Không thêm API hoặc request đếm. Số liệu chỉ đổi sau PATCH thành công; PATCH lỗi
+  giữ số liệu từ trạng thái cuối đã được server xác nhận. Đây không phải trường
+  `progressValue` hay tín hiệu rủi ro mới; các ngữ nghĩa đó vẫn `TBD`.
 
 Minh chứng trình duyệt/API/MySQL và kết quả kiểm thử nằm tại
 [Chapter 8](../chapter-08-ai-software-testing/README.md).

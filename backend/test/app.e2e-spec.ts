@@ -291,6 +291,66 @@ describe('Backend foundations (e2e)', () => {
       .expect(404);
   });
 
+  it('rejects updating task with a different sprint ID and preserves original task data', async () => {
+    const projectResponse = await request(app.getHttpServer())
+      .post('/projects')
+      .send({ name: 'Project Beta' })
+      .expect(201);
+
+    const sprint1 = await request(app.getHttpServer())
+      .post(`/projects/${projectResponse.body.id}/sprints`)
+      .send({ name: 'Sprint 1' })
+      .expect(201);
+
+    const sprint2 = await request(app.getHttpServer())
+      .post(`/projects/${projectResponse.body.id}/sprints`)
+      .send({ name: 'Sprint 2' })
+      .expect(201);
+
+    const task1 = await request(app.getHttpServer())
+      .post(`/sprints/${sprint1.body.id}/tasks`)
+      .send({ title: 'Task in Sprint 1' })
+      .expect(201);
+    expect(task1.body.status).toBe('TODO');
+
+    // Attempt to update task1 using sprint2 ID
+    await request(app.getHttpServer())
+      .patch(`/sprints/${sprint2.body.id}/tasks/${task1.body.id}`)
+      .send({ status: 'DONE' })
+      .expect(404);
+
+    await request(app.getHttpServer())
+      .patch(`/sprints/${sprint1.body.id}/tasks/${task1.body.id}/status`)
+      .send({ status: 'DONE' })
+      .expect(404);
+    await request(app.getHttpServer())
+      .patch(`/tasks/${task1.body.id}`)
+      .send({ status: 'DONE' })
+      .expect(404);
+    await request(app.getHttpServer())
+      .patch(`/tasks/${task1.body.id}/status`)
+      .send({ status: 'DONE' })
+      .expect(404);
+
+    // Verify task1 in sprint1 remains unchanged with status 'TODO'
+    const sprint1Tasks = await request(app.getHttpServer())
+      .get(`/sprints/${sprint1.body.id}/tasks`)
+      .expect(200);
+    expect(sprint1Tasks.body).toHaveLength(1);
+    expect(sprint1Tasks.body[0]).toMatchObject({
+      id: task1.body.id,
+      sprintId: sprint1.body.id,
+      title: 'Task in Sprint 1',
+      status: 'TODO',
+    });
+
+    // Verify sprint2 still has no tasks
+    const sprint2Tasks = await request(app.getHttpServer())
+      .get(`/sprints/${sprint2.body.id}/tasks`)
+      .expect(200);
+    expect(sprint2Tasks.body).toHaveLength(0);
+  });
+
   it('creates Employee and Skill, assigns the relation, and lists it', async () => {
     const employeeResponse = await request(app.getHttpServer())
       .post('/employees')

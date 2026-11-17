@@ -63,19 +63,6 @@ export class TasksService {
     return this.toResponse(await this.tasksRepository.save(task));
   }
 
-  async updateStatusDirect(
-    taskId: string,
-    status: TaskStatus,
-  ): Promise<TaskResponse> {
-    const task = await this.tasksRepository.findOneBy({ id: taskId });
-    if (!task) {
-      throw new NotFoundException('Không tìm thấy Task.');
-    }
-
-    task.status = status;
-    return this.toResponse(await this.tasksRepository.save(task));
-  }
-
   private toResponse(task: Task): TaskResponse {
     return {
       id: task.id,

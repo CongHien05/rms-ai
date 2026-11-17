@@ -8,6 +8,7 @@ import { TasksService } from './tasks.service.js';
 describe('TasksService', () => {
   const projectId = '11111111-1111-4111-8111-111111111111';
   const sprintId = '22222222-2222-4222-8222-222222222222';
+  const otherSprintId = '99999999-9999-4999-8999-999999999999';
   const taskId = '33333333-3333-4333-8333-333333333333';
   let repository: {
     create: ReturnType<typeof vi.fn>;
@@ -157,32 +158,23 @@ describe('TasksService', () => {
     ).rejects.toThrow('Không tìm thấy Task.');
   });
 
-  it('updates task status directly by taskId', async () => {
-    const existingTask = {
-      id: taskId,
-      sprintId,
-      title: 'Task 1',
-      status: TaskStatus.TODO,
-    } as Task;
-    repository.findOneBy.mockResolvedValue(existingTask);
-    repository.save.mockImplementation(async (item: Task) => item);
-
-    await expect(
-      service.updateStatusDirect(taskId, TaskStatus.BLOCKED),
-    ).resolves.toEqual({
-      id: taskId,
-      sprintId,
-      title: 'Task 1',
-      status: TaskStatus.BLOCKED,
+  it('rejects status update when task belongs to a different sprint and keeps data unchanged', async () => {
+    sprintsService.findOne.mockResolvedValue({
+      id: otherSprintId,
+      projectId,
+      name: 'Sprint 2',
     });
-    expect(repository.findOneBy).toHaveBeenCalledWith({ id: taskId });
-  });
-
-  it('rejects direct status update when task does not exist', async () => {
+    // Task exists in DB under sprintId, so query with otherSprintId returns null
     repository.findOneBy.mockResolvedValue(null);
 
     await expect(
-      service.updateStatusDirect(taskId, TaskStatus.BLOCKED),
+      service.updateStatus(otherSprintId, taskId, TaskStatus.DONE),
     ).rejects.toThrow('Không tìm thấy Task.');
+
+    expect(repository.findOneBy).toHaveBeenCalledWith({
+      id: taskId,
+      sprintId: otherSprintId,
+    });
+    expect(repository.save).not.toHaveBeenCalled();
   });
 });

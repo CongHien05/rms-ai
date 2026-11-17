@@ -32,6 +32,18 @@ Hiện có quy tắc rà soát và lịch sử Git của các lần triển khai
 trung bằng chứng rà soát mã nguồn, vòng hiệu chỉnh và tái cấu trúc vào chapter
 này, vì vậy Chapter 7 chưa được xem là hoàn thành.
 
+### Review race condition và API trạng thái Task (2026-11-17)
+
+- Phát hiện GET task trả muộn có thể ghi đè trạng thái PATCH vừa thành công.
+  Quyết định sửa: vô hiệu hóa response GET cũ và chặn GET mới trong lúc PATCH;
+  vẫn giữ hủy request đang chạy để giảm công việc thừa.
+- Tìm caller trong `frontend/` và `backend/` xác nhận chỉ có
+  `PATCH /sprints/:sprintId/tasks/:taskId` được dùng. Quyết định bỏ ba alias,
+  `TasksDirectController` và `updateStatusDirect` để tránh hai đường cập nhật
+  không kiểm tra quan hệ Task thuộc Sprint.
+- Bằng chứng xác nhận nằm ở test race Frontend, unit/e2e Backend và kết quả
+  build/lint được ghi tại Chapter 8. Chờ human review; Chapter 7 vẫn đang thực hiện.
+
 ## 6. Việc tiếp theo
 
 Ở lần rà soát mã nguồn kế tiếp, lưu phát hiện, quyết định của người rà soát, diff

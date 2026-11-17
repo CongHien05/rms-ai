@@ -1,8 +1,13 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import './project-detail.css'
+import { TaskLoadGuard } from './taskLoadGuard'
+import {
+  applyConfirmedTaskStatus,
+  summarizeTaskProgress,
+  type TaskStatus,
+} from './taskProgress'
 
 type Sprint = { id: string; projectId: string; name: string }
-type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'BLOCKED' | 'DONE'
 
 const TASK_STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
   { value: 'TODO', label: 'Chưa làm' },
@@ -31,9 +36,16 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
   const [taskErrors, setTaskErrors] = useState<Record<string, string>>({})
   const submitting = useRef(false)
   const updatingTasksRef = useRef<Set<string>>(new Set())
+  const loadGuardRef = useRef(new TaskLoadGuard())
   const request = useRef<AbortController | null>(null)
 
+  const isAnyTaskUpdating = Object.keys(updatingTaskIds).length > 0
+  const progress = summarizeTaskProgress(tasks)
+
   const load = useCallback(async () => {
+    const loadRevision = loadGuardRef.current.beginLoad()
+    if (loadRevision === null) return
+
     request.current?.abort()
     const ctrl = new AbortController()
     request.current = ctrl
@@ -43,13 +55,19 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
       const res = await fetch(`/api/sprints/${sprint.id}/tasks`, { signal: ctrl.signal })
       if (!res.ok) throw new Error('load')
       const data: Task[] = await res.json()
-      if (!ctrl.signal.aborted) {
+      if (
+        !ctrl.signal.aborted
+        && loadGuardRef.current.canApplyLoad(loadRevision)
+      ) {
         setTasks(data.map(item => ({ ...item, status: item.status || 'TODO' })))
       }
     } catch {
       if (!ctrl.signal.aborted) setLoadError('Không tải được task. Thử lại.')
     } finally {
-      if (!ctrl.signal.aborted) setLoading(false)
+      if (request.current === ctrl) {
+        request.current = null
+        setLoading(false)
+      }
     }
   }, [sprint.id])
 
@@ -61,7 +79,7 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
 
   async function create(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (submitting.current) return
+    if (submitting.current || isAnyTaskUpdating) return
     if (!title.trim()) { setFormError('Tiêu đề Task không được để trống.'); return }
     submitting.current = true
     setSaving(true)
@@ -90,6 +108,11 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
 
   async function handleStatusChange(taskId: string, newStatus: TaskStatus) {
     if (updatingTasksRef.current.has(taskId)) return
+    loadGuardRef.current.beginUpdate()
+    request.current?.abort()
+    request.current = null
+    setLoading(false)
+
     updatingTasksRef.current.add(taskId)
     setUpdatingTaskIds(prev => ({ ...prev, [taskId]: true }))
     setTaskErrors(prev => {
@@ -116,13 +139,14 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
       }
       const updated: Task = await res.json()
       // Only update the target task, ensuring other tasks remain unchanged
-      setTasks(prev => prev.map(t => (t.id === taskId ? { ...t, status: updated.status } : t)))
+      setTasks(prev => applyConfirmedTaskStatus(prev, taskId, updated.status))
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Lỗi cập nhật trạng thái. Đã giữ trạng thái cũ.'
       setTaskErrors(prev => ({ ...prev, [taskId]: message }))
       // Revert/keep old status on failure
-      setTasks(prev => prev.map(t => (t.id === taskId ? { ...t, status: prevStatus } : t)))
+      setTasks(prev => applyConfirmedTaskStatus(prev, taskId, prevStatus))
     } finally {
+      loadGuardRef.current.finishUpdate()
       updatingTasksRef.current.delete(taskId)
       setUpdatingTaskIds(prev => {
         const next = { ...prev }
@@ -158,8 +182,36 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
           <button className="button button--secondary button--sm" type="button" onClick={() => void load()}>Thử lại</button>
         </div>
       )}
-      {!loading && !loadError && tasks.length === 0 && (
-        <p className="empty-hint">Chưa có task trong sprint này.</p>
+      {!loading && !loadError && (
+        <section
+          className="task-progress"
+          aria-label={`Tiến độ ${sprint.name}`}
+          aria-live="polite"
+        >
+          <p className="task-progress__label">Tiến độ theo số lượng task</p>
+          {progress.total === 0 ? (
+            <p className="task-progress__empty">Chưa có công việc</p>
+          ) : (
+            <dl className="task-progress__metrics">
+              <div className="task-progress__metric">
+                <dt>Tổng task</dt>
+                <dd>{progress.total}</dd>
+              </div>
+              <div className="task-progress__metric">
+                <dt>Hoàn thành</dt>
+                <dd>{progress.completed}</dd>
+              </div>
+              <div className="task-progress__metric">
+                <dt>Bị chặn</dt>
+                <dd>{progress.blocked}</dd>
+              </div>
+              <div className="task-progress__metric">
+                <dt>Tỷ lệ hoàn thành</dt>
+                <dd>{progress.completionRate}%</dd>
+              </div>
+            </dl>
+          )}
+        </section>
       )}
       {!loading && !loadError && tasks.length > 0 && (
         <ul className="task-list" role="list">
@@ -222,7 +274,7 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
           className="button button--secondary button--sm"
           type="button"
           onClick={() => void load()}
-          disabled={loading || saving}
+          disabled={loading || saving || isAnyTaskUpdating}
         >
           Tải lại task
         </button>
