@@ -115,6 +115,24 @@ Theo quy ước demo được duyệt, AI bổ sung trường `status` cho Task 
 - `estimatedHours` là khối lượng ước tính của Task, chưa phải workload nhân viên
   vì MVP chưa có assignee/allocation. Hai field này không phải dự báo rủi ro AI.
 
+### Milestone HR đọc dữ liệu nguồn lực (2026-11-18)
+
+- AI triển khai phần đọc thuộc US-05 và AC-US-05-01/03 theo phạm vi người dùng
+  giao. Mục Nhân sự dùng `GET /employees/availability` để đọc Employee cùng
+  Skill qua EmployeeSkill. Mục Kỹ năng dùng `GET /skills`. Hai màn có trạng thái
+  tải, lỗi, rỗng và thử lại.
+- PROPOSED DEMO lưu một lần khai báo cho mỗi Employee gồm `availableHours` và
+  `availabilityWeekStart`. API trả tuần hiện tại từ thứ Hai đến Chủ nhật theo
+  giờ Việt Nam. UI phân biệt số giờ bằng 0, chưa khai báo và dữ liệu khác tuần.
+  Giá trị khai báo độc lập với `estimatedHours` của Task. Quy tắc availability
+  cho sản phẩm vẫn TBD.
+- Chạy tại Backend lần lượt `npm run build`, `npm run migration:local` và
+  `npm run seed:hr:local`. Seed dành cho `rms_ai_pm_dev`, dùng mã demo cố định,
+  chỉ chèn hồ sơ thiếu và giữ nguyên tuần của hồ sơ đã có khi chạy lại.
+- Chờ người dùng review giao diện HR. Phạm vi milestone là đọc dữ liệu từ
+  Role Preview. Lịch sử khai báo và duy trì dữ liệu HR thuộc phạm vi tiếp theo
+  khi được phê duyệt.
+
 Minh chứng trình duyệt/API/MySQL và kết quả kiểm thử nằm tại
 [Chapter 8](../chapter-08-ai-software-testing/README.md).
 Chờ human review giao diện và phạm vi demo; chưa đóng Chapter 6.

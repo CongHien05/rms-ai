@@ -6,6 +6,7 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module.js';
 import { EmployeeSkill } from './../src/employee-skills/employee-skill.entity.js';
+import { getAvailabilityWeek } from './../src/employees/availability-week.js';
 import { Employee } from './../src/employees/employee.entity.js';
 import { Project } from './../src/projects/project.entity.js';
 import { Skill } from './../src/skills/skill.entity.js';
@@ -108,7 +109,21 @@ describe('Backend foundations (e2e)', () => {
         employees.set(employee.id, employee);
         return employee;
       }),
-      find: vi.fn(async () => [...employees.values()]),
+      find: vi.fn(async (options?: { relations?: unknown }) =>
+        [...employees.values()].map((employee) =>
+          options?.relations
+            ? {
+                ...employee,
+                employeeSkills: [...employeeSkills.values()]
+                  .filter((link) => link.employeeId === employee.id)
+                  .map((link) => ({
+                    ...link,
+                    skill: skills.get(link.skillId),
+                  })),
+              }
+            : employee,
+        ),
+      ),
       findOneBy: vi.fn(
         async ({ id }: { id: string }) => employees.get(id) ?? null,
       ),
@@ -414,6 +429,64 @@ describe('Backend foundations (e2e)', () => {
       .get(`/sprints/${sprint2.body.id}/tasks`)
       .expect(200);
     expect(sprint2Tasks.body).toHaveLength(0);
+  });
+
+  it('reads HR availability with skills and distinguishes zero, missing and other-week data', async () => {
+    const { weekStart, weekEnd } = getAvailabilityWeek();
+    const skillId = randomUUID();
+    skills.set(skillId, { id: skillId, name: 'TypeScript' } as Skill);
+    const roster = [
+      {
+        displayName: 'Zero',
+        availabilityWeekStart: weekStart,
+        availableHours: 0,
+      },
+      {
+        displayName: 'Missing',
+        availabilityWeekStart: null,
+        availableHours: null,
+      },
+      {
+        displayName: 'Other week',
+        availabilityWeekStart: '2025-01-06',
+        availableHours: 4.5,
+      },
+    ];
+    for (const person of roster) {
+      const id = randomUUID();
+      employees.set(id, { ...person, id } as Employee);
+      employeeSkills.set(employeeSkillKey(id, skillId), {
+        employeeId: id,
+        skillId,
+      } as EmployeeSkill);
+    }
+
+    const result = await request(app.getHttpServer())
+      .get('/employees/availability')
+      .expect(200);
+    expect(result.body).toEqual({
+      weekStart,
+      weekEnd,
+      employees: [...employees.values()].map((person) => ({
+        id: person.id,
+        displayName: person.displayName,
+        skills: [{ id: skillId, name: 'TypeScript' }],
+        availability:
+          person.availableHours === null
+            ? null
+            : {
+                weekStart: person.availabilityWeekStart,
+                hours: person.availableHours,
+              },
+      })),
+    });
+  });
+
+  it('returns the applicable week even when the HR directory is empty', async () => {
+    await request(app.getHttpServer())
+      .get('/employees/availability')
+      .expect(200)
+      .expect({ ...getAvailabilityWeek(), employees: [] });
   });
 
   it('creates Employee and Skill, assigns the relation, and lists it', async () => {

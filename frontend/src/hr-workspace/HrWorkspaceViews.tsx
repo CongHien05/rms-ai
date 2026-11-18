@@ -1,3 +1,6 @@
+import { HrReadStatus } from './HrReadStatus'
+import { useHrData } from './useHrData'
+
 export function HrOverview() {
   return (
     <section className="workspace-view" aria-labelledby="hr-overview-title">
@@ -9,7 +12,7 @@ export function HrOverview() {
             Phạm vi dữ liệu tối thiểu phục vụ RMS-AI.
           </p>
         </div>
-        <p className="scope-note">Chưa kết nối dữ liệu vận hành</p>
+        <p className="scope-note">Chỉ xem</p>
       </header>
 
       <div className="foundation-layout">
@@ -24,25 +27,25 @@ export function HrOverview() {
             <FoundationSection
               index="01"
               title="Dữ liệu nhân sự"
-              description="Nền tảng Employee có ở Backend; Frontend chưa kết nối."
+              description="Mục Nhân sự hiển thị danh sách và số giờ còn có thể nhận thêm trong tuần."
             />
             <FoundationSection
               index="02"
               title="Dữ liệu kỹ năng"
-              description="Nền tảng Skill có ở Backend; Frontend chưa kết nối."
+              description="Mục Kỹ năng hiển thị danh mục kỹ năng từ RMS-AI."
             />
             <FoundationSection
               index="03"
               title="Liên kết nhân sự — kỹ năng"
-              description="Nền tảng EmployeeSkill đã có; cách duy trì trên UI là GIAO DIỆN ĐỀ XUẤT."
+              description="Mục Nhân sự hiển thị kỹ năng đã liên kết với từng nhân sự."
             />
           </div>
         </section>
 
         <aside className="integration-note" aria-labelledby="integration-title">
           <p className="panel-label">Trạng thái tích hợp</p>
-          <h2 id="integration-title">Chưa kết nối dữ liệu vận hành</h2>
-          <p>Không hiển thị KPI hoặc dữ liệu nguồn lực giả.</p>
+          <h2 id="integration-title">Đọc dữ liệu nguồn lực</h2>
+          <p>Giờ trống theo tuần là PROPOSED DEMO.</p>
         </aside>
       </div>
     </section>
@@ -50,6 +53,8 @@ export function HrOverview() {
 }
 
 export function HrSkillsView() {
+  const { state, retry } = useHrData<{ id: string; name: string }[]>('/api/skills')
+
   return (
     <section className="workspace-view" aria-labelledby="hr-skills-title">
       <header className="page-heading">
@@ -60,23 +65,18 @@ export function HrSkillsView() {
             Skill và liên kết Employee ↔ Skill cần thiết cho RMS-AI.
           </p>
         </div>
-        <p className="scope-note">Chưa kết nối dữ liệu</p>
+        <p className="scope-note">Chỉ xem</p>
       </header>
 
-      <section className="empty-workspace" aria-labelledby="hr-skills-empty-title">
-        <p className="empty-workspace__mark" aria-hidden="true">—</p>
-        <div>
-          <h2 id="hr-skills-empty-title">
-            Dữ liệu kỹ năng chưa được kết nối vào giao diện
-          </h2>
-          <p>
-            Frontend chưa đọc hoặc duy trì Skill và EmployeeSkill.
-          </p>
-          <p className="tbd-note">
-            Trường dữ liệu, thang mức kỹ năng, vòng đời và kiểm tra dữ liệu: TBD.
-          </p>
-        </div>
-      </section>
+      {state.status === 'loading' && <HrReadStatus status="loading" message="Đang tải kỹ năng…" />}
+      {state.status === 'error' && (
+        <HrReadStatus status="error" message="Không tải được dữ liệu kỹ năng." retry={retry} />
+      )}
+      {state.status === 'ready' && (
+        state.data.length === 0
+          ? <HrReadStatus status="empty" message="Chưa có kỹ năng để hiển thị." />
+          : <ul className="foundation-primary">{state.data.map(skill => <li key={skill.id}>{skill.name}</li>)}</ul>
+      )}
     </section>
   )
 }

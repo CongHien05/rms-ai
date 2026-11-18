@@ -5,6 +5,7 @@ import { Skill } from '../skills/skill.entity.js';
 import { Sprint } from '../sprints/sprint.entity.js';
 import { Task } from '../tasks/task.entity.js';
 import { AddTaskPlanningFields1791220000000 } from './migrations/1791220000000-add-task-planning-fields.js';
+import { AddEmployeeAvailability1791230000000 } from './migrations/1791230000000-add-employee-availability.js';
 import {
   createDataSourceOptions,
   createTypeOrmModuleOptions,
@@ -45,6 +46,7 @@ describe('database configuration', () => {
         CreateEmployeeSkillFoundation1791123398274,
         AddStatusToTasks1791130000000,
         AddTaskPlanningFields1791220000000,
+        AddEmployeeAvailability1791230000000,
       ],
     });
     expect(moduleOptions).not.toHaveProperty('autoLoadEntities');

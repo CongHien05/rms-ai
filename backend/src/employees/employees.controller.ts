@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto.js';
 import {
+  type EmployeeAvailabilityResponse,
   EmployeesService,
   type EmployeeResponse,
 } from './employees.service.js';
@@ -24,6 +25,11 @@ export class EmployeesController {
   @Get()
   findAll(): Promise<EmployeeResponse[]> {
     return this.employeesService.findAll();
+  }
+
+  @Get('availability')
+  findAvailability(): Promise<EmployeeAvailabilityResponse> {
+    return this.employeesService.findAvailability();
   }
 
   @Get(':employeeId')

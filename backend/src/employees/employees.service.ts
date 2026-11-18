@@ -5,11 +5,22 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { Repository } from 'typeorm';
+import type { SkillResponse } from '../skills/skills.service.js';
+import { getAvailabilityWeek } from './availability-week.js';
 import { Employee } from './employee.entity.js';
 
 export interface EmployeeResponse {
   id: string;
   displayName: string;
+}
+
+export interface EmployeeAvailabilityResponse {
+  weekStart: string;
+  weekEnd: string;
+  employees: (EmployeeResponse & {
+    skills: SkillResponse[];
+    availability: { weekStart: string; hours: number } | null;
+  })[];
 }
 
 @Injectable()
@@ -37,6 +48,30 @@ export class EmployeesService {
   async findAll(): Promise<EmployeeResponse[]> {
     const employees = await this.employeesRepository.find();
     return employees.map((employee) => this.toResponse(employee));
+  }
+
+  async findAvailability(): Promise<EmployeeAvailabilityResponse> {
+    const week = getAvailabilityWeek();
+    const employees = await this.employeesRepository.find({
+      relations: { employeeSkills: { skill: true } },
+      order: { displayName: 'ASC', id: 'ASC' },
+    });
+    return {
+      ...week,
+      employees: employees.map((employee) => {
+        const { availabilityWeekStart, availableHours } = employee;
+        return {
+          ...this.toResponse(employee),
+          skills: employee.employeeSkills
+            .map(({ skill }) => ({ id: skill.id, name: skill.name }))
+            .sort((left, right) => left.name.localeCompare(right.name, 'vi')),
+          availability:
+            availabilityWeekStart != null && availableHours != null
+              ? { weekStart: availabilityWeekStart, hours: availableHours }
+              : null,
+        };
+      }),
+    };
   }
 
   async findOne(employeeId: string): Promise<EmployeeResponse> {

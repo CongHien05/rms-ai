@@ -150,5 +150,22 @@ Kiểm thử trên database `rms_ai_pm_dev`, API NestJS và trình duyệt thậ
   `DONE`, `2026-12-20`, `8.25`. Đây là PROPOSED DEMO; `estimatedHours` chỉ là
   khối lượng Task, chưa phải workload nhân viên do chưa có assignee/allocation.
 
+### Kiểm chứng HR đọc nguồn lực theo tuần (2026-11-18)
+
+- PASS Backend 44/44 unit, 8/8 e2e với repository in-memory, build và lint.
+  Test kiểm tra mốc đổi tuần theo giờ Việt Nam, tuần qua năm mới, danh sách
+  rỗng và API trả riêng 0 giờ, chưa khai báo, khác tuần. PASS Frontend 10/10
+  regression, build và lint.
+- PASS MySQL dev `rms_ai_pm_dev`. Migration
+  `AddEmployeeAvailability1791230000000` đã áp dụng. Seed lần một chèn 5 nhân sự,
+  3 kỹ năng và 7 liên kết. Lần hai chèn 0 ở cả ba nhóm.
+- PASS browser tại `http://127.0.0.1:5181/` → HR → Nhân sự. Khi Backend chưa chạy,
+  UI hiện lỗi. Sau khi khởi động Backend, nút “Thử lại” tải được tuần 16–22/11/2026.
+  Màn Kỹ năng hiển thị danh mục từ API.
+- PASS đối chiếu browser, API và MySQL. An Mây (ID
+  `2e0f7db7-c2cb-412c-8acf-000000000001`) có MySQL, TypeScript và 12,5 giờ.
+  Bình Sương cùng kỹ năng TypeScript có 4 giờ, Chi Nắng có 0 giờ, Dương Gió
+  chưa khai báo, Giang Mưa có dữ liệu tuần bắt đầu 09/11/2026.
+
 Lập chiến lược kiểm thử dựa trên Acceptance Criteria, xác định ưu tiên cho
 Frontend, Backend và dịch vụ AI trước khi bổ sung test mới trong tác vụ riêng.

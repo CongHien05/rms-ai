@@ -64,6 +64,13 @@ trong repository nhưng chưa đủ điều kiện để đánh dấu hoàn thà
   [Chapter 8](chapter-08-ai-software-testing/README.md).
 - Giới hạn: `estimatedHours` là khối lượng ước tính của Task, chưa phải workload
   nhân viên vì chưa có assignee/allocation; không phải dự báo rủi ro AI.
+- Màn HR đọc Employee, Skill và EmployeeSkill từ NestJS/MySQL. PROPOSED DEMO
+  hiển thị số giờ còn nhận thêm theo tuần, phân biệt 0 giờ, chưa khai báo và
+  khác tuần. Giờ trống do khai báo riêng.
+- PASS migration và seed hai lần trên MySQL dev (5 hồ sơ mới, lần hai chèn 0).
+  Browser đã đối chiếu với API/MySQL và xác nhận lỗi → thử lại. Backend đạt
+  44/44 unit và 8/8 e2e, Frontend đạt 10/10 regression, build/lint hai phía PASS.
+  Milestone HR chỉ đọc và chờ review. Bằng chứng tại Chapter 6/8.
 
 ## Mốc trước tích hợp PM (lịch sử)
 

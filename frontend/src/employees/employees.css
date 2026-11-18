@@ -1,0 +1,23 @@
+.employee-directory {
+  overflow-x: auto;
+}
+
+.employee-directory table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.employee-directory :is(th, td) {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.employee-directory thead {
+  background: var(--surface-muted);
+}
+
+.employee-directory tbody tr:last-child > * {
+  border-bottom: 0;
+}

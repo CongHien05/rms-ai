@@ -10,6 +10,12 @@ export class Employee {
   @Column({ type: 'text' })
   displayName: string;
 
+  @Column({ type: 'date', nullable: true })
+  availabilityWeekStart: string | null;
+
+  @Column({ type: 'double', nullable: true })
+  availableHours: number | null;
+
   @OneToMany(() => EmployeeSkill, (employeeSkill) => employeeSkill.employee)
   employeeSkills: Relation<EmployeeSkill[]>;
 }
