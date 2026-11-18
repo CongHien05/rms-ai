@@ -8,7 +8,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto.js';
-import { UpdateTaskStatusDto } from './dto/update-task-status.dto.js';
+import { UpdateTaskDto } from './dto/update-task.dto.js';
 import { TasksService, type TaskResponse } from './tasks.service.js';
 
 @Controller('sprints/:sprintId/tasks')
@@ -20,7 +20,7 @@ export class TasksController {
     @Param('sprintId', ParseUUIDPipe) sprintId: string,
     @Body() body: CreateTaskDto,
   ): Promise<TaskResponse> {
-    return this.tasksService.create(sprintId, body.title);
+    return this.tasksService.create(sprintId, body);
   }
 
   @Get()
@@ -31,11 +31,11 @@ export class TasksController {
   }
 
   @Patch(':taskId')
-  updateStatus(
+  update(
     @Param('sprintId', ParseUUIDPipe) sprintId: string,
     @Param('taskId', ParseUUIDPipe) taskId: string,
-    @Body() body: UpdateTaskStatusDto,
+    @Body() body: UpdateTaskDto,
   ): Promise<TaskResponse> {
-    return this.tasksService.updateStatus(sprintId, taskId, body.status);
+    return this.tasksService.update(sprintId, taskId, body);
   }
 }

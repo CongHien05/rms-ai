@@ -2,7 +2,11 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import './project-detail.css'
 import { TaskLoadGuard } from './taskLoadGuard'
 import {
-  applyConfirmedTaskStatus,
+  applyConfirmedTaskUpdate,
+  buildTaskPlanningPayload,
+  type TaskPlanningPayload,
+} from './taskPlanning'
+import {
   summarizeTaskProgress,
   type TaskStatus,
 } from './taskProgress'
@@ -21,6 +25,8 @@ type Task = {
   sprintId: string
   title: string
   status: TaskStatus
+  dueDate: string | null
+  estimatedHours: number | null
 }
 
 // ── Sprint panel ──────────────────────────────────────────────────────────────
@@ -30,8 +36,13 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
   const [title, setTitle] = useState('')
+  const [dueDate, setDueDate] = useState('')
+  const [estimatedHours, setEstimatedHours] = useState('')
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
+  const [editDueDate, setEditDueDate] = useState('')
+  const [editEstimatedHours, setEditEstimatedHours] = useState('')
   const [updatingTaskIds, setUpdatingTaskIds] = useState<Record<string, boolean>>({})
   const [taskErrors, setTaskErrors] = useState<Record<string, string>>({})
   const submitting = useRef(false)
@@ -59,7 +70,13 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
         !ctrl.signal.aborted
         && loadGuardRef.current.canApplyLoad(loadRevision)
       ) {
-        setTasks(data.map(item => ({ ...item, status: item.status || 'TODO' })))
+        setTasks(data.map(item => ({
+          ...item,
+          status: item.status || 'TODO',
+          dueDate: item.dueDate ?? null,
+          estimatedHours: item.estimatedHours ?? null,
+        })))
+        setEditingTaskId(null)
       }
     } catch {
       if (!ctrl.signal.aborted) setLoadError('Không tải được task. Thử lại.')
@@ -79,8 +96,15 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
 
   async function create(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (submitting.current || isAnyTaskUpdating) return
+    if (submitting.current || loading || updatingTasksRef.current.size > 0) return
     if (!title.trim()) { setFormError('Tiêu đề Task không được để trống.'); return }
+    let planning: TaskPlanningPayload
+    try {
+      planning = buildTaskPlanningPayload(dueDate, estimatedHours)
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : 'Thông tin Task không hợp lệ.')
+      return
+    }
     submitting.current = true
     setSaving(true)
     setFormError('')
@@ -88,7 +112,7 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
       const res = await fetch(`/api/sprints/${sprint.id}/tasks`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: title.trim() }),
+        body: JSON.stringify({ title: title.trim(), ...planning }),
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
@@ -96,8 +120,16 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
         setFormError(msg)
         return
       }
+      const created: Task = await res.json()
+      setTasks(prev => [...prev, {
+        ...created,
+        status: created.status || 'TODO',
+        dueDate: created.dueDate ?? null,
+        estimatedHours: created.estimatedHours ?? null,
+      }])
       setTitle('')
-      await load()
+      setDueDate('')
+      setEstimatedHours('')
     } catch {
       setFormError('Chưa xác nhận kết quả. Tải lại trước khi thử lại.')
     } finally {
@@ -106,8 +138,12 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
     }
   }
 
-  async function handleStatusChange(taskId: string, newStatus: TaskStatus) {
-    if (updatingTasksRef.current.has(taskId)) return
+  async function patchTask(
+    taskId: string,
+    payload: Partial<Pick<Task, 'status' | 'dueDate' | 'estimatedHours'>>,
+    fallbackError: string,
+  ): Promise<Task | null> {
+    if (submitting.current || updatingTasksRef.current.has(taskId)) return null
     loadGuardRef.current.beginUpdate()
     request.current?.abort()
     request.current = null
@@ -121,30 +157,31 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
       return next
     })
 
-    const currentTask = tasks.find(t => t.id === taskId)
-    const prevStatus = currentTask?.status ?? 'TODO'
-
     try {
       const res = await fetch(`/api/sprints/${sprint.id}/tasks/${taskId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify(payload),
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
         const msg = Array.isArray(err?.message)
           ? err.message.join('; ')
-          : (typeof err?.message === 'string' ? err.message : 'Cập nhật trạng thái thất bại.')
+          : (typeof err?.message === 'string' ? err.message : fallbackError)
         throw new Error(msg)
       }
       const updated: Task = await res.json()
-      // Only update the target task, ensuring other tasks remain unchanged
-      setTasks(prev => applyConfirmedTaskStatus(prev, taskId, updated.status))
+      setTasks(prev => applyConfirmedTaskUpdate(prev, {
+        ...updated,
+        status: updated.status || 'TODO',
+        dueDate: updated.dueDate ?? null,
+        estimatedHours: updated.estimatedHours ?? null,
+      }))
+      return updated
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Lỗi cập nhật trạng thái. Đã giữ trạng thái cũ.'
+      const message = err instanceof Error ? err.message : fallbackError
       setTaskErrors(prev => ({ ...prev, [taskId]: message }))
-      // Revert/keep old status on failure
-      setTasks(prev => applyConfirmedTaskStatus(prev, taskId, prevStatus))
+      return null
     } finally {
       loadGuardRef.current.finishUpdate()
       updatingTasksRef.current.delete(taskId)
@@ -156,20 +193,86 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
     }
   }
 
+  function handleStatusChange(taskId: string, newStatus: TaskStatus) {
+    void patchTask(taskId, { status: newStatus }, 'Cập nhật trạng thái thất bại. Đã giữ trạng thái cũ.')
+  }
+
+  function beginPlanningEdit(task: Task) {
+    if (saving || updatingTasksRef.current.size > 0) return
+    setEditingTaskId(task.id)
+    setEditDueDate(task.dueDate ?? '')
+    setEditEstimatedHours(task.estimatedHours?.toString() ?? '')
+    setTaskErrors(prev => {
+      const next = { ...prev }
+      delete next[task.id]
+      return next
+    })
+  }
+
+  async function updatePlanning(e: FormEvent<HTMLFormElement>, taskId: string) {
+    e.preventDefault()
+    let planning: TaskPlanningPayload
+    try {
+      planning = buildTaskPlanningPayload(editDueDate, editEstimatedHours)
+    } catch (error) {
+      setTaskErrors(prev => ({
+        ...prev,
+        [taskId]: error instanceof Error ? error.message : 'Thông tin Task không hợp lệ.',
+      }))
+      return
+    }
+
+    const updated = await patchTask(
+      taskId,
+      planning,
+      'Cập nhật hạn và số giờ ước tính thất bại. Đã giữ dữ liệu cũ.',
+    )
+    if (updated) setEditingTaskId(current => current === taskId ? null : current)
+  }
+
   return (
     <div className="task-panel">
       <form className="inline-create" onSubmit={create} noValidate>
-        <label htmlFor={`task-title-${sprint.id}`} className="sr-only">Tiêu đề task</label>
-        <input
-          id={`task-title-${sprint.id}`}
-          placeholder="Tiêu đề task..."
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-          disabled={saving}
-          aria-invalid={!!formError}
-          aria-describedby={formError ? `task-err-${sprint.id}` : undefined}
-        />
-        <button className="button button--primary" disabled={saving} type="submit">
+        <div className="task-form-field task-form-field--title">
+          <label htmlFor={`task-title-${sprint.id}`}>Tiêu đề Task</label>
+          <input
+            id={`task-title-${sprint.id}`}
+            placeholder="Tiêu đề task..."
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            disabled={saving || isAnyTaskUpdating}
+            aria-invalid={!!formError}
+            aria-describedby={formError ? `task-err-${sprint.id}` : undefined}
+          />
+        </div>
+        <div className="task-form-field">
+          <label htmlFor={`task-due-date-${sprint.id}`}>Hạn hoàn thành</label>
+          <input
+            id={`task-due-date-${sprint.id}`}
+            type="date"
+            value={dueDate}
+            onChange={e => setDueDate(e.target.value)}
+            disabled={saving || isAnyTaskUpdating}
+          />
+        </div>
+        <div className="task-form-field">
+          <label htmlFor={`task-estimated-hours-${sprint.id}`}>Số giờ ước tính</label>
+          <input
+            id={`task-estimated-hours-${sprint.id}`}
+            type="number"
+            min="0"
+            step="any"
+            placeholder="Ví dụ: 3.5"
+            value={estimatedHours}
+            onChange={e => setEstimatedHours(e.target.value)}
+            disabled={saving || isAnyTaskUpdating}
+          />
+        </div>
+        <button
+          className="button button--primary task-create-submit"
+          disabled={saving || loading || isAnyTaskUpdating}
+          type="submit"
+        >
           {saving ? 'Đang tạo...' : 'Thêm task'}
         </button>
       </form>
@@ -227,8 +330,27 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
                 data-status={task.status}
               >
                 <div className="task-item__main">
-                  <span className="task-title">{task.title}</span>
-                  <div className="task-status-control">
+                  <div className="task-summary">
+                    <span className="task-title">{task.title}</span>
+                    <div className="task-planning-summary">
+                      <span>{task.dueDate ? `Hạn: ${task.dueDate}` : 'Chưa đặt hạn'}</span>
+                      <span>
+                        {task.estimatedHours === null
+                          ? 'Chưa ước tính'
+                          : `Ước tính: ${task.estimatedHours} giờ`}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="task-controls">
+                    <button
+                      className="button button--secondary button--sm"
+                      type="button"
+                      onClick={() => beginPlanningEdit(task)}
+                      disabled={saving || isAnyTaskUpdating}
+                      aria-expanded={editingTaskId === task.id}
+                    >
+                      Sửa hạn và ước tính
+                    </button>
                     <label
                       htmlFor={`task-status-${task.id}`}
                       className="sr-only"
@@ -239,7 +361,7 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
                       id={`task-status-${task.id}`}
                       className={`task-status-select task-status-select--${task.status.toLowerCase()}`}
                       value={task.status}
-                      disabled={isUpdating}
+                      disabled={saving || isUpdating}
                       aria-busy={isUpdating}
                       onChange={e =>
                         void handleStatusChange(
@@ -259,6 +381,50 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
                     )}
                   </div>
                 </div>
+                {editingTaskId === task.id && (
+                  <form
+                    className="task-edit-form"
+                    onSubmit={e => void updatePlanning(e, task.id)}
+                    noValidate
+                  >
+                    <div className="task-form-field">
+                      <label htmlFor={`edit-task-due-date-${task.id}`}>Hạn hoàn thành</label>
+                      <input
+                        id={`edit-task-due-date-${task.id}`}
+                        type="date"
+                        value={editDueDate}
+                        onChange={e => setEditDueDate(e.target.value)}
+                        disabled={isUpdating}
+                      />
+                    </div>
+                    <div className="task-form-field">
+                      <label htmlFor={`edit-task-estimated-hours-${task.id}`}>Số giờ ước tính</label>
+                      <input
+                        id={`edit-task-estimated-hours-${task.id}`}
+                        type="number"
+                        min="0"
+                        step="any"
+                        placeholder="Để trống để xóa"
+                        value={editEstimatedHours}
+                        onChange={e => setEditEstimatedHours(e.target.value)}
+                        disabled={isUpdating}
+                      />
+                    </div>
+                    <div className="task-edit-actions">
+                      <button className="button button--primary button--sm" type="submit" disabled={isUpdating}>
+                        {isUpdating ? 'Đang lưu...' : 'Lưu thông tin'}
+                      </button>
+                      <button
+                        className="button button--secondary button--sm"
+                        type="button"
+                        onClick={() => setEditingTaskId(null)}
+                        disabled={isUpdating}
+                      >
+                        Hủy
+                      </button>
+                    </div>
+                  </form>
+                )}
                 {error && (
                   <p role="alert" className="field-error task-item__error">
                     {error}

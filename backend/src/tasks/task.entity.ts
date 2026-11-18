@@ -27,6 +27,12 @@ export class Task {
   })
   status: TaskStatus;
 
+  @Column({ type: 'date', nullable: true })
+  dueDate: string | null;
+
+  @Column({ type: 'double', nullable: true })
+  estimatedHours: number | null;
+
   @ManyToOne(() => Sprint, (sprint) => sprint.tasks, {
     nullable: false,
     onDelete: 'RESTRICT',

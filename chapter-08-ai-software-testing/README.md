@@ -132,5 +132,23 @@ Kiểm thử trên database `rms_ai_pm_dev`, API NestJS và trình duyệt thậ
   `DONE`. Sau kiểm tra task được trả về `IN_PROGRESS`; sprint rỗng
   `Sprint Browser Empty 20261117-2119` hiển thị `Chưa có công việc` cả sau reload.
 
+### Kiểm chứng milestone kế hoạch Task (2026-11-18)
+
+- PASS migration `AddTaskPlanningFields1791220000000` trên MySQL dev
+  `rms_ai_pm_dev`: schema có `DATE NULL`/`DOUBLE NULL`; 2 Task cũ vẫn null.
+- PASS tự động: Backend 42/42 unit, 6/6 e2e, build/lint; Frontend 10/10 test,
+  build 36 modules và lint. Test bao phủ tạo/đọc/sửa/xóa optional, PATCH giữ
+  field bỏ qua, validation, status null và sai Sprint.
+- PASS API thật: ngày không tồn tại, giờ 0/vô hạn và status null trả 400; sai
+  Sprint trả 404. PATCH riêng `estimatedHours` giữ `dueDate`/status; gửi null xóa
+  rồi khôi phục thành công.
+- PASS browser tại `http://127.0.0.1:5180/#project/685511c0-2ede-48c0-976e-54dac5040b5e`:
+  double-click chỉ tạo 1 Task, sửa thành hạn `2026-12-20`, `8.25` giờ, đổi DONE
+  cập nhật tiến độ 100%; reload giữ nguyên. UI vẫn đọc được 2 Task cũ với placeholder
+  nullable và status trước đó.
+- PASS đối chiếu API/MySQL cùng ID `e6079e74-fb4a-4d83-92c0-bfd10361cd65`,
+  `DONE`, `2026-12-20`, `8.25`. Đây là PROPOSED DEMO; `estimatedHours` chỉ là
+  khối lượng Task, chưa phải workload nhân viên do chưa có assignee/allocation.
+
 Lập chiến lược kiểm thử dựa trên Acceptance Criteria, xác định ưu tiên cho
 Frontend, Backend và dịch vụ AI trước khi bổ sung test mới trong tác vụ riêng.

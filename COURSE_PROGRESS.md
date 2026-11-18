@@ -52,6 +52,19 @@ trong repository nhưng chưa đủ điều kiện để đánh dấu hoàn thà
   đang thực hiện tiếp tục giữ nguyên trạng thái; chưa xác minh Auth/RBAC,
   AI thật hoặc triển khai production.
 
+## Tiến độ ngày 2026-11-18
+
+- Hoàn thành milestone PROPOSED DEMO `dueDate` và `estimatedHours` nullable của
+  Task xuyên suốt UI → API → MySQL. Task cũ giữ null; PATCH duy nhất theo Sprint
+  hỗ trợ sửa riêng, xóa bằng null và giữ nguyên field bị bỏ qua.
+- Migration đã chạy trên `rms_ai_pm_dev`; browser tạo → sửa → đổi status → reload
+  khớp API/MySQL, không làm hỏng placeholder Task cũ hoặc tiến độ Sprint.
+- PASS gần nhất: Frontend 10/10 test, Backend 42/42 unit và 6/6 e2e; build/lint
+  hai phía sạch. Chi tiết ở [Chapter 6](chapter-06-ai-coding/README.md) và
+  [Chapter 8](chapter-08-ai-software-testing/README.md).
+- Giới hạn: `estimatedHours` là khối lượng ước tính của Task, chưa phải workload
+  nhân viên vì chưa có assignee/allocation; không phải dự báo rủi ro AI.
+
 ## Mốc trước tích hợp PM (lịch sử)
 
 - Cơ sở phân tích yêu cầu và sản phẩm đã có PRD, User Stories, Acceptance

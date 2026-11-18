@@ -55,18 +55,42 @@
 
 .inline-create {
   display: flex;
+  align-items: flex-end;
   gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 8px;
 }
 
-.inline-create input {
-  flex: 1 1 200px;
+.inline-create input,
+.task-edit-form input {
+  width: 100%;
   min-width: 0;
   padding: 8px 12px;
   border: 1px solid #777;
   border-radius: 4px;
   font: inherit;
+}
+
+.task-form-field {
+  display: flex;
+  flex: 1 1 150px;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.task-form-field--title {
+  flex-basis: 220px;
+}
+
+.task-form-field label {
+  color: #555;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.task-create-submit {
+  margin-bottom: 1px;
 }
 
 .task-progress {
@@ -144,6 +168,45 @@
 .task-title {
   overflow-wrap: anywhere;
   font-weight: 500;
+}
+
+.task-summary {
+  display: flex;
+  flex: 1 1 260px;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.task-planning-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  color: #666;
+  font-size: 0.82rem;
+}
+
+.task-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.task-edit-form {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.task-edit-actions {
+  display: flex;
+  gap: 6px;
+  padding-bottom: 1px;
 }
 
 .task-status-control {

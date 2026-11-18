@@ -9,11 +9,25 @@ import { SprintsService } from '../sprints/sprints.service.js';
 import { TaskStatus } from './task-status.enum.js';
 import { Task } from './task.entity.js';
 
+export interface CreateTaskInput {
+  title: string;
+  dueDate?: string | null;
+  estimatedHours?: number | null;
+}
+
+export interface UpdateTaskInput {
+  status?: TaskStatus;
+  dueDate?: string | null;
+  estimatedHours?: number | null;
+}
+
 export interface TaskResponse {
   id: string;
   sprintId: string;
   title: string;
   status: TaskStatus;
+  dueDate: string | null;
+  estimatedHours: number | null;
 }
 
 @Injectable()
@@ -24,8 +38,11 @@ export class TasksService {
     private readonly sprintsService: SprintsService,
   ) {}
 
-  async create(sprintId: string, title: string): Promise<TaskResponse> {
-    const normalizedTitle = title.trim();
+  async create(
+    sprintId: string,
+    input: CreateTaskInput,
+  ): Promise<TaskResponse> {
+    const normalizedTitle = input.title.trim();
 
     if (!normalizedTitle) {
       throw new BadRequestException('Tiêu đề Task không được để trống.');
@@ -37,6 +54,8 @@ export class TasksService {
       sprintId,
       title: normalizedTitle,
       status: TaskStatus.TODO,
+      dueDate: input.dueDate ?? null,
+      estimatedHours: input.estimatedHours ?? null,
     });
     return this.toResponse(await this.tasksRepository.save(task));
   }
@@ -47,10 +66,10 @@ export class TasksService {
     return tasks.map((task) => this.toResponse(task));
   }
 
-  async updateStatus(
+  async update(
     sprintId: string,
     taskId: string,
-    status: TaskStatus,
+    input: UpdateTaskInput,
   ): Promise<TaskResponse> {
     await this.sprintsService.findOne(sprintId);
 
@@ -59,7 +78,11 @@ export class TasksService {
       throw new NotFoundException('Không tìm thấy Task.');
     }
 
-    task.status = status;
+    if (input.status !== undefined) task.status = input.status;
+    if (input.dueDate !== undefined) task.dueDate = input.dueDate;
+    if (input.estimatedHours !== undefined) {
+      task.estimatedHours = input.estimatedHours;
+    }
     return this.toResponse(await this.tasksRepository.save(task));
   }
 
@@ -69,6 +92,8 @@ export class TasksService {
       sprintId: task.sprintId,
       title: task.title,
       status: task.status ?? TaskStatus.TODO,
+      dueDate: task.dueDate ?? null,
+      estimatedHours: task.estimatedHours ?? null,
     };
   }
 }

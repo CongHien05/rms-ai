@@ -44,20 +44,32 @@ describe('TasksService', () => {
       sprintId,
       title: 'Task 1',
       status: TaskStatus.TODO,
+      dueDate: '2026-12-01',
+      estimatedHours: 3.5,
     } as Task;
     repository.create.mockReturnValue(task);
     repository.save.mockResolvedValue(task);
 
-    await expect(service.create(sprintId, '  Task 1  ')).resolves.toEqual({
+    await expect(
+      service.create(sprintId, {
+        title: '  Task 1  ',
+        dueDate: '2026-12-01',
+        estimatedHours: 3.5,
+      }),
+    ).resolves.toEqual({
       id: taskId,
       sprintId,
       title: 'Task 1',
       status: TaskStatus.TODO,
+      dueDate: '2026-12-01',
+      estimatedHours: 3.5,
     });
     expect(repository.create).toHaveBeenCalledWith({
       sprintId,
       title: 'Task 1',
       status: TaskStatus.TODO,
+      dueDate: '2026-12-01',
+      estimatedHours: 3.5,
     });
   });
 
@@ -66,16 +78,16 @@ describe('TasksService', () => {
       new NotFoundException('Không tìm thấy Sprint.'),
     );
 
-    await expect(service.create(sprintId, 'Task 1')).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
+    await expect(
+      service.create(sprintId, { title: 'Task 1' }),
+    ).rejects.toBeInstanceOf(NotFoundException);
     expect(repository.save).not.toHaveBeenCalled();
   });
 
   it('rejects an empty task title', async () => {
-    await expect(service.create(sprintId, '   ')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
+    await expect(
+      service.create(sprintId, { title: '   ' }),
+    ).rejects.toBeInstanceOf(BadRequestException);
     expect(sprintsService.findOne).not.toHaveBeenCalled();
   });
 
@@ -91,6 +103,8 @@ describe('TasksService', () => {
         sprintId,
         title: 'Task 1',
         status: TaskStatus.TODO,
+        dueDate: null,
+        estimatedHours: null,
       } as Task,
     ]);
 
@@ -100,12 +114,14 @@ describe('TasksService', () => {
         sprintId,
         title: 'Task 1',
         status: TaskStatus.TODO,
+        dueDate: null,
+        estimatedHours: null,
       },
     ]);
     expect(repository.findBy).toHaveBeenCalledWith({ sprintId });
   });
 
-  it('updates task status within sprint successfully', async () => {
+  it('updates task status without losing planning fields', async () => {
     sprintsService.findOne.mockResolvedValue({
       id: sprintId,
       projectId,
@@ -116,17 +132,21 @@ describe('TasksService', () => {
       sprintId,
       title: 'Task 1',
       status: TaskStatus.TODO,
+      dueDate: '2026-12-01',
+      estimatedHours: 3.5,
     } as Task;
     repository.findOneBy.mockResolvedValue(existingTask);
     repository.save.mockImplementation(async (item: Task) => item);
 
     await expect(
-      service.updateStatus(sprintId, taskId, TaskStatus.IN_PROGRESS),
+      service.update(sprintId, taskId, { status: TaskStatus.IN_PROGRESS }),
     ).resolves.toEqual({
       id: taskId,
       sprintId,
       title: 'Task 1',
       status: TaskStatus.IN_PROGRESS,
+      dueDate: '2026-12-01',
+      estimatedHours: 3.5,
     });
     expect(repository.findOneBy).toHaveBeenCalledWith({
       id: taskId,
@@ -140,7 +160,7 @@ describe('TasksService', () => {
     );
 
     await expect(
-      service.updateStatus(sprintId, taskId, TaskStatus.DONE),
+      service.update(sprintId, taskId, { status: TaskStatus.DONE }),
     ).rejects.toBeInstanceOf(NotFoundException);
     expect(repository.findOneBy).not.toHaveBeenCalled();
   });
@@ -154,7 +174,7 @@ describe('TasksService', () => {
     repository.findOneBy.mockResolvedValue(null);
 
     await expect(
-      service.updateStatus(sprintId, taskId, TaskStatus.DONE),
+      service.update(sprintId, taskId, { status: TaskStatus.DONE }),
     ).rejects.toThrow('Không tìm thấy Task.');
   });
 
@@ -168,7 +188,7 @@ describe('TasksService', () => {
     repository.findOneBy.mockResolvedValue(null);
 
     await expect(
-      service.updateStatus(otherSprintId, taskId, TaskStatus.DONE),
+      service.update(otherSprintId, taskId, { status: TaskStatus.DONE }),
     ).rejects.toThrow('Không tìm thấy Task.');
 
     expect(repository.findOneBy).toHaveBeenCalledWith({
@@ -176,5 +196,66 @@ describe('TasksService', () => {
       sprintId: otherSprintId,
     });
     expect(repository.save).not.toHaveBeenCalled();
+  });
+
+  it('updates one planning field and preserves every omitted field', async () => {
+    sprintsService.findOne.mockResolvedValue({
+      id: sprintId,
+      projectId,
+      name: 'Sprint 1',
+    });
+    const existingTask = {
+      id: taskId,
+      sprintId,
+      title: 'Task 1',
+      status: TaskStatus.BLOCKED,
+      dueDate: '2026-12-01',
+      estimatedHours: 3.5,
+    } as Task;
+    repository.findOneBy.mockResolvedValue(existingTask);
+    repository.save.mockImplementation(async (item: Task) => item);
+
+    await expect(
+      service.update(sprintId, taskId, { dueDate: '2026-12-15' }),
+    ).resolves.toEqual({
+      id: taskId,
+      sprintId,
+      title: 'Task 1',
+      status: TaskStatus.BLOCKED,
+      dueDate: '2026-12-15',
+      estimatedHours: 3.5,
+    });
+  });
+
+  it('clears nullable planning fields when PATCH explicitly sends null', async () => {
+    sprintsService.findOne.mockResolvedValue({
+      id: sprintId,
+      projectId,
+      name: 'Sprint 1',
+    });
+    const existingTask = {
+      id: taskId,
+      sprintId,
+      title: 'Task 1',
+      status: TaskStatus.IN_PROGRESS,
+      dueDate: '2026-12-01',
+      estimatedHours: 3.5,
+    } as Task;
+    repository.findOneBy.mockResolvedValue(existingTask);
+    repository.save.mockImplementation(async (item: Task) => item);
+
+    await expect(
+      service.update(sprintId, taskId, {
+        dueDate: null,
+        estimatedHours: null,
+      }),
+    ).resolves.toEqual({
+      id: taskId,
+      sprintId,
+      title: 'Task 1',
+      status: TaskStatus.IN_PROGRESS,
+      dueDate: null,
+      estimatedHours: null,
+    });
   });
 });

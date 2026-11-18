@@ -6,6 +6,7 @@ import { Project } from '../projects/project.entity.js';
 import { Skill } from '../skills/skill.entity.js';
 import { Sprint } from '../sprints/sprint.entity.js';
 import { Task } from '../tasks/task.entity.js';
+import { AddTaskPlanningFields1791220000000 } from './migrations/1791220000000-add-task-planning-fields.js';
 import { AddStatusToTasks1791130000000 } from './migrations/1791130000000-add-status-to-tasks.js';
 import { CreateEmployeeSkillFoundation1791123398274 } from './migrations/1791123398274-create-employee-skill-foundation.js';
 import { CreateProjectSprintTaskFoundation1791120736172 } from './migrations/1791120736172-create-project-sprint-task-foundation.js';
@@ -48,6 +49,7 @@ function createBaseOptions() {
       CreateProjectSprintTaskFoundation1791120736172,
       CreateEmployeeSkillFoundation1791123398274,
       AddStatusToTasks1791130000000,
+      AddTaskPlanningFields1791220000000,
     ],
     migrationsRun: false,
     synchronize: false,

@@ -75,11 +75,13 @@ describe('Backend foundations (e2e)', () => {
     };
 
     const taskRepository = {
-      create: vi.fn((input: Pick<Task, 'sprintId' | 'title'>) => ({
-        id: randomUUID(),
-        status: TaskStatus.TODO,
-        ...input,
-      })),
+      create: vi.fn(
+        (input: Partial<Task> & Pick<Task, 'sprintId' | 'title'>) => ({
+          id: randomUUID(),
+          status: TaskStatus.TODO,
+          ...input,
+        }),
+      ),
       save: vi.fn(async (task: Task) => {
         tasks.set(task.id, task);
         return task;
@@ -208,18 +210,22 @@ describe('Backend foundations (e2e)', () => {
 
     const taskResponse = await request(app.getHttpServer())
       .post(`/sprints/${sprintResponse.body.id}/tasks`)
-      .send({ title: '  Task 1  ' })
+      .send({
+        title: '  Task 1  ',
+        dueDate: '2026-12-01',
+        estimatedHours: 3.5,
+      })
       .expect(201);
     expect(taskResponse.body).toMatchObject({
       sprintId: sprintResponse.body.id,
       title: 'Task 1',
       status: 'TODO',
+      dueDate: '2026-12-01',
+      estimatedHours: 3.5,
     });
 
     const updatedTask = await request(app.getHttpServer())
-      .patch(
-        `/sprints/${sprintResponse.body.id}/tasks/${taskResponse.body.id}`,
-      )
+      .patch(`/sprints/${sprintResponse.body.id}/tasks/${taskResponse.body.id}`)
       .send({ status: 'IN_PROGRESS' })
       .expect(200);
     expect(updatedTask.body).toMatchObject({
@@ -227,6 +233,28 @@ describe('Backend foundations (e2e)', () => {
       sprintId: sprintResponse.body.id,
       title: 'Task 1',
       status: 'IN_PROGRESS',
+      dueDate: '2026-12-01',
+      estimatedHours: 3.5,
+    });
+
+    const clearedEstimate = await request(app.getHttpServer())
+      .patch(`/sprints/${sprintResponse.body.id}/tasks/${taskResponse.body.id}`)
+      .send({ estimatedHours: null })
+      .expect(200);
+    expect(clearedEstimate.body).toMatchObject({
+      status: 'IN_PROGRESS',
+      dueDate: '2026-12-01',
+      estimatedHours: null,
+    });
+
+    const clearedDueDate = await request(app.getHttpServer())
+      .patch(`/sprints/${sprintResponse.body.id}/tasks/${taskResponse.body.id}`)
+      .send({ dueDate: null })
+      .expect(200);
+    expect(clearedDueDate.body).toMatchObject({
+      status: 'IN_PROGRESS',
+      dueDate: null,
+      estimatedHours: null,
     });
 
     await request(app.getHttpServer())
@@ -256,6 +284,8 @@ describe('Backend foundations (e2e)', () => {
           sprintId: sprintResponse.body.id,
           title: 'Task 1',
           status: 'IN_PROGRESS',
+          dueDate: null,
+          estimatedHours: null,
         },
       ]);
   });
@@ -278,6 +308,22 @@ describe('Backend foundations (e2e)', () => {
       .send({ title: 'Task 1' })
       .expect(404);
     await request(app.getHttpServer())
+      .post(`/sprints/${randomUUID()}/tasks`)
+      .send({ title: 'Task 1', dueDate: '2026-02-30' })
+      .expect(400);
+    await request(app.getHttpServer())
+      .post(`/sprints/${randomUUID()}/tasks`)
+      .send({ title: 'Task 1', dueDate: '30-12-2026' })
+      .expect(400);
+    await request(app.getHttpServer())
+      .post(`/sprints/${randomUUID()}/tasks`)
+      .send({ title: 'Task 1', estimatedHours: 0 })
+      .expect(400);
+    await request(app.getHttpServer())
+      .post(`/sprints/${randomUUID()}/tasks`)
+      .send({ title: 'Task 1', estimatedHours: '3.5' })
+      .expect(400);
+    await request(app.getHttpServer())
       .patch(`/sprints/${randomUUID()}/tasks/${randomUUID()}`)
       .send({ status: 'INVALID_STATUS' })
       .expect(400);
@@ -289,6 +335,15 @@ describe('Backend foundations (e2e)', () => {
       .patch(`/sprints/${randomUUID()}/tasks/${randomUUID()}`)
       .send({ status: 'DONE' })
       .expect(404);
+    await request(app.getHttpServer())
+      .patch(`/sprints/${randomUUID()}/tasks/${randomUUID()}`)
+      .send({ status: null })
+      .expect(400);
+    await request(app.getHttpServer())
+      .patch(`/sprints/${randomUUID()}/tasks/${randomUUID()}`)
+      .set('Content-Type', 'application/json')
+      .send('{"estimatedHours":1e309}')
+      .expect(400);
   });
 
   it('rejects updating task with a different sprint ID and preserves original task data', async () => {
@@ -312,11 +367,19 @@ describe('Backend foundations (e2e)', () => {
       .send({ title: 'Task in Sprint 1' })
       .expect(201);
     expect(task1.body.status).toBe('TODO');
+    expect(task1.body).toMatchObject({
+      dueDate: null,
+      estimatedHours: null,
+    });
 
     // Attempt to update task1 using sprint2 ID
     await request(app.getHttpServer())
       .patch(`/sprints/${sprint2.body.id}/tasks/${task1.body.id}`)
       .send({ status: 'DONE' })
+      .expect(404);
+    await request(app.getHttpServer())
+      .patch(`/sprints/${sprint2.body.id}/tasks/${task1.body.id}`)
+      .send({ dueDate: '2026-12-20', estimatedHours: 8.25 })
       .expect(404);
 
     await request(app.getHttpServer())
@@ -342,6 +405,8 @@ describe('Backend foundations (e2e)', () => {
       sprintId: sprint1.body.id,
       title: 'Task in Sprint 1',
       status: 'TODO',
+      dueDate: null,
+      estimatedHours: null,
     });
 
     // Verify sprint2 still has no tasks

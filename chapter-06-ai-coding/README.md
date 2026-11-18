@@ -99,6 +99,22 @@ Theo quy ước demo được duyệt, AI bổ sung trường `status` cho Task 
   giữ số liệu từ trạng thái cuối đã được server xác nhận. Đây không phải trường
   `progressValue` hay tín hiệu rủi ro mới; các ngữ nghĩa đó vẫn `TBD`.
 
+### Milestone hạn hoàn thành và số giờ ước tính của Task (2026-11-18)
+
+- PROPOSED DEMO cho MVP: Task có `dueDate` (`YYYY-MM-DD`, nullable) và
+  `estimatedHours` (số hữu hạn lớn hơn 0, nullable, hỗ trợ thập phân). Migration
+  `AddTaskPlanningFields1791220000000` giữ Task cũ là `null`, không backfill và
+  vẫn để `synchronize: false`.
+- `POST`/`GET` Task trả hai field; endpoint duy nhất
+  `PATCH /sprints/:sprintId/tasks/:taskId` sửa riêng status hoặc field kế hoạch.
+  Field bỏ qua giữ nguyên, `null` xóa field nullable, status không nhận `null`;
+  truy vấn cập nhật vẫn ràng buộc đúng Sprint.
+- UI cho nhập khi tạo và sửa tại từng Task, có placeholder “Chưa đặt hạn” /
+  “Chưa ước tính”, chống submit lặp, báo lỗi và chỉ thay state sau response API
+  thành công. Guard GET/PATCH và cách tính tiến độ Sprint hiện có được giữ nguyên.
+- `estimatedHours` là khối lượng ước tính của Task, chưa phải workload nhân viên
+  vì MVP chưa có assignee/allocation. Hai field này không phải dự báo rủi ro AI.
+
 Minh chứng trình duyệt/API/MySQL và kết quả kiểm thử nằm tại
 [Chapter 8](../chapter-08-ai-software-testing/README.md).
 Chờ human review giao diện và phạm vi demo; chưa đóng Chapter 6.
