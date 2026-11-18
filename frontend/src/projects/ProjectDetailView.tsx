@@ -9,6 +9,7 @@ import {
 } from './taskPlanning'
 import {
   summarizeTaskProgress,
+  type TaskProgress,
   type TaskStatus,
 } from './taskProgress'
 
@@ -30,9 +31,15 @@ type Task = {
   estimatedHours: number | null
 }
 
-// ── Sprint panel ──────────────────────────────────────────────────────────────
+const PAGE_SIZE = 10
 
-function TaskPanel({ sprint }: { sprint: Sprint }) {
+// ── Cột phải: Công việc của đúng một Sprint đang chọn ─────────────────────────
+
+interface SprintWorkspaceProps {
+  readonly sprint: Sprint
+}
+
+function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -41,18 +48,21 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
   const [estimatedHours, setEstimatedHours] = useState('')
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
+  const [showCreateTask, setShowCreateTask] = useState(false)
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
   const [editDueDate, setEditDueDate] = useState('')
   const [editEstimatedHours, setEditEstimatedHours] = useState('')
   const [updatingTaskIds, setUpdatingTaskIds] = useState<Record<string, boolean>>({})
   const [taskErrors, setTaskErrors] = useState<Record<string, string>>({})
+  const [currentPage, setCurrentPage] = useState(1)
+
   const submitting = useRef(false)
   const updatingTasksRef = useRef<Set<string>>(new Set())
   const loadGuardRef = useRef(new TaskLoadGuard())
   const request = useRef<AbortController | null>(null)
 
   const isAnyTaskUpdating = Object.keys(updatingTaskIds).length > 0
-  const progress = summarizeTaskProgress(tasks)
+  const progress: TaskProgress = summarizeTaskProgress(tasks)
 
   const load = useCallback(async () => {
     const loadRevision = loadGuardRef.current.beginLoad()
@@ -78,6 +88,7 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
           estimatedHours: item.estimatedHours ?? null,
         })))
         setEditingTaskId(null)
+        setCurrentPage(1)
       }
     } catch {
       if (!ctrl.signal.aborted) setLoadError('Không tải được task. Thử lại.')
@@ -117,7 +128,9 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
-        const msg: string = Array.isArray(err?.message) ? (err.message as string[]).join('; ') : (typeof err?.message === 'string' ? err.message : 'Tạo task thất bại.')
+        const msg: string = Array.isArray(err?.message)
+          ? (err.message as string[]).join('; ')
+          : (typeof err?.message === 'string' ? err.message : 'Tạo task thất bại.')
         setFormError(msg)
         return
       }
@@ -131,6 +144,7 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
       setTitle('')
       setDueDate('')
       setEstimatedHours('')
+      setShowCreateTask(false)
     } catch {
       setFormError('Chưa xác nhận kết quả. Tải lại trước khi thử lại.')
     } finally {
@@ -231,135 +245,339 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
     if (updated) setEditingTaskId(current => current === taskId ? null : current)
   }
 
-  return (
-    <div className="task-panel">
-      <form className="inline-create" onSubmit={create} noValidate>
-        <div className="task-form-field task-form-field--title">
-          <label htmlFor={`task-title-${sprint.id}`}>Tiêu đề Task</label>
-          <input
-            id={`task-title-${sprint.id}`}
-            placeholder="Tiêu đề task..."
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            disabled={saving || isAnyTaskUpdating}
-            aria-invalid={!!formError}
-            aria-describedby={formError ? `task-err-${sprint.id}` : undefined}
-          />
-        </div>
-        <div className="task-form-field">
-          <label htmlFor={`task-due-date-${sprint.id}`}>Hạn hoàn thành</label>
-          <input
-            id={`task-due-date-${sprint.id}`}
-            type="date"
-            value={dueDate}
-            onChange={e => setDueDate(e.target.value)}
-            disabled={saving || isAnyTaskUpdating}
-          />
-        </div>
-        <div className="task-form-field">
-          <label htmlFor={`task-estimated-hours-${sprint.id}`}>Số giờ ước tính</label>
-          <input
-            id={`task-estimated-hours-${sprint.id}`}
-            type="number"
-            min="0"
-            step="any"
-            placeholder="Ví dụ: 3.5"
-            value={estimatedHours}
-            onChange={e => setEstimatedHours(e.target.value)}
-            disabled={saving || isAnyTaskUpdating}
-          />
-        </div>
-        <button
-          className="button button--primary task-create-submit"
-          disabled={saving || loading || isAnyTaskUpdating}
-          type="submit"
-        >
-          {saving ? 'Đang tạo...' : 'Thêm task'}
-        </button>
-      </form>
-      {formError && <p id={`task-err-${sprint.id}`} role="alert" className="field-error">{formError}</p>}
+  // Phân trang 10 dòng
+  const totalPages = Math.max(1, Math.ceil(tasks.length / PAGE_SIZE))
+  const displayedTasks = tasks.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
-      {loading && <p role="status" className="status-text">Đang tải task...</p>}
+  return (
+    <div className="sprint-workspace-card" data-sprint-id={sprint.id}>
+      {/* Tiêu đề Sprint đang chọn có tiến độ và nút Thêm Task */}
+      <div className="sprint-workspace-header">
+        <div className="sprint-workspace-header__title-group">
+          <h2 className="sprint-workspace-title">{sprint.name}</h2>
+
+          {/* Tiến độ Sprint: Không hiển thị 0% khi Task còn đang tải */}
+          <div className="sprint-progress-indicator">
+            {loading ? (
+              <span className="sprint-progress-text sprint-progress-text--loading">Đang tải công việc…</span>
+            ) : tasks.length === 0 ? (
+              <span className="sprint-progress-text sprint-progress-text--empty">Chưa có công việc</span>
+            ) : (
+              <div className="sprint-progress-detail">
+                <span className="sprint-progress-rate">
+                  {progress.completed}/{progress.total} hoàn thành ({progress.completionRate}%)
+                </span>
+                {progress.blocked > 0 && (
+                  <span className="sprint-blocked-tag">
+                    {progress.blocked} bị chặn
+                  </span>
+                )}
+                <span
+                  className="sprint-progress-bar"
+                  role="progressbar"
+                  aria-label={`Tiến độ hoàn thành: ${progress.completionRate}%`}
+                  aria-valuenow={progress.completionRate}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
+                  <span
+                    className="sprint-progress-fill"
+                    style={{ width: `${progress.completionRate}%` }}
+                  />
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="sprint-workspace-header__actions">
+          <button
+            type="button"
+            className="button button--secondary button--sm sprint-reload-btn"
+            onClick={() => void load()}
+            disabled={loading || saving || isAnyTaskUpdating}
+            title="Tải lại danh sách task"
+          >
+            Tải lại
+          </button>
+          <button
+            type="button"
+            className="button button--primary button--sm sprint-add-task-btn"
+            onClick={() => setShowCreateTask(show => !show)}
+            disabled={saving || loading || isAnyTaskUpdating}
+          >
+            {showCreateTask ? 'Đóng form' : '+ Thêm Task'}
+          </button>
+        </div>
+      </div>
+
+      {/* Form thêm Task chỉ mở khi bấm */}
+      {showCreateTask && (
+        <form className="task-inline-create" onSubmit={create} noValidate>
+          <div className="task-form-row">
+            <div className="task-form-field task-form-field--title">
+              <label htmlFor={`task-title-${sprint.id}`}>Tiêu đề Task</label>
+              <input
+                id={`task-title-${sprint.id}`}
+                placeholder="Nhập tiêu đề task mới…"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                disabled={saving || isAnyTaskUpdating}
+                aria-invalid={!!formError}
+                aria-describedby={formError ? `task-err-${sprint.id}` : undefined}
+                autoFocus
+              />
+            </div>
+            <div className="task-form-field">
+              <label htmlFor={`task-due-date-${sprint.id}`}>Hạn hoàn thành</label>
+              <input
+                id={`task-due-date-${sprint.id}`}
+                type="date"
+                value={dueDate}
+                onChange={e => setDueDate(e.target.value)}
+                disabled={saving || isAnyTaskUpdating}
+              />
+            </div>
+            <div className="task-form-field">
+              <label htmlFor={`task-estimated-hours-${sprint.id}`}>Giờ ước tính</label>
+              <input
+                id={`task-estimated-hours-${sprint.id}`}
+                type="number"
+                min="0"
+                step="any"
+                placeholder="Ví dụ: 3.5"
+                value={estimatedHours}
+                onChange={e => setEstimatedHours(e.target.value)}
+                disabled={saving || isAnyTaskUpdating}
+              />
+            </div>
+          </div>
+          <div className="task-create-actions">
+            <button
+              className="button button--primary button--sm"
+              disabled={saving || loading || isAnyTaskUpdating}
+              type="submit"
+            >
+              {saving ? 'Đang tạo…' : 'Tạo task'}
+            </button>
+            <button
+              className="button button--secondary button--sm"
+              type="button"
+              onClick={() => {
+                setShowCreateTask(false)
+                setFormError('')
+              }}
+              disabled={saving}
+            >
+              Hủy
+            </button>
+          </div>
+          {formError && (
+            <p id={`task-err-${sprint.id}`} role="alert" className="field-error">
+              {formError}
+            </p>
+          )}
+        </form>
+      )}
+
+      {/* Thông báo tải / lỗi */}
+      {loading && (
+        <p role="status" className="status-text task-status-notice">
+          Đang tải danh sách task…
+        </p>
+      )}
+
       {!loading && loadError && (
-        <div role="alert">
+        <div role="alert" className="task-error-box">
           <p className="field-error">{loadError}</p>
-          <button className="button button--secondary button--sm" type="button" onClick={() => void load()}>Thử lại</button>
+          <button className="button button--secondary button--sm" type="button" onClick={() => void load()}>
+            Thử lại
+          </button>
         </div>
       )}
-      {!loading && !loadError && (
-        <section
-          className="task-progress"
-          aria-label={`Tiến độ ${sprint.name}`}
-          aria-live="polite"
-        >
-          <p className="task-progress__label">Tiến độ theo số lượng task</p>
-          {progress.total === 0 ? (
-            <p className="task-progress__empty">Chưa có công việc</p>
-          ) : (
-            <dl className="task-progress__metrics">
-              <div className="task-progress__metric">
-                <dt>Tổng task</dt>
-                <dd>{progress.total}</dd>
-              </div>
-              <div className="task-progress__metric">
-                <dt>Hoàn thành</dt>
-                <dd>{progress.completed}</dd>
-              </div>
-              <div className="task-progress__metric">
-                <dt>Bị chặn</dt>
-                <dd>{progress.blocked}</dd>
-              </div>
-              <div className="task-progress__metric">
-                <dt>Tỷ lệ hoàn thành</dt>
-                <dd>{progress.completionRate}%</dd>
-              </div>
-            </dl>
-          )}
-        </section>
+
+      {!loading && !loadError && tasks.length === 0 && (
+        <div className="task-empty-box">
+          <p className="empty-hint">Chưa có công việc nào trong sprint này.</p>
+          <button
+            className="button button--secondary button--sm"
+            type="button"
+            onClick={() => setShowCreateTask(true)}
+          >
+            + Thêm task đầu tiên
+          </button>
+        </div>
       )}
+
+      {/* Task hiển thị thành bảng gọn: tên, trạng thái, hạn, giờ ước tính, thao tác */}
       {!loading && !loadError && tasks.length > 0 && (
-        <ul className="task-list" role="list">
-          {tasks.map(task => {
-            const isUpdating = !!updatingTaskIds[task.id]
-            const error = taskErrors[task.id]
-            return (
-              <li
-                key={task.id}
-                className="task-item"
-                role="listitem"
-                data-task-id={task.id}
-                data-status={task.status}
-              >
-                <div className="task-item__main">
-                  <div className="task-summary">
-                    <span className="task-title">{task.title}</span>
-                    <div className="task-planning-summary">
-                      <span>{task.dueDate ? `Hạn: ${task.dueDate}` : 'Chưa đặt hạn'}</span>
-                      <span>
-                        {task.estimatedHours === null
-                          ? 'Chưa ước tính'
-                          : `Ước tính: ${task.estimatedHours} giờ`}
+        <div className="task-table-wrapper">
+          {/* Desktop Table View */}
+          <table className="task-table" role="table" aria-label={`Danh sách task của ${sprint.name}`}>
+            <thead>
+              <tr role="row">
+                <th scope="col" className="task-th task-th--title">Tên Task</th>
+                <th scope="col" className="task-th task-th--status">Trạng thái</th>
+                <th scope="col" className="task-th task-th--date">Hạn</th>
+                <th scope="col" className="task-th task-th--hours">Ước tính</th>
+                <th scope="col" className="task-th task-th--actions">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayedTasks.map(task => {
+                const isUpdating = !!updatingTaskIds[task.id]
+                const error = taskErrors[task.id]
+                const isBlocked = task.status === 'BLOCKED'
+                const isEditing = editingTaskId === task.id
+
+                return (
+                  <tr
+                    key={task.id}
+                    role="row"
+                    data-task-id={task.id}
+                    data-status={task.status}
+                    className={`task-tr ${isBlocked ? 'task-tr--blocked' : ''}`}
+                  >
+                    {/* Cột 1: Tên Task (ưu tiên chiều rộng) */}
+                    <td className="task-td task-td--title">
+                      <span className="task-name">{task.title}</span>
+                      {isEditing && (
+                        <form
+                          className="task-edit-subform"
+                          onSubmit={e => void updatePlanning(e, task.id)}
+                          noValidate
+                        >
+                          <div className="task-edit-fields">
+                            <div className="task-form-field">
+                              <label htmlFor={`edit-due-${task.id}`}>Hạn hoàn thành</label>
+                              <input
+                                id={`edit-due-${task.id}`}
+                                type="date"
+                                value={editDueDate}
+                                onChange={e => setEditDueDate(e.target.value)}
+                                disabled={isUpdating}
+                              />
+                            </div>
+                            <div className="task-form-field">
+                              <label htmlFor={`edit-hours-${task.id}`}>Số giờ ước tính</label>
+                              <input
+                                id={`edit-hours-${task.id}`}
+                                type="number"
+                                min="0"
+                                step="any"
+                                placeholder="Để trống để xóa"
+                                value={editEstimatedHours}
+                                onChange={e => setEditEstimatedHours(e.target.value)}
+                                disabled={isUpdating}
+                              />
+                            </div>
+                            <div className="task-edit-btns">
+                              <button
+                                className="button button--primary button--sm"
+                                type="submit"
+                                disabled={isUpdating}
+                              >
+                                {isUpdating ? 'Lưu…' : 'Lưu'}
+                              </button>
+                              <button
+                                className="button button--secondary button--sm"
+                                type="button"
+                                onClick={() => setEditingTaskId(null)}
+                                disabled={isUpdating}
+                              >
+                                Hủy
+                              </button>
+                            </div>
+                          </div>
+                        </form>
+                      )}
+                      {error && <p role="alert" className="field-error task-row-error">{error}</p>}
+                    </td>
+
+                    {/* Cột 2: Trạng thái */}
+                    <td className="task-td task-td--status">
+                      <div className="task-status-wrap">
+                        <label htmlFor={`task-status-${task.id}`} className="sr-only">
+                          Trạng thái task {task.title}
+                        </label>
+                        <select
+                          id={`task-status-${task.id}`}
+                          className={`task-status-select task-status-select--${task.status.toLowerCase()}`}
+                          value={task.status}
+                          disabled={saving || isUpdating}
+                          aria-busy={isUpdating}
+                          onChange={e =>
+                            void handleStatusChange(
+                              task.id,
+                              e.target.value as TaskStatus,
+                            )
+                          }
+                        >
+                          {TASK_STATUS_OPTIONS.map(opt => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                        {isUpdating && <span className="status-saving-hint">Lưu…</span>}
+                      </div>
+                    </td>
+
+                    {/* Cột 3: Hạn */}
+                    <td className="task-td task-td--date">
+                      <span className={task.dueDate ? 'task-date-val' : 'task-empty-val'}>
+                        {task.dueDate ?? '—'}
                       </span>
-                    </div>
-                  </div>
-                  <div className="task-controls">
-                    <button
-                      className="button button--secondary button--sm"
-                      type="button"
-                      onClick={() => beginPlanningEdit(task)}
-                      disabled={saving || isAnyTaskUpdating}
-                      aria-expanded={editingTaskId === task.id}
-                    >
-                      Sửa hạn và ước tính
-                    </button>
-                    <label
-                      htmlFor={`task-status-${task.id}`}
-                      className="sr-only"
-                    >
-                      Trạng thái của task {task.title}
-                    </label>
+                    </td>
+
+                    {/* Cột 4: Giờ ước tính */}
+                    <td className="task-td task-td--hours">
+                      <span className={task.estimatedHours !== null ? 'task-hours-val' : 'task-empty-val'}>
+                        {task.estimatedHours !== null ? `${task.estimatedHours} giờ` : '—'}
+                      </span>
+                    </td>
+
+                    {/* Cột 5: Thao tác */}
+                    <td className="task-td task-td--actions">
+                      <button
+                        className="button button--secondary button--sm task-edit-btn"
+                        type="button"
+                        onClick={() => {
+                          if (isEditing) setEditingTaskId(null)
+                          else beginPlanningEdit(task)
+                        }}
+                        disabled={saving || isAnyTaskUpdating}
+                        aria-expanded={isEditing}
+                      >
+                        {isEditing ? 'Đóng' : 'Sửa'}
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+
+          {/* Mobile View: Mỗi Task thành một hàng hai dòng, không tràn ngang */}
+          <div className="task-mobile-list" role="list">
+            {displayedTasks.map(task => {
+              const isUpdating = !!updatingTaskIds[task.id]
+              const error = taskErrors[task.id]
+              const isEditing = editingTaskId === task.id
+
+              return (
+                <div
+                  key={task.id}
+                  className="task-mobile-card"
+                  role="listitem"
+                  data-task-id={task.id}
+                  data-status={task.status}
+                >
+                  {/* Dòng 1: Tên Task + Trạng thái */}
+                  <div className="task-mobile-row1">
+                    <span className="task-name">{task.title}</span>
                     <select
-                      id={`task-status-${task.id}`}
+                      id={`m-task-status-${task.id}`}
                       className={`task-status-select task-status-select--${task.status.toLowerCase()}`}
                       value={task.status}
                       disabled={saving || isUpdating}
@@ -377,119 +595,140 @@ function TaskPanel({ sprint }: { sprint: Sprint }) {
                         </option>
                       ))}
                     </select>
-                    {isUpdating && (
-                      <span className="status-saving-hint">Đang lưu...</span>
-                    )}
                   </div>
+
+                  {/* Dòng 2: Hạn hoàn thành + Giờ ước tính + Nút Sửa */}
+                  <div className="task-mobile-row2">
+                    <div className="task-mobile-meta">
+                      <span>Hạn: {task.dueDate ?? 'Chưa đặt'}</span>
+                      <span>·</span>
+                      <span>{task.estimatedHours !== null ? `${task.estimatedHours}h` : 'Chưa ước tính'}</span>
+                    </div>
+                    <button
+                      className="button button--secondary button--sm task-edit-btn"
+                      type="button"
+                      onClick={() => {
+                        if (isEditing) setEditingTaskId(null)
+                        else beginPlanningEdit(task)
+                      }}
+                      disabled={saving || isAnyTaskUpdating}
+                    >
+                      {isEditing ? 'Đóng' : 'Sửa'}
+                    </button>
+                  </div>
+
+                  {/* Form sửa inline trên mobile */}
+                  {isEditing && (
+                    <form
+                      className="task-edit-subform task-edit-subform--mobile"
+                      onSubmit={e => void updatePlanning(e, task.id)}
+                      noValidate
+                    >
+                      <div className="task-form-field">
+                        <label htmlFor={`m-edit-due-${task.id}`}>Hạn hoàn thành</label>
+                        <input
+                          id={`m-edit-due-${task.id}`}
+                          type="date"
+                          value={editDueDate}
+                          onChange={e => setEditDueDate(e.target.value)}
+                          disabled={isUpdating}
+                        />
+                      </div>
+                      <div className="task-form-field">
+                        <label htmlFor={`m-edit-hours-${task.id}`}>Số giờ ước tính</label>
+                        <input
+                          id={`m-edit-hours-${task.id}`}
+                          type="number"
+                          min="0"
+                          step="any"
+                          placeholder="Để trống để xóa"
+                          value={editEstimatedHours}
+                          onChange={e => setEditEstimatedHours(e.target.value)}
+                          disabled={isUpdating}
+                        />
+                      </div>
+                      <div className="task-edit-btns">
+                        <button
+                          className="button button--primary button--sm"
+                          type="submit"
+                          disabled={isUpdating}
+                        >
+                          {isUpdating ? 'Lưu…' : 'Lưu'}
+                        </button>
+                        <button
+                          className="button button--secondary button--sm"
+                          type="button"
+                          onClick={() => setEditingTaskId(null)}
+                          disabled={isUpdating}
+                        >
+                          Hủy
+                        </button>
+                      </div>
+                    </form>
+                  )}
+
+                  {error && <p role="alert" className="field-error task-row-error">{error}</p>}
                 </div>
-                {editingTaskId === task.id && (
-                  <form
-                    className="task-edit-form"
-                    onSubmit={e => void updatePlanning(e, task.id)}
-                    noValidate
-                  >
-                    <div className="task-form-field">
-                      <label htmlFor={`edit-task-due-date-${task.id}`}>Hạn hoàn thành</label>
-                      <input
-                        id={`edit-task-due-date-${task.id}`}
-                        type="date"
-                        value={editDueDate}
-                        onChange={e => setEditDueDate(e.target.value)}
-                        disabled={isUpdating}
-                      />
-                    </div>
-                    <div className="task-form-field">
-                      <label htmlFor={`edit-task-estimated-hours-${task.id}`}>Số giờ ước tính</label>
-                      <input
-                        id={`edit-task-estimated-hours-${task.id}`}
-                        type="number"
-                        min="0"
-                        step="any"
-                        placeholder="Để trống để xóa"
-                        value={editEstimatedHours}
-                        onChange={e => setEditEstimatedHours(e.target.value)}
-                        disabled={isUpdating}
-                      />
-                    </div>
-                    <div className="task-edit-actions">
-                      <button className="button button--primary button--sm" type="submit" disabled={isUpdating}>
-                        {isUpdating ? 'Đang lưu...' : 'Lưu thông tin'}
-                      </button>
-                      <button
-                        className="button button--secondary button--sm"
-                        type="button"
-                        onClick={() => setEditingTaskId(null)}
-                        disabled={isUpdating}
-                      >
-                        Hủy
-                      </button>
-                    </div>
-                  </form>
-                )}
-                {error && (
-                  <p role="alert" className="field-error task-item__error">
-                    {error}
-                  </p>
-                )}
-              </li>
-            )
-          })}
-        </ul>
+              )
+            })}
+          </div>
+
+          {/* Phân trang 10 dòng */}
+          {totalPages > 1 && (
+            <div className="task-pagination">
+              <span className="task-pagination__info">
+                Hiển thị {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, tasks.length)} trong {tasks.length} task
+              </span>
+              <div className="task-pagination__controls">
+                <button
+                  type="button"
+                  className="button button--secondary button--sm"
+                  disabled={currentPage <= 1}
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                >
+                  Trang trước
+                </button>
+                <span className="task-pagination__page-badge">
+                  {currentPage} / {totalPages}
+                </span>
+                <button
+                  type="button"
+                  className="button button--secondary button--sm"
+                  disabled={currentPage >= totalPages}
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                >
+                  Trang sau
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       )}
-      <div className="task-panel__footer" style={{ marginTop: '8px' }}>
-        <button
-          className="button button--secondary button--sm"
-          type="button"
-          onClick={() => void load()}
-          disabled={loading || saving || isAnyTaskUpdating}
-        >
-          Tải lại task
-        </button>
-      </div>
     </div>
   )
 }
 
-// ── Sprint list ───────────────────────────────────────────────────────────────
-
-function SprintCard({ sprint }: { sprint: Sprint }) {
-  const [open, setOpen] = useState(true)
-
-  return (
-    <article className="sprint-card" data-sprint-id={sprint.id}>
-      <div className="sprint-card__header">
-        <h3 className="sprint-card__name">{sprint.name}</h3>
-        <button
-          className="button button--secondary button--sm"
-          type="button"
-          onClick={() => setOpen(o => !o)}
-        >
-          {open ? 'Ẩn task' : 'Xem task'}
-        </button>
-      </div>
-      {open && <TaskPanel sprint={sprint} />}
-    </article>
-  )
-}
-
-// ── Main view ─────────────────────────────────────────────────────────────────
+// ── Main view: PM Chi tiết dự án ─────────────────────────────────────────────
 
 type Project = { id: string; name: string }
 
 interface Props {
-  projectId: string
-  onBack: () => void
+  readonly projectId: string
+  readonly onBack: () => void
 }
 
 export function ProjectDetailView({ projectId, onBack }: Props) {
   const [project, setProject] = useState<Project | null>(null)
   const [projectError, setProjectError] = useState('')
   const [sprints, setSprints] = useState<Sprint[]>([])
+  const [selectedSprintId, setSelectedSprintId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
   const [sprintName, setSprintName] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [formError, setFormError] = useState('')
+  const [savingSprint, setSavingSprint] = useState(false)
+  const [sprintFormError, setSprintFormError] = useState('')
+  const [showCreateSprint, setShowCreateSprint] = useState(false)
+
   const submitting = useRef(false)
   const request = useRef<AbortController | null>(null)
 
@@ -501,13 +740,15 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
     setLoadError('')
     setProjectError('')
     try {
-      // Fetch project + sprints in parallel
       const [projRes, sprintRes] = await Promise.all([
         fetch(`/api/projects/${projectId}`, { signal: ctrl.signal }),
         fetch(`/api/projects/${projectId}/sprints`, { signal: ctrl.signal }),
       ])
       if (!projRes.ok) {
-        if (projRes.status === 404) { if (!ctrl.signal.aborted) setProjectError('Không tìm thấy dự án.'); return }
+        if (projRes.status === 404) {
+          if (!ctrl.signal.aborted) setProjectError('Không tìm thấy dự án.')
+          return
+        }
         throw new Error('project')
       }
       if (!sprintRes.ok) throw new Error('sprints')
@@ -518,6 +759,10 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
       if (!ctrl.signal.aborted) {
         setProject(proj)
         setSprints(sprintData)
+        setSelectedSprintId(current => {
+          if (current && sprintData.some(s => s.id === current)) return current
+          return sprintData[0]?.id ?? null
+        })
       }
     } catch {
       if (!ctrl.signal.aborted) setLoadError('Không tải được dữ liệu. Vui lòng thử lại.')
@@ -535,10 +780,10 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
   async function createSprint(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (submitting.current) return
-    if (!sprintName.trim()) { setFormError('Tên Sprint không được để trống.'); return }
+    if (!sprintName.trim()) { setSprintFormError('Tên Sprint không được để trống.'); return }
     submitting.current = true
-    setSaving(true)
-    setFormError('')
+    setSavingSprint(true)
+    setSprintFormError('')
     try {
       const res = await fetch(`/api/projects/${projectId}/sprints`, {
         method: 'POST',
@@ -547,17 +792,22 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
-        const msg: string = Array.isArray(err?.message) ? (err.message as string[]).join('; ') : (typeof err?.message === 'string' ? err.message : 'Tạo sprint thất bại.')
-        setFormError(msg)
+        const msg: string = Array.isArray(err?.message)
+          ? (err.message as string[]).join('; ')
+          : (typeof err?.message === 'string' ? err.message : 'Tạo sprint thất bại.')
+        setSprintFormError(msg)
         return
       }
+      const newSprint: Sprint = await res.json()
       setSprintName('')
-      await load()
+      setShowCreateSprint(false)
+      setSprints(prev => [...prev, newSprint])
+      setSelectedSprintId(newSprint.id)
     } catch {
-      setFormError('Chưa xác nhận kết quả. Tải lại danh sách trước khi thử lại.')
+      setSprintFormError('Chưa xác nhận kết quả. Tải lại danh sách trước khi thử lại.')
     } finally {
       submitting.current = false
-      setSaving(false)
+      setSavingSprint(false)
     }
   }
 
@@ -565,71 +815,169 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
 
   if (projectError) {
     return (
-      <section className="workspace-view" aria-label="Chi tiết dự án">
-        <button className="button button--secondary back-btn" type="button" onClick={onBack}>← Quay lại danh sách</button>
+      <section className="workspace-view project-detail-error" aria-label="Chi tiết dự án">
+        <button className="button button--secondary back-btn" type="button" onClick={onBack}>
+          ← Quay lại danh sách
+        </button>
         <p role="alert" className="field-error">{projectError}</p>
       </section>
     )
   }
 
+  const selectedSprint = sprints.find(s => s.id === selectedSprintId) ?? sprints[0] ?? null
+
   return (
     <section className="workspace-view project-detail" aria-labelledby="project-detail-title">
-      <header className="page-heading">
-        <button className="button button--secondary back-btn" type="button" onClick={onBack}>← Quay lại</button>
-        <h1 id="project-detail-title">
-          {project?.id === projectId ? project.name : (loading ? 'Đang tải...' : 'Dự án')}
-        </h1>
+      {/* 1. Desktop: đầu trang chỉ có đường quay lại, tên dự án và nút “Đánh giá rủi ro” */}
+      <header className="project-detail-topbar">
+        <div className="project-detail-topbar__main">
+          <button className="back-button project-back-link" type="button" onClick={onBack}>
+            ← Danh sách dự án
+          </button>
+          <div className="project-detail-title-line">
+            <h1 id="project-detail-title" className="project-detail-title">
+              {project?.id === projectId ? project.name : (loading ? 'Đang tải…' : 'Dự án')}
+            </h1>
+          </div>
+        </div>
+
+        {/* Nút Đánh giá rủi ro & Panel kết quả có thể đóng */}
+        <div className="project-detail-topbar__action">
+          {project?.id === projectId && (
+            <ProjectRiskAssessment key={projectId} projectId={projectId} />
+          )}
+        </div>
       </header>
 
-      {project?.id === projectId && <ProjectRiskAssessment key={projectId} projectId={projectId} />}
-
-      {/* Sprint create form */}
-      <div className="sprint-create-section">
-        <h2>Sprint</h2>
-        <form className="project-create" onSubmit={createSprint} noValidate>
-          <label htmlFor="sprint-name">Tên sprint</label>
-          <div className="project-create__controls">
-            <input
-              id="sprint-name"
-              value={sprintName}
-              onChange={e => setSprintName(e.target.value)}
-              disabled={saving || loading}
-              aria-invalid={!!formError}
-              aria-describedby={formError ? 'sprint-error' : undefined}
-            />
-            <button className="button button--primary" disabled={saving || loading} type="submit">
-              {saving ? 'Đang tạo...' : 'Tạo sprint'}
-            </button>
-          </div>
-          {formError && <p id="sprint-error" role="alert">{formError}</p>}
-        </form>
-
-        <button
-          className="button button--secondary"
-          type="button"
-          onClick={() => void load()}
-          disabled={loading || saving}
-        >
-          Tải lại sprint
-        </button>
-      </div>
-
-      {/* Sprint list */}
-      {loading && <p role="status" className="status-text">Đang tải sprint...</p>}
+      {/* Thông báo tải dự án / lỗi chung */}
+      {loading && <p role="status" className="status-text">Đang tải dữ liệu dự án…</p>}
       {!loading && loadError && (
-        <div role="alert" className="error-block">
-          <p>{loadError}</p>
-          <button className="button button--secondary" type="button" onClick={() => void load()}>Thử lại</button>
+        <div role="alert" className="task-error-box">
+          <p className="field-error">{loadError}</p>
+          <button className="button button--secondary button--sm" type="button" onClick={() => void load()}>
+            Thử lại
+          </button>
         </div>
       )}
-      {!loading && !loadError && sprints.length === 0 && (
-        <p className="empty-hint">Chưa có sprint nào trong dự án này.</p>
-      )}
-      {!loading && !loadError && sprints.length > 0 && (
-        <div className="sprint-list" role="list">
-          {sprints.map(sprint => (
-            <SprintCard key={sprint.id} sprint={sprint} />
-          ))}
+
+      {/* 2 Cột: trái là danh sách Sprint (~240px), phải là công việc của đúng một Sprint đang chọn */}
+      {!loading && !loadError && (
+        <div className="project-detail-body">
+          {/* Mobile Sprint Selector: Trên mobile đổi cột Sprint thành ô chọn */}
+          <div className="mobile-sprint-bar">
+            <label htmlFor="mobile-sprint-select" className="mobile-sprint-bar__label">
+              Sprint:
+            </label>
+            <select
+              id="mobile-sprint-select"
+              className="mobile-sprint-bar__select"
+              value={selectedSprint?.id ?? ''}
+              onChange={e => setSelectedSprintId(e.target.value)}
+            >
+              {sprints.map(s => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="button button--secondary button--sm"
+              onClick={() => setShowCreateSprint(s => !s)}
+            >
+              {showCreateSprint ? 'Đóng' : '+ Sprint'}
+            </button>
+          </div>
+
+          {/* Cột trái Desktop: Danh sách Sprint gọn (~240px) */}
+          <aside className="sprint-sidebar" aria-label="Danh sách Sprint">
+            <div className="sprint-sidebar__header">
+              <span className="sprint-sidebar__title">Sprint ({sprints.length})</span>
+              <button
+                type="button"
+                className="sprint-sidebar__add-btn"
+                onClick={() => setShowCreateSprint(s => !s)}
+                title="Tạo sprint mới"
+              >
+                {showCreateSprint ? 'Đóng' : '+ Thêm Sprint'}
+              </button>
+            </div>
+
+            {/* Form Thêm Sprint chỉ mở khi bấm */}
+            {showCreateSprint && (
+              <form className="sprint-add-form" onSubmit={createSprint} noValidate>
+                <label htmlFor="sprint-name-input" className="sr-only">Tên sprint mới</label>
+                <input
+                  id="sprint-name-input"
+                  placeholder="Tên sprint…"
+                  value={sprintName}
+                  onChange={e => setSprintName(e.target.value)}
+                  disabled={savingSprint}
+                  autoFocus
+                />
+                <div className="sprint-add-form__actions">
+                  <button
+                    className="button button--primary button--sm"
+                    type="submit"
+                    disabled={savingSprint}
+                  >
+                    {savingSprint ? 'Lưu…' : 'Lưu'}
+                  </button>
+                  <button
+                    className="button button--secondary button--sm"
+                    type="button"
+                    onClick={() => {
+                      setShowCreateSprint(false)
+                      setSprintFormError('')
+                    }}
+                    disabled={savingSprint}
+                  >
+                    Hủy
+                  </button>
+                </div>
+                {sprintFormError && <p role="alert" className="field-error">{sprintFormError}</p>}
+              </form>
+            )}
+
+            {/* Danh sách các Sprint */}
+            <div className="sprint-sidebar__list" role="tablist" aria-orientation="vertical">
+              {sprints.length === 0 ? (
+                <p className="sprint-sidebar__empty">Chưa có sprint</p>
+              ) : (
+                sprints.map(sprint => {
+                  const isSelected = selectedSprint?.id === sprint.id
+                  return (
+                    <button
+                      key={sprint.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={isSelected}
+                      className={`sprint-sidebar__item ${isSelected ? 'sprint-sidebar__item--active' : ''}`}
+                      onClick={() => setSelectedSprintId(sprint.id)}
+                    >
+                      <span className="sprint-sidebar__item-name">{sprint.name}</span>
+                    </button>
+                  )
+                })
+              )}
+            </div>
+          </aside>
+
+          {/* Cột phải Desktop: Công việc của đúng một Sprint đang chọn */}
+          <main className="sprint-main-area">
+            {selectedSprint ? (
+              <SelectedSprintWorkspace key={selectedSprint.id} sprint={selectedSprint} />
+            ) : (
+              <div className="task-empty-box">
+                <p className="empty-hint">Chưa có sprint nào trong dự án này.</p>
+                <button
+                  className="button button--primary button--sm"
+                  type="button"
+                  onClick={() => setShowCreateSprint(true)}
+                >
+                  + Tạo sprint đầu tiên
+                </button>
+              </div>
+            )}
+          </main>
         </div>
       )}
     </section>
