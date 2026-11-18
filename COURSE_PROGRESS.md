@@ -71,6 +71,11 @@ trong repository nhưng chưa đủ điều kiện để đánh dấu hoàn thà
   Browser đã đối chiếu với API/MySQL và xác nhận lỗi → thử lại. Backend đạt
   44/44 unit và 8/8 e2e, Frontend đạt 10/10 regression, build/lint hai phía PASS.
   Milestone HR chỉ đọc và chờ review. Bằng chứng tại Chapter 6/8.
+- AI service có baseline Logistic Regression PROPOSED DEMO cho trễ hạn Task
+  D+1…D+7, chạy trên dữ liệu giả lập. Test 424 mẫu từ 145 dự án có F1 lớp dương
+  0,801 so với 0,766 của baseline đoán lớp phổ biến. PASS 9/9 unittest và HTTP
+  local. Chờ review và xác minh với dữ liệu thật.
+  [Lệnh tái lập và hợp đồng inference](ai-service/README.md)
 
 ## Mốc trước tích hợp PM (lịch sử)
 

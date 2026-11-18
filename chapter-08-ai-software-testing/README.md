@@ -7,8 +7,8 @@ kiểm thử hệ thống và tự động hóa kiểm thử, đồng thời ki�
 
 ## 2. RMS-AI áp dụng chương này như thế nào
 
-Backend đã có hạ tầng Vitest, unit test cho các service nền tảng và một e2e test
-cho ứng dụng. Frontend và dịch vụ AI chưa có bộ kiểm thử thuộc mã nguồn dự án.
+Backend có hạ tầng Vitest, unit test và e2e. Frontend có regression cho Task.
+Dịch vụ AI có unittest cho baseline dự báo trễ hạn.
 
 ## 3. Tài liệu hiện có
 
@@ -27,7 +27,7 @@ cho ứng dụng. Frontend và dịch vụ AI chưa có bộ kiểm thử thuộ
 - [x] Có unit test cho database config và các service nền tảng hiện tại.
 - [x] Có e2e smoke test cho Backend.
 - [ ] Bổ sung hạ tầng kiểm thử cho Frontend.
-- [ ] Bổ sung bộ kiểm thử cho dịch vụ AI.
+- [x] Bổ sung bộ kiểm thử cho baseline của dịch vụ AI.
 - [ ] Mở rộng kiểm thử tích hợp, kiểm thử hệ thống và tự động hóa kiểm thử toàn luồng.
 
 ## 5. Bằng chứng quy trình có AI hỗ trợ
@@ -166,6 +166,21 @@ Kiểm thử trên database `rms_ai_pm_dev`, API NestJS và trình duyệt thậ
   `2e0f7db7-c2cb-412c-8acf-000000000001`) có MySQL, TypeScript và 12,5 giờ.
   Bình Sương cùng kỹ năng TypeScript có 4 giờ, Chi Nắng có 0 giờ, Dương Gió
   chưa khai báo, Giang Mưa có dữ liệu tuần bắt đầu 09/11/2026.
+
+### Kiểm chứng baseline AI dự báo trễ hạn Task (2026-11-18)
+
+- PASS training seed 42. Sinh 600 dự án và 2.400 snapshot, còn 1.734 mẫu có thể
+  chấm điểm từ 579 dự án (61,25% nhãn dương). Train 434 dự án/1.310 mẫu, test
+  145 dự án/424 mẫu (62,03% dương), các `projectId` tách biệt.
+- Logistic Regression đạt precision/recall/F1 lớp dương 0,815/0,787/0,801,
+  ma trận `[[114,47],[56,207]]`. Baseline luôn đoán lớp phổ biến (1) đạt
+  0,620/1,000/0,766, ma trận `[[0,161],[0,263]]`. Kết quả chỉ phản ánh dữ liệu
+  giả lập. [Báo cáo metric đầy đủ](../ai-service/artifacts/metrics.json)
+- PASS 9/9 unittest, compileall và HTTP thật. Với D=2026-11-18, ca biên chỉ nhận
+  Task mở đến hạn 25/11 trong nhóm D−1/D/D+7/D+8, trả xác suất 0,263722 và phiên bản
+  `synthetic-logreg-v1`. Ca thiếu deadline và ca không Task trong cửa sổ trả
+  trạng thái riêng. Trường kết quả tương lai bị từ chối với HTTP 422.
+  [Lệnh tái lập](../ai-service/README.md)
 
 Lập chiến lược kiểm thử dựa trên Acceptance Criteria, xác định ưu tiên cho
 Frontend, Backend và dịch vụ AI trước khi bổ sung test mới trong tác vụ riêng.

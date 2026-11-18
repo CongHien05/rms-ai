@@ -1,0 +1,76 @@
+{
+  "modelVersion": "synthetic-logreg-v1",
+  "horizonDays": 7,
+  "featureNames": [
+    "eligible_task_count",
+    "blocked_task_count",
+    "todo_task_count",
+    "due_within_two_days_count",
+    "mean_days_to_due"
+  ],
+  "requestSchema": {
+    "$defs": {
+      "TaskSnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "enum": [
+              "TODO",
+              "IN_PROGRESS",
+              "BLOCKED",
+              "DONE"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "dueDate": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Duedate"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "TaskSnapshot",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Complete roster of tasks known at end of assessmentDate.",
+    "properties": {
+      "projectId": {
+        "minLength": 1,
+        "title": "Projectid",
+        "type": "string"
+      },
+      "assessmentDate": {
+        "format": "date",
+        "title": "Assessmentdate",
+        "type": "string"
+      },
+      "tasks": {
+        "items": {
+          "$ref": "#/$defs/TaskSnapshot"
+        },
+        "title": "Tasks",
+        "type": "array"
+      }
+    },
+    "required": [
+      "projectId",
+      "assessmentDate",
+      "tasks"
+    ],
+    "title": "Assessment",
+    "type": "object"
+  }
+}

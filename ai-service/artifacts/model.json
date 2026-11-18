@@ -1,0 +1,18 @@
+{
+  "modelVersion": "synthetic-logreg-v1",
+  "featureNames": [
+    "eligible_task_count",
+    "blocked_task_count",
+    "todo_task_count",
+    "due_within_two_days_count",
+    "mean_days_to_due"
+  ],
+  "intercept": 0.17176573870114065,
+  "coefficients": [
+    0.38775679253811374,
+    1.5982452756635226,
+    1.0400511236595587,
+    0.340202197411605,
+    -0.45492566141375707
+  ]
+}

@@ -133,6 +133,16 @@ Theo quy ước demo được duyệt, AI bổ sung trường `status` cho Task 
   Role Preview. Lịch sử khai báo và duy trì dữ liệu HR thuộc phạm vi tiếp theo
   khi được phê duyệt.
 
+### Baseline AI dự báo trễ hạn Task (2026-11-18)
+
+Người dùng chốt PROPOSED DEMO cho sự kiện có Task mở tại D, đến hạn trong
+D+1…D+7 và chưa hoàn thành vào cuối ngày đến hạn. AI triển khai dữ liệu giả lập
+có lịch sử, Logistic Regression và `POST /risk/predict` trong FastAPI. Feature
+dựng từ snapshot tại D, nhãn từ trạng thái cuối ngày đến hạn. Train/test tách theo
+`projectId`. Cách trả trạng thái thiếu deadline bám AC-US-01-04 và vẫn là quy
+ước demo cho AC-US-01-02. Phạm vi triển khai là AI service và chờ review.
+Lệnh tái lập, schema và ví dụ HTTP có tại [README AI service](../ai-service/README.md).
+
 Minh chứng trình duyệt/API/MySQL và kết quả kiểm thử nằm tại
 [Chapter 8](../chapter-08-ai-software-testing/README.md).
 Chờ human review giao diện và phạm vi demo; chưa đóng Chapter 6.
