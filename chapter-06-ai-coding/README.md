@@ -143,6 +143,31 @@ dựng từ snapshot tại D, nhãn từ trạng thái cuối ngày đến hạn
 ước demo cho AC-US-01-02. Phạm vi triển khai là AI service và chờ review.
 Lệnh tái lập, schema và ví dụ HTTP có tại [README AI service](../ai-service/README.md).
 
+### Tích hợp đánh giá rủi ro trên dự án PM (2026-11-18)
+
+Theo yêu cầu người dùng, AI nối màn chi tiết dự án với
+`POST /api/projects/:projectId/risk-assessments`. Vite bỏ một tiền tố `/api`.
+NestJS kiểm tra dự án, đọc trạng thái và hạn Task qua Sprint của dự án từ MySQL,
+lấy ngày lịch Việt Nam trên máy chủ rồi gọi `POST /risk/predict`. Lần đánh giá
+dùng snapshot hiện tại. Hiện chưa có lịch sử snapshot hoặc lưu kết quả đánh giá.
+
+PROPOSED DEMO hiển thị xác suất khi `scored`, phiên bản model, ngày đánh giá và
+nguồn huấn luyện giả lập. UI phân biệt thiếu deadline, cửa sổ rỗng và lỗi dịch vụ
+có thể thử lại, theo tinh thần AC-US-01-02/04. Backend kiểm tra schema phản hồi
+và đặt timeout 4 giây. Ngưỡng phân loại và giải thích yếu tố rủi ro thuộc phạm vi
+review tiếp theo cho AC-US-01-01.
+
+Chạy mỗi dịch vụ trong một terminal, dùng DB dev đã migrate và file
+`backend/.env` theo [mẫu cấu hình](../backend/.env.example):
+
+- `ai-service/`: `python -m uvicorn main:app --host 127.0.0.1 --port 8001`.
+  Khi cần dựng artifact, xem [lệnh training](../ai-service/README.md).
+- `backend/`: đặt `AI_SERVICE_URL=http://127.0.0.1:8001`, chạy
+  `npm run build` rồi `npm run start:local`.
+- `frontend/`: `npm run dev -- --host 127.0.0.1`. Proxy mặc định dùng NestJS
+  cổng 3000. Đặt `BACKEND_URL` nếu đổi cổng. Mở `/#projects`, chọn dự án có
+  Task đang mở với hạn D+1…D+7 rồi bấm “Đánh giá rủi ro”.
+
 Minh chứng trình duyệt/API/MySQL và kết quả kiểm thử nằm tại
 [Chapter 8](../chapter-08-ai-software-testing/README.md).
 Chờ human review giao diện và phạm vi demo; chưa đóng Chapter 6.

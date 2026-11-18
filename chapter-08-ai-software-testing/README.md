@@ -182,5 +182,20 @@ Kiểm thử trên database `rms_ai_pm_dev`, API NestJS và trình duyệt thậ
   trạng thái riêng. Trường kết quả tương lai bị từ chối với HTTP 422.
   [Lệnh tái lập](../ai-service/README.md)
 
+### Kiểm chứng luồng đánh giá rủi ro PM (2026-11-18)
+
+- PASS Backend 55/55 unit, 9/9 e2e, build/lint. Test xác nhận Task từ nhiều
+  Sprint của đúng dự án, dự án không tồn tại, ngày Việt Nam tại giờ chuyển ngày,
+  deadline thiếu, cửa sổ rỗng, timeout và lỗi schema/phản hồi FastAPI.
+- PASS Frontend 10/10 regression, build/lint. Browser kiểm thử PM mở dự án →
+  “Đánh giá rủi ro”, rồi đổi dự án. Kết quả cũ biến mất khi chuyển dự án.
+- PASS browser → Vite :5182 → NestJS :3102 → `rms_ai_pm_dev`/FastAPI :8002.
+  Dự án dev `954af1bc-c37c-44cf-8082-53e344c479e5` có Task `TODO` hạn
+  2026-11-21. Ngày đánh giá 2026-11-18. UI 55,84% khớp với FastAPI
+  0,5584309749011264 trên cùng input MySQL, model `synthetic-logreg-v1`.
+- PASS hai dự án dev riêng cho deadline null và hạn 2026-11-26 (D+8).
+  Dừng FastAPI, UI hiện lỗi và nút thử lại. Khởi động lại rồi bấm thử lại
+  trên cùng màn hình cho kết quả 55,84%.
+
 Lập chiến lược kiểm thử dựa trên Acceptance Criteria, xác định ưu tiên cho
 Frontend, Backend và dịch vụ AI trước khi bổ sung test mới trong tác vụ riêng.

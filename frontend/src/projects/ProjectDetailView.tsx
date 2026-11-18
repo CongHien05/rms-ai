@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import './project-detail.css'
 import { TaskLoadGuard } from './taskLoadGuard'
+import { ProjectRiskAssessment } from './ProjectRiskAssessment'
 import {
   applyConfirmedTaskUpdate,
   buildTaskPlanningPayload,
@@ -576,9 +577,11 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
       <header className="page-heading">
         <button className="button button--secondary back-btn" type="button" onClick={onBack}>← Quay lại</button>
         <h1 id="project-detail-title">
-          {project ? project.name : (loading ? 'Đang tải...' : 'Dự án')}
+          {project?.id === projectId ? project.name : (loading ? 'Đang tải...' : 'Dự án')}
         </h1>
       </header>
+
+      {project?.id === projectId && <ProjectRiskAssessment key={projectId} projectId={projectId} />}
 
       {/* Sprint create form */}
       <div className="sprint-create-section">

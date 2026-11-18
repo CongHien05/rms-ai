@@ -8,6 +8,7 @@ import { AppModule } from './../src/app.module.js';
 import { EmployeeSkill } from './../src/employee-skills/employee-skill.entity.js';
 import { getAvailabilityWeek } from './../src/employees/availability-week.js';
 import { Employee } from './../src/employees/employee.entity.js';
+import { assessmentDateInVietnam } from './../src/projects/project-risk.service.js';
 import { Project } from './../src/projects/project.entity.js';
 import { Skill } from './../src/skills/skill.entity.js';
 import { Sprint } from './../src/sprints/sprint.entity.js';
@@ -76,6 +77,13 @@ describe('Backend foundations (e2e)', () => {
     };
 
     const taskRepository = {
+      find: vi.fn(
+        async ({ where }: { where: { sprint: { projectId: string } } }) =>
+          [...tasks.values()].filter(
+            (task) =>
+              sprints.get(task.sprintId)?.projectId === where.sprint.projectId,
+          ),
+      ),
       create: vi.fn(
         (input: Partial<Task> & Pick<Task, 'sprintId' | 'title'>) => ({
           id: randomUUID(),
@@ -429,6 +437,70 @@ describe('Backend foundations (e2e)', () => {
       .get(`/sprints/${sprint2.body.id}/tasks`)
       .expect(200);
     expect(sprint2Tasks.body).toHaveLength(0);
+  });
+
+  it('assesses only tasks in the project and supplies the current Vietnam date', async () => {
+    const projectA = randomUUID();
+    const projectB = randomUUID();
+    projects.set(projectA, { id: projectA, name: 'A' } as Project);
+    projects.set(projectB, { id: projectB, name: 'B' } as Project);
+    const sprintA = randomUUID();
+    const anotherSprintA = randomUUID();
+    const sprintB = randomUUID();
+    sprints.set(sprintA, { id: sprintA, projectId: projectA } as Sprint);
+    sprints.set(anotherSprintA, {
+      id: anotherSprintA,
+      projectId: projectA,
+    } as Sprint);
+    sprints.set(sprintB, { id: sprintB, projectId: projectB } as Sprint);
+    const ownTasks = [
+      { sprintId: sprintA, status: TaskStatus.TODO, dueDate: '2026-11-25' },
+      { sprintId: anotherSprintA, status: TaskStatus.DONE, dueDate: null },
+    ];
+    for (const task of [
+      ...ownTasks,
+      { sprintId: sprintB, status: TaskStatus.BLOCKED, dueDate: null },
+    ]) {
+      const id = randomUUID();
+      tasks.set(id, { ...task, id } as Task);
+    }
+    const prediction = {
+      projectId: projectA,
+      status: 'scored',
+      probability: 0.4,
+      modelVersion: 'test',
+      eligibleTaskCount: 1,
+      openTasksMissingDeadline: 0,
+    };
+    const predict = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(Response.json(prediction));
+    try {
+      const dateBefore = assessmentDateInVietnam(new Date());
+      const result = await request(app.getHttpServer())
+        .post(`/projects/${projectA}/risk-assessments`)
+        .send({ assessmentDate: '2020-01-01' })
+        .expect(200);
+      const dateAfter = assessmentDateInVietnam(new Date());
+      expect([dateBefore, dateAfter]).toContain(result.body.assessmentDate);
+      expect(result.body).toEqual({
+        ...prediction,
+        assessmentDate: result.body.assessmentDate,
+      });
+      expect(predict).toHaveBeenCalledOnce();
+      expect(predict.mock.calls[0][0]).toMatch(/\/risk\/predict$/);
+      expect(JSON.parse(String(predict.mock.calls[0][1]?.body))).toEqual({
+        projectId: projectA,
+        assessmentDate: result.body.assessmentDate,
+        tasks: ownTasks.map(({ status, dueDate }) => ({ status, dueDate })),
+      });
+      await request(app.getHttpServer())
+        .post(`/projects/${randomUUID()}/risk-assessments`)
+        .expect(404);
+      expect(predict).toHaveBeenCalledOnce();
+    } finally {
+      predict.mockRestore();
+    }
   });
 
   it('reads HR availability with skills and distinguishes zero, missing and other-week data', async () => {

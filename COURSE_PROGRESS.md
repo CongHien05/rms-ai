@@ -76,6 +76,11 @@ trong repository nhưng chưa đủ điều kiện để đánh dấu hoàn thà
   0,801 so với 0,766 của baseline đoán lớp phổ biến. PASS 9/9 unittest và HTTP
   local. Chờ review và xác minh với dữ liệu thật.
   [Lệnh tái lập và hợp đồng inference](ai-service/README.md)
+- PM đã đánh giá từ chi tiết dự án qua NestJS/MySQL/FastAPI. Ngày đánh giá
+  lấy theo giờ Việt Nam và UI hiển thị đúng các trạng thái của model demo.
+  PASS smoke browser và đối chiếu cùng input, gồm dừng FastAPI rồi thử lại
+  sau khi dịch vụ hồi phục. Chi tiết và lệnh chạy tại Chapter 6/8. Tích hợp
+  chờ review, độ tin cậy trên dữ liệu thật vẫn chưa được xác minh.
 
 ## Mốc trước tích hợp PM (lịch sử)
 
