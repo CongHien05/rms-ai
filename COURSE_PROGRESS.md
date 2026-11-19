@@ -82,6 +82,17 @@ trong repository nhưng chưa đủ điều kiện để đánh dấu hoàn thà
   sau khi dịch vụ hồi phục. Chi tiết và lệnh chạy tại Chapter 6/8. Tích hợp
   chờ review, độ tin cậy trên dữ liệu thật vẫn chưa được xác minh.
 
+## Tiến độ ngày 2026-11-19
+
+- PM có thể yêu cầu đề xuất nhân sự từ dự án thật theo kỹ năng, tuần và số
+  giờ cần. API dùng dữ liệu HR hiện có và xếp từng người theo giờ hỗ trợ.
+  Đây là PROPOSED DEMO, chỉ đọc và đang chờ review.
+- PASS smoke browser → NestJS → MySQL dev. TypeScript, tuần `2026-11-16`,
+  8 giờ trả An Mây 8/8 rồi Bình Sương 4/8. Giờ trống của 5 hồ sơ seed giữ
+  nguyên trước/sau. Test, build và lint hai phía đạt.
+  [Triển khai Chapter 6](chapter-06-ai-coding/README.md) ·
+  [Minh chứng Chapter 8](chapter-08-ai-software-testing/README.md).
+
 ## Mốc trước tích hợp PM (lịch sử)
 
 - Cơ sở phân tích yêu cầu và sản phẩm đã có PRD, User Stories, Acceptance

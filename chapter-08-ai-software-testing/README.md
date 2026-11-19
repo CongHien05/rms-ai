@@ -197,5 +197,22 @@ Kiểm thử trên database `rms_ai_pm_dev`, API NestJS và trình duyệt thậ
   Dừng FastAPI, UI hiện lỗi và nút thử lại. Khởi động lại rồi bấm thử lại
   trên cùng màn hình cho kết quả 55,84%.
 
+### Kiểm chứng đề xuất nhân sự PM (2026-11-19)
+
+- PASS Backend 55 unit và 11 e2e, Frontend 10 test. Build và lint hai phía đạt.
+  E2e kiểm tra đủ/thiếu giờ, loại 0 giờ, chưa khai báo, sai tuần, sai kỹ năng,
+  hòa theo tên rồi ID, danh sách rỗng, tiêu chí không hợp lệ và tài nguyên 404.
+- PASS trình duyệt → Vite :5173 → NestJS :3000 → MariaDB/MySQL
+  `rms_ai_pm_dev`. PM mở dự án `685511c0-2ede-48c0-976e-54dac5040b5e` rồi
+  chọn TypeScript, tuần `2026-11-16`, 8 giờ. An Mây (còn 12,5 giờ) đứng đầu
+  với 8/8 giờ và Bình Sương (còn 4 giờ) đứng thứ hai với 4/8 giờ.
+- PASS xóa kết quả khi đổi tiêu chí hoặc dự án, hiển thị danh sách rỗng và
+  phục hồi qua **Thử lại** sau khi khởi động lại NestJS. Đã thử thêm ở 390×844.
+- PASS phản hồi đến muộn. Giữ phản hồi của yêu cầu 8 giờ, đổi tiêu chí sang
+  6 giờ và nhận kết quả mới. Sau khi thả phản hồi cũ, UI vẫn hiển thị kết quả
+  6/6 của An Mây và 4/6 của Bình Sương.
+- Truy vấn SQL trước/sau cho cả 5 hồ sơ seed trả cùng tuần và số giờ trống.
+  Đề xuất chỉ đọc theo quy tắc PROPOSED DEMO.
+
 Lập chiến lược kiểm thử dựa trên Acceptance Criteria, xác định ưu tiên cho
 Frontend, Backend và dịch vụ AI trước khi bổ sung test mới trong tác vụ riêng.

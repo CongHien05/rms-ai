@@ -1,4 +1,11 @@
 .project-detail-topbar { align-items: center; }
+.project-detail-actions { justify-content: flex-end; }
+.project-recommendations { display: grid; gap: 10px; margin-bottom: 12px; }
+.project-recommendations > :is(p, .section-heading) { margin: 0; }
+.project-recommendations__form { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; }
+.project-recommendations__form label { display: grid; gap: 4px; flex: 1 1 150px; min-width: 0; font-weight: 650; }
+.project-recommendations__form label :is(input, select) { font-weight: 400; }
+.project-recommendations .data-list { margin-top: 5px; }
 
 .project-detail-body {
   display: grid;
@@ -144,6 +151,7 @@ select.task-status-select--done { background: var(--success-bg); color: var(--su
 
 @media (max-width: 680px) {
   .project-detail-topbar { align-items: stretch; }
+  .project-detail-actions { display: grid; justify-content: stretch; }
   .project-risk-widget > .button { width: 100%; }
   .project-risk-panel { position: static; width: 100%; margin-top: 8px; box-shadow: none; }
 

@@ -8,6 +8,11 @@ import {
   Post,
 } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto.js';
+import { ResourceRecommendationDto } from './dto/resource-recommendation.dto.js';
+import {
+  ProjectResourceRecommendationService,
+  type ProjectResourceRecommendations,
+} from './project-resource-recommendation.service.js';
 import {
   ProjectRiskService,
   type ProjectRiskAssessment,
@@ -19,6 +24,7 @@ export class ProjectsController {
   constructor(
     private readonly projectsService: ProjectsService,
     private readonly projectRiskService: ProjectRiskService,
+    private readonly projectResourceRecommendationService: ProjectResourceRecommendationService,
   ) {}
 
   @Post()
@@ -44,5 +50,14 @@ export class ProjectsController {
     @Param('projectId', ParseUUIDPipe) projectId: string,
   ): Promise<ProjectRiskAssessment> {
     return this.projectRiskService.assess(projectId);
+  }
+
+  @Post(':projectId/resource-recommendations')
+  @HttpCode(200)
+  recommendResources(
+    @Param('projectId', ParseUUIDPipe) projectId: string,
+    @Body() body: ResourceRecommendationDto,
+  ): Promise<ProjectResourceRecommendations> {
+    return this.projectResourceRecommendationService.recommend(projectId, body);
   }
 }

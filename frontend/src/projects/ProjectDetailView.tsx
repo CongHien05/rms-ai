@@ -4,6 +4,7 @@ import { formatCalendarDate } from '../layout/formatCalendarDate'
 import { Pagination } from '../layout/Pagination'
 import { usePagination } from '../layout/usePagination'
 import { TaskLoadGuard } from './taskLoadGuard'
+import { ProjectResourceRecommendations, resourceRecommendationsPanelId } from './ProjectResourceRecommendations'
 import { ProjectRiskAssessment } from './ProjectRiskAssessment'
 import {
   applyConfirmedTaskUpdate,
@@ -697,6 +698,7 @@ interface Props {
 export function ProjectDetailView({ projectId, onBack }: Props) {
   const [project, setProject] = useState<Project | null>(null)
   const [projectError, setProjectError] = useState('')
+  const [showRecommendations, setShowRecommendations] = useState(false)
   const [sprints, setSprints] = useState<Sprint[]>([])
   const [selectedSprintId, setSelectedSprintId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -817,9 +819,21 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
         <h1 id="project-detail-title">
           {project?.id === projectId ? project.name : (loading ? 'Đang tải…' : 'Dự án')}
         </h1>
-        {project?.id === projectId && <ProjectRiskAssessment key={projectId} projectId={projectId} />}
+        {project?.id === projectId && (
+          <div className="action-group project-detail-actions">
+            <button className="button button--secondary" type="button" aria-expanded={showRecommendations}
+              aria-controls={showRecommendations ? resourceRecommendationsPanelId : undefined}
+              onClick={() => setShowRecommendations(open => !open)}>
+              Đề xuất nhân sự
+            </button>
+            <ProjectRiskAssessment key={projectId} projectId={projectId} />
+          </div>
+        )}
       </header>
 
+      {showRecommendations && project?.id === projectId && (
+        <ProjectResourceRecommendations key={projectId} projectId={projectId} />
+      )}
       {sprintNotice && <p role="status" className="feedback-panel feedback-panel--success">{sprintNotice}</p>}
       {loading && <p role="status" className="feedback-panel">Đang tải dữ liệu dự án…</p>}
       {!loading && loadError && (
