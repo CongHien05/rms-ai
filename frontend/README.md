@@ -34,3 +34,32 @@ liệu bằng cách cài đặt `oxlint-tsgolint` và chỉnh sửa `.oxlintrc.j
 
 Xem [tài liệu quy tắc Oxlint](https://oxc.rs/docs/guide/usage/linter/rules) để biết
 danh sách đầy đủ các quy tắc và nhóm quy tắc.
+
+## Rà soát frontend PM, HR và DEV (2026-11-19)
+
+Mốc `3103f68` trên nhánh `ui/pm-project-detail` là nền cho đợt đồng bộ giao diện.
+Người dùng chốt xanh chàm `#4338CA`, bố cục gọn, tên đầy đủ trên mobile và một
+form Sprint cho cả desktop lẫn mobile. AI hỗ trợ phác thảo, sửa giao diện và kiểm
+tra bằng trình duyệt. Bản giao diện chờ người dùng duyệt.
+
+- **PROPOSED UI, US-07**. Chọn PM, HR hoặc DEV bằng một thao tác. Header ghi
+  vai trò hiện tại và cho phép đổi vai trò.
+- **PROPOSED UI, US-01 đến US-04**. PM mở dự án và công việc từ danh sách có
+  phân trang. Luồng rủi ro minh họa ghi rõ dữ liệu demo. Mô phỏng trình bày
+  phương án cạnh kết quả trên màn rộng. Quyết định được ghi nhận trong phiên
+  demo. Các điều kiện và thời điểm áp dụng phân bổ là TBD.
+- **PROPOSED DEMO, AC-US-05-01/03**. Bảng HR đặt tên, kỹ năng, tuần và giờ
+  trống trong cùng một hàng. Mobile giữ các nhãn cùng từng người. `0 giờ`,
+  `Chưa khai báo` và `Dữ liệu khác tuần` là ba trạng thái riêng.
+- **AC-US-06-01/02/03**. DEV có ba màn chỉ xem. Bản mẫu hiển thị thông báo
+  thiếu dữ liệu khi tài khoản chưa gắn với hồ sơ nhân sự.
+
+Kiểm tra trong trình duyệt tích hợp tại 1280×800 và 390×844 đã mở đủ 15 màn hoặc
+bước. Đã tạo Sprint qua API local ở mỗi kích thước, tạo công việc và xác nhận
+trạng thái sau khi tải lại. Đã thử chấp nhận và từ chối phương án demo, đọc dữ
+liệu HR và kiểm tra DEV chỉ xem. Đã kiểm tra nút **Thử lại** sau lỗi HTTP 503
+có kiểm soát ở danh sách dự án, Nhân sự, Kỹ năng HR và đánh giá rủi ro.
+
+Đối chiếu [thiết kế Chapter 4](../chapter-04-ai-for-product-design/README.md),
+[User Stories](../chapter-03-ai-for-requirements-product-analysis/docs/user-stories.md)
+và [Acceptance Criteria](../chapter-03-ai-for-requirements-product-analysis/docs/acceptance-criteria.md).

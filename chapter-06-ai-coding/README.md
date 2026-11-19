@@ -172,5 +172,23 @@ Minh chứng trình duyệt/API/MySQL và kết quả kiểm thử nằm tại
 [Chapter 8](../chapter-08-ai-software-testing/README.md).
 Chờ human review giao diện và phạm vi demo; chưa đóng Chapter 6.
 
+### Đề xuất nhân sự từ dự án PM (2026-11-19)
+
+Người dùng chốt PROPOSED DEMO cho US-02 và AC-US-02-01/02/03/05.
+AI triển khai nút **Đề xuất nhân sự** trong Chi tiết dự án, lấy kỹ năng qua
+`GET /api/skills` và gửi `skillId`, `weekStart`, `requiredHours` qua
+`POST /api/projects/:projectId/resource-recommendations`. Tuần mặc định là
+tuần hiện tại theo giờ Việt Nam. API kiểm tra dự án, kỹ năng, ngày thứ Hai hợp
+lệ và số giờ hữu hạn lớn hơn 0.
+
+API tái sử dụng Employee, EmployeeSkill và giờ trống đã khai báo. Mỗi người
+đúng kỹ năng, đúng tuần và có giờ trống dương là một phương án. Giờ hỗ trợ
+là số nhỏ hơn giữa giờ trống và giờ cần. Thứ tự theo giờ hỗ trợ giảm dần, rồi
+tên, rồi ID. Truy vấn chỉ đọc. UI phân biệt đang tải, lỗi có thể thử lại và
+danh sách rỗng, đồng thời bỏ kết quả khi đổi dự án hoặc tiêu chí.
+
+Kết quả smoke test và đối chiếu số giờ trước/sau ở
+[Chapter 8](../chapter-08-ai-software-testing/README.md). Mốc đang chờ review.
+
 Với các phạm vi lập trình được phê duyệt tiếp theo, lưu prompt, quyết định rà
 soát, vòng hiệu chỉnh và kết quả kiểm tra xác nhận thành bằng chứng có truy vết.

@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
 import request from 'supertest';
 import { App } from 'supertest/types';
+import type { FindOperator } from 'typeorm';
 import { AppModule } from './../src/app.module.js';
 import { EmployeeSkill } from './../src/employee-skills/employee-skill.entity.js';
 import { getAvailabilityWeek } from './../src/employees/availability-week.js';
@@ -117,20 +118,45 @@ describe('Backend foundations (e2e)', () => {
         employees.set(employee.id, employee);
         return employee;
       }),
-      find: vi.fn(async (options?: { relations?: unknown }) =>
-        [...employees.values()].map((employee) =>
-          options?.relations
-            ? {
-                ...employee,
-                employeeSkills: [...employeeSkills.values()]
-                  .filter((link) => link.employeeId === employee.id)
-                  .map((link) => ({
-                    ...link,
-                    skill: skills.get(link.skillId),
-                  })),
-              }
-            : employee,
-        ),
+      find: vi.fn(
+        async (options?: {
+          relations?: unknown;
+          where?: {
+            employeeSkills: { skillId: string };
+            availabilityWeekStart: string;
+            availableHours: FindOperator<number>;
+          };
+        }) => {
+          const roster = [...employees.values()];
+          if (options?.where) {
+            const {
+              employeeSkills: { skillId },
+              availabilityWeekStart,
+              availableHours,
+            } = options.where;
+            expect(availableHours.type).toBe('moreThan');
+            return roster.filter(
+              (employee) =>
+                employee.availabilityWeekStart === availabilityWeekStart &&
+                employee.availableHours !== null &&
+                employee.availableHours > availableHours.value &&
+                employeeSkills.has(employeeSkillKey(employee.id, skillId)),
+            );
+          }
+          return roster.map((employee) =>
+            options?.relations
+              ? {
+                  ...employee,
+                  employeeSkills: [...employeeSkills.values()]
+                    .filter((link) => link.employeeId === employee.id)
+                    .map((link) => ({
+                      ...link,
+                      skill: skills.get(link.skillId),
+                    })),
+                }
+              : employee,
+          );
+        },
       ),
       findOneBy: vi.fn(
         async ({ id }: { id: string }) => employees.get(id) ?? null,
@@ -559,6 +585,111 @@ describe('Backend foundations (e2e)', () => {
       .get('/employees/availability')
       .expect(200)
       .expect({ ...getAvailabilityWeek(), employees: [] });
+  });
+
+  it('ranks individual resource recommendations, filters ineligible data, and leaves availability intact', async () => {
+    const projectId = randomUUID();
+    const skillId = randomUUID();
+    const otherSkillId = randomUUID();
+    const weekStart = '2026-11-16';
+    projects.set(projectId, { id: projectId, name: 'Demo project' });
+    skills.set(skillId, { id: skillId, name: 'TypeScript' });
+    skills.set(otherSkillId, { id: otherSkillId, name: 'MySQL' });
+    const roster = [
+      { name: 'Bình', hours: 4, week: weekStart, skill: skillId },
+      { name: 'An', hours: 8, week: weekStart, skill: skillId },
+      { name: 'An', hours: 12.5, week: weekStart, skill: skillId },
+      { name: 'Châu', hours: 10, week: weekStart, skill: skillId },
+      { name: 'Zero', hours: 0, week: weekStart, skill: skillId },
+      { name: 'Undeclared', hours: null, week: null, skill: skillId },
+      { name: 'Wrong week', hours: 8, week: '2026-11-09', skill: skillId },
+      { name: 'Wrong skill', hours: 8, week: weekStart, skill: otherSkillId },
+    ];
+    const ids = roster.map((person, index) => {
+      const id = `00000000-0000-4000-8000-00000000000${roster.length - index}`;
+      employees.set(id, {
+        id,
+        displayName: person.name,
+        availableHours: person.hours,
+        availabilityWeekStart: person.week,
+      } as Employee);
+      employeeSkills.set(employeeSkillKey(id, person.skill), {
+        employeeId: id,
+        skillId: person.skill,
+      } as EmployeeSkill);
+      return id;
+    });
+    const before = await request(app.getHttpServer())
+      .get('/employees/availability')
+      .expect(200);
+    const path = `/projects/${projectId}/resource-recommendations`;
+    const requiredHours = 8;
+    const result = await request(app.getHttpServer())
+      .post(path)
+      .send({ skillId, weekStart, requiredHours })
+      .expect(200);
+    expect(result.body).toEqual({
+      projectId,
+      skill: { id: skillId, name: 'TypeScript' },
+      weekStart,
+      requiredHours,
+      candidates: [2, 1, 3, 0].map((index) => ({
+        employeeId: ids[index],
+        displayName: roster[index].name,
+        availableHours: roster[index].hours,
+        supportHours: index === 0 ? 4 : 8,
+      })),
+    });
+
+    const empty = await request(app.getHttpServer())
+      .post(path)
+      .send({ skillId, weekStart: '2026-11-23', requiredHours })
+      .expect(200);
+    expect(empty.body.candidates).toEqual([]);
+    const after = await request(app.getHttpServer())
+      .get('/employees/availability')
+      .expect(200);
+    expect(after.body.employees).toEqual(before.body.employees);
+  });
+
+  it('rejects invalid recommendation criteria and missing projects or skills', async () => {
+    const projectId = randomUUID();
+    const skillId = randomUUID();
+    projects.set(projectId, { id: projectId, name: 'Demo project' });
+    skills.set(skillId, { id: skillId, name: 'TypeScript' });
+    const path = `/projects/${projectId}/resource-recommendations`;
+    const criteria = { skillId, weekStart: '2026-11-16', requiredHours: 8 };
+
+    for (const invalid of [
+      { skillId: 'TypeScript' },
+      { weekStart: '2026-11-17' },
+      { weekStart: '2026-02-30' },
+      { weekStart: '2026-11-16T00:00:00Z' },
+      { requiredHours: 0 },
+      { requiredHours: -1 },
+      { requiredHours: null },
+      { requiredHours: '8' },
+    ]) {
+      await request(app.getHttpServer())
+        .post(path)
+        .send({ ...criteria, ...invalid })
+        .expect(400);
+    }
+    await request(app.getHttpServer())
+      .post(path)
+      .set('Content-Type', 'application/json')
+      .send(
+        `{"skillId":"${skillId}","weekStart":"2026-11-16","requiredHours":1e309}`,
+      )
+      .expect(400);
+    await request(app.getHttpServer())
+      .post(path)
+      .send({ ...criteria, skillId: randomUUID() })
+      .expect(404);
+    await request(app.getHttpServer())
+      .post(`/projects/${randomUUID()}/resource-recommendations`)
+      .send(criteria)
+      .expect(404);
   });
 
   it('creates Employee and Skill, assigns the relation, and lists it', async () => {

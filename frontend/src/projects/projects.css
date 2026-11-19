@@ -1,6 +1,12 @@
-.project-create { margin-bottom: 24px; }
-.project-create label { display: block; margin-bottom: 8px; font-weight: 600; }
-.project-create__controls { display: flex; gap: 12px; flex-wrap: wrap; }
-.project-create input { flex: 1 1 240px; min-width: 0; padding: 12px; border: 1px solid #777; border-radius: 4px; font: inherit; }
-.project-create [role='alert'] { color: #a32323; }
-.workspace-row__identity h2 { overflow-wrap: anywhere; }
+.project-create { margin-bottom: 12px; }
+.project-create label { display: block; margin-bottom: 6px; font-weight: 700; }
+.project-create__controls { display: flex; gap: 8px; flex-wrap: wrap; }
+.project-create input { flex: 1 1 200px; }
+.project-create .field-error { margin-top: 6px; }
+.project-directory :is(th, td) { padding-block: 8px; }
+.project-directory :is(th, td):last-child { width: 1%; text-align: right; white-space: nowrap; }
+
+@media (max-width: 520px) {
+  .project-directory :is(th, td) { padding-inline: 10px; }
+  .project-create input { flex-basis: 100%; }
+}

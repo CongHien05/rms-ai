@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import type { Repository } from 'typeorm';
+import { MoreThan, type Repository } from 'typeorm';
 import type { SkillResponse } from '../skills/skills.service.js';
 import { getAvailabilityWeek } from './availability-week.js';
 import { Employee } from './employee.entity.js';
@@ -22,6 +22,8 @@ export interface EmployeeAvailabilityResponse {
     availability: { weekStart: string; hours: number } | null;
   })[];
 }
+
+export type AvailableEmployee = EmployeeResponse & { availableHours: number };
 
 @Injectable()
 export class EmployeesService {
@@ -72,6 +74,23 @@ export class EmployeesService {
         };
       }),
     };
+  }
+
+  async findAvailableForSkill(
+    skillId: string,
+    weekStart: string,
+  ): Promise<AvailableEmployee[]> {
+    const employees = await this.employeesRepository.find({
+      select: { id: true, displayName: true, availableHours: true },
+      where: {
+        employeeSkills: { skillId },
+        availabilityWeekStart: weekStart,
+        availableHours: MoreThan(0),
+      },
+    });
+    return employees.flatMap(({ id, displayName, availableHours }) =>
+      availableHours === null ? [] : [{ id, displayName, availableHours }],
+    );
   }
 
   async findOne(employeeId: string): Promise<EmployeeResponse> {

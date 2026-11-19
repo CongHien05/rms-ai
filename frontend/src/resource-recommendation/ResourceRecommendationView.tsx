@@ -1,3 +1,6 @@
+import { PageHeading } from '../layout/PageHeading'
+import { Pagination } from '../layout/Pagination'
+import { usePagination } from '../layout/usePagination'
 import type { MockProjectRiskViewModel } from '../project-risk/mockProjectRisks'
 import type {
   MockRecommendationCandidatePresentation,
@@ -11,6 +14,8 @@ type ResourceRecommendationViewProps = {
   onTryCandidate: (candidateId: string) => void
 }
 
+const pageSize = 6
+
 export function ResourceRecommendationView({
   project,
   recommendation,
@@ -18,88 +23,54 @@ export function ResourceRecommendationView({
   onTryCandidate,
 }: ResourceRecommendationViewProps) {
   return (
-    <section className="recommendation-view" aria-labelledby="recommendation-title">
-      <button type="button" className="back-button" onClick={onBack}>
-        Quay lại chi tiết rủi ro
-      </button>
-
-      <header className="page-heading">
-        <div>
-          <p className="eyebrow">{project.name} · Bước đề xuất</p>
-          <h1 id="recommendation-title">Đề xuất nhân sự</h1>
-          <p className="page-description">
-            Ứng viên được đề xuất và lý do phù hợp ở mức cơ bản.
-          </p>
-        </div>
-        <p className="scope-note">Dữ liệu minh họa</p>
-      </header>
+    <section aria-labelledby="recommendation-title">
+      <button type="button" className="back-button" onClick={onBack}>Chi tiết rủi ro</button>
+      <PageHeading id="recommendation-title" title="Đề xuất nhân sự" description={project.name} label="Dữ liệu demo" />
 
       {recommendation.state === 'available' ? (
-        <RecommendationList
-          candidates={recommendation.candidates}
-          onTryCandidate={onTryCandidate}
-        />
+        <RecommendationList candidates={recommendation.candidates} onTryCandidate={onTryCandidate} />
       ) : (
         <div className="empty-state" role="status">
           <h2>Không có ứng viên phù hợp</h2>
-          <p>
-            Hệ thống không đưa ứng viên không phù hợp vào danh sách chỉ để có
-            kết quả.
-          </p>
-          <p className="tbd-note">Tiêu chí phù hợp và bước tiếp theo: TBD.</p>
+          <p className="tbd-note">Tiêu chí phù hợp và bước tiếp theo vẫn là TBD.</p>
         </div>
       )}
     </section>
   )
 }
 
-type RecommendationListProps = {
+function RecommendationList({ candidates, onTryCandidate }: {
   candidates: readonly MockRecommendationCandidatePresentation[]
   onTryCandidate: (candidateId: string) => void
-}
+}) {
+  const { items, page, pageCount, setPage } = usePagination(candidates, pageSize)
 
-function RecommendationList({
-  candidates,
-  onTryCandidate,
-}: RecommendationListProps) {
   return (
     <section aria-labelledby="candidate-list-title">
       <div className="section-heading">
-        <div>
-          <p className="section-index">Ứng viên</p>
-          <h2 id="candidate-list-title">Danh sách ứng viên có thứ hạng</h2>
-        </div>
-        <p className="tbd-note">
-          Quy tắc xếp hạng và số lượng: TBD.
-        </p>
+        <h2 id="candidate-list-title">Ứng viên theo thứ hạng</h2>
+        <p className="tbd-note">Quy tắc xếp hạng vẫn là TBD.</p>
       </div>
-
-      <ol className="recommendation-list">
-        {candidates.map((candidate, index) => (
-          <li className="recommendation-row" key={candidate.id}>
-            <span className="recommendation-rank" aria-label={`Hạng ${index + 1}`}>
-              {String(index + 1).padStart(2, '0')}
-            </span>
-            <div className="recommendation-row__content">
-              <h3>{candidate.displayLabel}</h3>
-              <p className="recommendation-explanation">
-                {candidate.explanation}
-              </p>
-              <p className="tbd-note">
-                Ứng viên chỉ là ngữ cảnh minh họa, không phải phương án phân bổ
-                hoàn chỉnh. Nhận diện ứng viên và cấu trúc phương án: TBD.
-              </p>
-            </div>
-            <button
-              type="button"
-              className="button button--secondary"
-              onClick={() => onTryCandidate(candidate.id)}
-            >
-              Dùng làm ngữ cảnh mô phỏng
-            </button>
-          </li>
-        ))}
-      </ol>
+      <div className="data-panel">
+        <ol className="data-list" start={(page - 1) * pageSize + 1}>
+          {items.map((candidate, index) => (
+            <li className="recommendation-row" key={candidate.id}>
+              <span className="recommendation-rank" aria-label={`Hạng ${(page - 1) * pageSize + index + 1}`}>
+                {(page - 1) * pageSize + index + 1}
+              </span>
+              <div>
+                <h3>{candidate.displayLabel}</h3>
+                <p className="recommendation-explanation muted">{candidate.explanation}</p>
+              </div>
+              <button type="button" className="button button--secondary" onClick={() => onTryCandidate(candidate.id)}
+                aria-label={`Mở mô phỏng cho ${candidate.displayLabel}`}>
+                Mở mô phỏng
+              </button>
+            </li>
+          ))}
+        </ol>
+        <Pagination label="Phân trang ứng viên" page={page} pageCount={pageCount} setPage={setPage} />
+      </div>
     </section>
   )
 }

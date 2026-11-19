@@ -1,52 +1,32 @@
+import { PageHeading } from '../layout/PageHeading'
+import { Pagination } from '../layout/Pagination'
+import { usePagination } from '../layout/usePagination'
 import { HrReadStatus } from './HrReadStatus'
 import { useHrData } from './useHrData'
 
-export function HrOverview() {
+export function HrOverview({ onOpenEmployees, onOpenSkills }: {
+  onOpenEmployees: () => void
+  onOpenSkills: () => void
+}) {
   return (
-    <section className="workspace-view" aria-labelledby="hr-overview-title">
-      <header className="page-heading">
-        <div>
-          <p className="eyebrow">HR · Nền tảng dữ liệu</p>
-          <h1 id="hr-overview-title">Tổng quan nguồn lực</h1>
-          <p className="page-description">
-            Phạm vi dữ liệu tối thiểu phục vụ RMS-AI.
-          </p>
-        </div>
-        <p className="scope-note">Chỉ xem</p>
-      </header>
+    <section aria-labelledby="hr-overview-title">
+      <PageHeading id="hr-overview-title" title="Tổng quan nguồn lực" label="Chỉ xem" />
 
-      <div className="foundation-layout">
-        <section className="foundation-primary" aria-labelledby="hr-foundation-title">
-          <div className="section-heading">
-            <div>
-              <p className="section-index">Phạm vi đã xác nhận</p>
-              <h2 id="hr-foundation-title">Nền tảng nguồn lực</h2>
-            </div>
-          </div>
-          <div className="foundation-sections">
-            <FoundationSection
-              index="01"
-              title="Dữ liệu nhân sự"
-              description="Mục Nhân sự hiển thị danh sách và số giờ còn có thể nhận thêm trong tuần."
-            />
-            <FoundationSection
-              index="02"
-              title="Dữ liệu kỹ năng"
-              description="Mục Kỹ năng hiển thị danh mục kỹ năng từ RMS-AI."
-            />
-            <FoundationSection
-              index="03"
-              title="Liên kết nhân sự — kỹ năng"
-              description="Mục Nhân sự hiển thị kỹ năng đã liên kết với từng nhân sự."
-            />
+      <div className="workspace-grid">
+        <section className="panel" aria-labelledby="hr-people-title">
+          <h2 id="hr-people-title">Nhân sự</h2>
+          <p className="muted">Xem từng người, kỹ năng đã khai báo và số giờ còn trống theo tuần.</p>
+          <div className="action-group">
+            <button className="button button--primary" type="button" onClick={onOpenEmployees}>Xem nhân sự</button>
           </div>
         </section>
-
-        <aside className="integration-note" aria-labelledby="integration-title">
-          <p className="panel-label">Trạng thái tích hợp</p>
-          <h2 id="integration-title">Đọc dữ liệu nguồn lực</h2>
-          <p>Giờ trống theo tuần là PROPOSED DEMO.</p>
-        </aside>
+        <section className="panel" aria-labelledby="hr-skill-directory-title">
+          <h2 id="hr-skill-directory-title">Kỹ năng</h2>
+          <p className="muted">Tra cứu danh mục kỹ năng dùng trong RMS-AI.</p>
+          <div className="action-group">
+            <button className="button button--secondary" type="button" onClick={onOpenSkills}>Xem kỹ năng</button>
+          </div>
+        </section>
       </div>
     </section>
   )
@@ -54,19 +34,11 @@ export function HrOverview() {
 
 export function HrSkillsView() {
   const { state, retry } = useHrData<{ id: string; name: string }[]>('/api/skills')
+  const { items, page, pageCount, setPage } = usePagination(state.status === 'ready' ? state.data : [], 10)
 
   return (
-    <section className="workspace-view" aria-labelledby="hr-skills-title">
-      <header className="page-heading">
-        <div>
-          <p className="eyebrow">HR · Nền tảng dữ liệu</p>
-          <h1 id="hr-skills-title">Kỹ năng</h1>
-          <p className="page-description">
-            Skill và liên kết Employee ↔ Skill cần thiết cho RMS-AI.
-          </p>
-        </div>
-        <p className="scope-note">Chỉ xem</p>
-      </header>
+    <section aria-labelledby="hr-skills-title">
+      <PageHeading id="hr-skills-title" title="Kỹ năng" label="Chỉ xem" />
 
       {state.status === 'loading' && <HrReadStatus status="loading" message="Đang tải kỹ năng…" />}
       {state.status === 'error' && (
@@ -75,30 +47,15 @@ export function HrSkillsView() {
       {state.status === 'ready' && (
         state.data.length === 0
           ? <HrReadStatus status="empty" message="Chưa có kỹ năng để hiển thị." />
-          : <ul className="foundation-primary">{state.data.map(skill => <li key={skill.id}>{skill.name}</li>)}</ul>
+          : (
+            <div className="data-panel">
+              <ul className="data-list">
+                {items.map(skill => <li key={skill.id}>{skill.name}</li>)}
+              </ul>
+              <Pagination label="Phân trang kỹ năng" page={page} pageCount={pageCount} setPage={setPage} />
+            </div>
+          )
       )}
-    </section>
-  )
-}
-
-type FoundationSectionProps = {
-  index: string
-  title: string
-  description: string
-}
-
-function FoundationSection({
-  index,
-  title,
-  description,
-}: FoundationSectionProps) {
-  return (
-    <section className="foundation-section">
-      <p className="section-index">{index}</p>
-      <div>
-        <h2>{title}</h2>
-        <p>{description}</p>
-      </div>
     </section>
   )
 }

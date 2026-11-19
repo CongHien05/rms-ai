@@ -55,15 +55,15 @@ const pmNavigation: readonly NavigationItem<PmSection>[] = [
 ]
 
 const hrNavigation: readonly NavigationItem<HrSection>[] = [
-  { label: 'Tổng quan nguồn lực', section: 'hr-overview' },
+  { label: 'Tổng quan', section: 'hr-overview' },
   { label: 'Nhân sự', section: 'employees' },
   { label: 'Kỹ năng', section: 'skills' },
 ]
 
 const devNavigation: readonly NavigationItem<DevSection>[] = [
-  { label: 'Tổng quan của tôi', section: 'dev-overview' },
-  { label: 'Kỹ năng của tôi', section: 'dev-skills' },
-  { label: 'Công việc của tôi', section: 'dev-work' },
+  { label: 'Tổng quan', section: 'dev-overview' },
+  { label: 'Kỹ năng', section: 'dev-skills' },
+  { label: 'Công việc', section: 'dev-work' },
 ]
 
 const activePmSectionByView: Record<PmView['name'], PmSection> = {
@@ -157,8 +157,9 @@ function App() {
   }
 
   if (appState.role === 'HR') {
+    const openHrView = (view: HrSection) => setAppState({ mode: 'workspace', role: 'HR', view })
     const hrViews: Record<HrSection, ReactNode> = {
-      'hr-overview': <HrOverview />,
+      'hr-overview': <HrOverview onOpenEmployees={() => openHrView('employees')} onOpenSkills={() => openHrView('skills')} />,
       employees: <EmployeesView />,
       skills: <HrSkillsView />,
     }
@@ -170,9 +171,7 @@ function App() {
         navigationItems={hrNavigation}
         activeSection={appState.view}
         contextualStep={null}
-        onNavigate={(view) =>
-          setAppState({ mode: 'workspace', role: 'HR', view })
-        }
+        onNavigate={openHrView}
         onExitRolePreview={exitRolePreview}
       >
         {hrViews[appState.view]}
@@ -180,6 +179,7 @@ function App() {
     )
   }
 
+  const openDevView = (view: DevSection) => setAppState({ mode: 'workspace', role: 'DEV', view })
   const devViews: Record<DevSection, ReactNode> = {
     'dev-overview': <DevOverview />,
     'dev-skills': <DevSkillsView />,
@@ -193,9 +193,7 @@ function App() {
       navigationItems={devNavigation}
       activeSection={appState.view}
       contextualStep={null}
-      onNavigate={(view) =>
-        setAppState({ mode: 'workspace', role: 'DEV', view })
-      }
+      onNavigate={openDevView}
       onExitRolePreview={exitRolePreview}
     >
       {devViews[appState.view]}
@@ -246,6 +244,7 @@ function renderPmWorkspace(
       <OperationsOverview
         featuredProject={featuredProject}
         projects={projects}
+        onOpenProjects={() => setPmView({ name: 'projects' })}
         onOpenRiskOverview={() => setPmView({ name: 'risk-overview' })}
         onSelectProject={handleSelectProject}
       />
@@ -257,6 +256,7 @@ function renderPmWorkspace(
   } else if (view.name === 'project-detail') {
     content = (
       <ProjectDetailView
+        key={view.projectId}
         projectId={view.projectId}
         onBack={() => setPmView({ name: 'projects' })}
       />
