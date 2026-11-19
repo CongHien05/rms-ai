@@ -1,1081 +1,168 @@
-/* ==========================================================================
-   ProjectDetailView — Màn PM: Chi tiết dự án
-   Chuẩn 2 cột Desktop (~240px trái / công việc 1 sprint phải).
-   1 màu nhấn xanh chàm #4338CA, nền trắng, chữ xám đậm, đường phân cách nhẹ.
-   Màu đỏ chỉ dùng cho lỗi hoặc nhãn “Bị chặn”, không tô cả hàng.
-   Hiển thị đầy đủ Tên dự án, Nút đánh giá, Sprint đang chọn và 3 Task trong
-   màn hình đầu tiên ở 1280x800 không cần cuộn.
-   Trên mobile 390x844: Cột Sprint thành ô chọn, Task 2 dòng, không tràn ngang.
-   ========================================================================== */
+.project-detail-topbar { align-items: center; }
 
-/* ── Khoảng đệm shell tối ưu cho màn Chi tiết dự án ──────────────────────── */
-.app-main:has(.project-detail) {
-  padding-top: 14px !important;
-  padding-bottom: 24px !important;
-  width: min(1140px, calc(100% - 48px)) !important;
-  box-sizing: border-box !important;
-}
-
-/* ── Container tổng thể ─────────────────────────────────────────────────── */
-.project-detail {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  color: #111827;
-  font-family: var(--font-sans);
-  box-sizing: border-box;
-  width: 100%;
-}
-
-.project-detail-error {
-  padding: 20px;
-}
-
-/* ── 1. Top Header: Quay lại, Tên dự án, Nút Đánh giá rủi ro ───────────── */
-.project-detail-topbar {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #E5E7EB;
-  box-sizing: border-box;
-}
-
-.project-detail-topbar__main {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.project-back-link {
-  margin: 0 !important;
-  padding: 0 !important;
-  background: transparent !important;
-  border: 0 !important;
-  color: #4338CA !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
-  line-height: 1.2;
-}
-
-.project-back-link:hover {
-  color: #3730A3 !important;
-  text-decoration: underline;
-}
-
-.project-detail-title-line {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.project-detail-title {
-  margin: 0;
-  color: #111827;
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: -0.015em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.project-detail-topbar__action {
-  position: relative;
-  flex-shrink: 0;
-}
-
-/* ── Nút và Panel Đánh giá rủi ro có thể đóng ───────────────────────────── */
-.project-risk-widget {
-  position: relative;
-}
-
-.project-risk-btn {
-  background-color: #4338CA !important;
-  border-color: #4338CA !important;
-  color: #FFFFFF !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  padding: 6px 14px !important;
-  min-height: 34px !important;
-  border-radius: 5px !important;
-  white-space: nowrap;
-}
-
-.project-risk-btn:hover:not(:disabled) {
-  background-color: #3730A3 !important;
-  border-color: #3730A3 !important;
-}
-
-.project-risk-btn:focus-visible {
-  outline: 2px solid #4338CA;
-  outline-offset: 2px;
-}
-
-.project-risk-panel {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  z-index: 50;
-  width: min(420px, 90vw);
-  background: #FFFFFF;
-  border: 1px solid #E5E7EB;
-  border-radius: 6px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  box-sizing: border-box;
-}
-
-.project-risk-panel__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.project-risk-panel__title {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 700;
-  color: #111827;
-}
-
-.project-risk-panel__close-btn {
-  background: transparent;
-  border: 1px solid #E5E7EB;
-  border-radius: 4px;
-  padding: 2px 7px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #4B5563;
-  cursor: pointer;
-}
-
-.project-risk-panel__close-btn:hover {
-  background: #F3F4F6;
-  color: #111827;
-}
-
-.project-risk-panel__subtext {
-  margin: 0;
-  font-size: 11px;
-  color: #6B7280;
-}
-
-.project-risk-panel__status {
-  margin: 4px 0 0;
-  font-size: 12px;
-  color: #4338CA;
-  font-weight: 600;
-}
-
-.project-risk-panel__error {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.project-risk-panel__content {
-  margin-top: 4px;
-  padding-top: 6px;
-  border-top: 1px solid #F3F4F6;
-}
-
-.project-risk-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.project-risk-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 12px;
-  color: #374151;
-}
-
-.project-risk-item__label {
-  color: #6B7280;
-}
-
-.project-risk-item__value {
-  font-weight: 600;
-}
-
-.project-risk-item--highlight .project-risk-item__value {
-  color: #B91C1C;
-  font-size: 13px;
-}
-
-.project-risk-item--warning .project-risk-item__value {
-  color: #B45309;
-}
-
-.project-risk-item code {
-  padding: 1px 4px;
-  background: #F3F4F6;
-  border-radius: 3px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-}
-
-/* ── 2. Thân trang 2 Cột: Sprint Sidebar (~240px) + Sprint Workspace ────── */
 .project-detail-body {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-  box-sizing: border-box;
-  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(210px, 21%) minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
 }
 
-/* Mobile Sprint Bar: Ẩn mặc định trên Desktop */
-.mobile-sprint-bar {
-  display: none;
-}
-
-/* ── Cột trái Desktop: Danh sách Sprint gọn (~240px) ─────────────────────── */
-.sprint-sidebar {
-  width: 240px;
-  flex-shrink: 0;
-  background: #FFFFFF;
-  border: 1px solid #E5E7EB;
-  border-radius: 6px;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  box-sizing: border-box;
-}
-
-.sprint-sidebar__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #F3F4F6;
-}
-
-.sprint-sidebar__title {
-  font-size: 12px;
-  font-weight: 700;
-  color: #374151;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.sprint-sidebar__add-btn {
-  background: transparent;
-  border: 0;
-  color: #4338CA;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 2px 5px;
-  border-radius: 4px;
-}
-
-.sprint-sidebar__add-btn:hover {
-  background: #EEF2FF;
-  color: #3730A3;
-}
-
-.sprint-add-form {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 6px;
-  background: #F9FAFB;
-  border: 1px solid #E5E7EB;
-  border-radius: 4px;
-}
-
-.sprint-add-form input {
-  padding: 5px 7px;
-  border: 1px solid #D1D5DB;
-  border-radius: 4px;
-  font-size: 12px;
-  background: #FFFFFF;
-}
-
-.sprint-add-form input:focus {
-  outline: 2px solid #4338CA;
-  border-color: #4338CA;
-}
-
-.sprint-add-form__actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.sprint-sidebar__list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.sprint-sidebar__empty {
-  margin: 4px 0;
-  font-size: 11px;
-  color: #6B7280;
-  font-style: italic;
-  padding: 4px;
-}
-
-.sprint-sidebar__item {
-  width: 100%;
-  text-align: left;
-  background: transparent;
-  border: 1px solid transparent;
-  border-left: 3px solid transparent;
-  border-radius: 4px;
-  padding: 7px 9px;
-  color: #374151;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.1s ease;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  box-sizing: border-box;
-}
-
-.sprint-sidebar__item:hover {
-  background: #F3F4F6;
-  color: #111827;
-}
-
-/* Mục Sprint đang chọn: Màu nhấn xanh chàm #4338CA */
-.sprint-sidebar__item--active {
-  background: #EEF2FF !important;
-  color: #4338CA !important;
-  border-color: transparent !important;
-  border-left: 3px solid #4338CA !important;
-  font-weight: 700 !important;
-}
-
-.sprint-sidebar__item-name {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ── Cột phải Desktop: Công việc của đúng một Sprint đang chọn ───────────── */
-.sprint-main-area {
-  flex: 1;
-  min-width: 0;
-  box-sizing: border-box;
-}
-
-.sprint-workspace-card {
-  background: #FFFFFF;
-  border: 1px solid #E5E7EB;
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-/* Header Sprint Workspace: Tiêu đề Sprint, Tiến độ, Nút Thêm Task */
+.sprint-sidebar__header,
 .sprint-workspace-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 8px 12px;
-  background: #F9FAFB;
-  border-bottom: 1px solid #E5E7EB;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-  box-sizing: border-box;
-}
-
-.sprint-workspace-header__title-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  flex: 1;
-}
-
-.sprint-workspace-title {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 700;
-  color: #111827;
-  line-height: 1.25;
-  white-space: nowrap;
-}
-
-/* Tiến độ Sprint: Không hiển thị 0% khi Task còn đang tải */
-.sprint-progress-indicator {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.sprint-progress-text {
-  font-size: 12px;
-  color: #6B7280;
-}
-
-.sprint-progress-text--loading {
-  color: #4338CA;
-  font-weight: 600;
-}
-
-.sprint-progress-text--empty {
-  font-style: italic;
-  color: #9CA3AF;
-}
-
-.sprint-progress-detail {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.sprint-progress-rate {
-  font-size: 12px;
-  font-weight: 600;
-  color: #374151;
-  white-space: nowrap;
-}
-
-/* Nhãn Bị chặn: chữ đỏ trên nền đỏ nhẹ */
-.sprint-blocked-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 1px 5px;
-  background: #FEF2F2;
-  border: 1px solid #FCA5A5;
-  border-radius: 3px;
-  color: #B91C1C;
-  font-size: 11px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.sprint-progress-bar {
-  display: inline-block;
-  width: 44px;
-  height: 4px;
-  background: #E5E7EB;
-  border-radius: 2px;
-  overflow: hidden;
-  vertical-align: middle;
-}
-
-.sprint-progress-fill {
-  display: block;
-  height: 100%;
-  background: #4338CA;
-  border-radius: 2px;
-  transition: width 0.15s ease;
-}
-
-.sprint-workspace-header__actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.sprint-reload-btn {
-  padding: 4px 8px !important;
-  font-size: 11px !important;
-  min-height: 28px !important;
-}
-
-.sprint-add-task-btn {
-  background-color: #4338CA !important;
-  border-color: #4338CA !important;
-  color: #FFFFFF !important;
-  padding: 4px 10px !important;
-  font-size: 11px !important;
-  font-weight: 600 !important;
-  min-height: 28px !important;
-  border-radius: 4px !important;
-  white-space: nowrap;
-}
-
-.sprint-add-task-btn:hover {
-  background-color: #3730A3 !important;
-}
-
-/* ── Form Thêm Task: Chỉ mở khi bấm ─────────────────────────────────────── */
-.task-inline-create {
+  gap: 8px 12px;
   padding: 10px 12px;
-  background: #F9FAFB;
-  border-bottom: 1px solid #E5E7EB;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  box-sizing: border-box;
+  border-bottom: 1px solid var(--border);
 }
 
-.task-form-row {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-  flex-wrap: wrap;
-}
+.sprint-sidebar__header h2 { font-size: 15px; }
+.sprint-sidebar__list { padding: 6px; }
+.sprint-sidebar__list .pagination { margin-top: 6px; padding: 8px 4px 2px; }
 
-.task-form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1 1 110px;
-  min-width: 0;
-}
-
-.task-form-field--title {
-  flex-basis: 200px;
-}
-
-.task-form-field label {
-  font-size: 11px;
-  font-weight: 600;
-  color: #4B5563;
-}
-
-.task-inline-create input,
-.task-edit-subform input {
-  padding: 5px 8px;
-  border: 1px solid #D1D5DB;
-  border-radius: 4px;
-  font-size: 12px;
-  background: #FFFFFF;
-  box-sizing: border-box;
-}
-
-.task-inline-create input:focus,
-.task-edit-subform input:focus {
-  outline: 2px solid #4338CA;
-  border-color: #4338CA;
-}
-
-.task-create-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.task-status-notice {
-  padding: 12px;
-  margin: 0;
-  font-size: 12px;
-  color: #6B7280;
-}
-
-.task-error-box {
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  background: #FEF2F2;
-  border-bottom: 1px solid #FCA5A5;
-}
-
-.task-empty-box {
-  padding: 20px 12px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-/* ── Bảng Task Desktop: Tên, Trạng thái, Hạn, Giờ ước tính, Thao tác ────── */
-.task-table-wrapper {
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.task-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  table-layout: auto;
-  box-sizing: border-box;
-}
-
-.task-th {
-  padding: 6px 10px;
-  text-align: left;
-  background: #F9FAFB;
-  color: #4B5563;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  border-bottom: 1px solid #E5E7EB;
-  white-space: nowrap;
-}
-
-.task-th--title {
-  width: 48%;
-}
-
-.task-th--status {
-  width: 120px;
-}
-
-.task-th--date {
-  width: 95px;
-}
-
-.task-th--hours {
-  width: 85px;
-}
-
-.task-th--actions {
-  width: 60px;
-  text-align: right;
-}
-
-/* Hàng Task Desktop: nền trắng, không tô cả hàng màu đỏ */
-.task-tr {
-  background: #FFFFFF;
-  border-bottom: 1px solid #F3F4F6;
-  transition: background-color 0.1s ease;
-}
-
-.task-tr:hover {
-  background-color: #F9FAFB;
-}
-
-.task-td {
-  padding: 7px 10px;
-  vertical-align: middle;
-  color: #111827;
-}
-
-.task-td--title {
-  font-weight: 500;
-  overflow-wrap: anywhere;
-}
-
-.task-name {
+.sprint-sidebar__item {
   display: block;
-  line-height: 1.35;
-}
-
-.task-td--actions {
-  text-align: right;
-}
-
-/* Dropdown Trạng thái */
-.task-status-wrap {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.task-status-select {
-  padding: 3px 6px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid #D1D5DB;
-  background-color: #FFFFFF;
-  transition: border-color 0.1s ease;
-  box-sizing: border-box;
-}
-
-.task-status-select:focus-visible {
-  outline: 2px solid #4338CA;
-  border-color: #4338CA;
-}
-
-.task-status-select--todo {
-  background: #F3F4F6;
-  color: #374151;
-  border-color: #D1D5DB;
-}
-
-.task-status-select--in_progress {
-  background: #EFF6FF;
-  color: #1D4ED8;
-  border-color: #BFDBFE;
-}
-
-/* Màu đỏ chỉ dùng cho nhãn Bị chặn, không tô cả hàng */
-.task-status-select--blocked {
-  background: #FEF2F2 !important;
-  color: #B91C1C !important;
-  border-color: #FCA5A5 !important;
-}
-
-.task-status-select--done {
-  background: #ECFDF5;
-  color: #065F46;
-  border-color: #A7F3D0;
-}
-
-.task-date-val,
-.task-hours-val {
-  font-size: 12px;
-  color: #374151;
-  white-space: nowrap;
-}
-
-.task-empty-val {
-  color: #9CA3AF;
-  font-size: 12px;
-}
-
-.task-edit-btn {
-  padding: 3px 7px !important;
-  font-size: 11px !important;
-  min-height: 24px !important;
-  border-radius: 3px !important;
-}
-
-/* Sub-form Sửa Task */
-.task-edit-subform {
-  margin-top: 5px;
-  padding: 6px 8px;
-  background: #F9FAFB;
-  border: 1px solid #E5E7EB;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.task-edit-fields {
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.task-edit-btns {
-  display: flex;
-  gap: 4px;
-}
-
-.task-row-error {
-  margin: 3px 0 0;
-  font-size: 11px;
-}
-
-/* Phân trang 10 dòng */
-.task-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 12px;
-  border-top: 1px solid #E5E7EB;
-  background: #F9FAFB;
-  font-size: 11px;
-  color: #4B5563;
-  box-sizing: border-box;
-}
-
-.task-pagination__controls {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.task-pagination__page-badge {
-  padding: 1px 5px;
-  font-weight: 600;
-  color: #111827;
-}
-
-/* Mobile Task List: Mặc định ẩn trên Desktop */
-.task-mobile-list {
-  display: none;
-}
-
-/* ── Tiện ích dùng chung ────────────────────────────────────────────────── */
-.button {
-  border-radius: 4px;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.1s ease, border-color 0.1s ease;
-  box-sizing: border-box;
-}
-
-.button--primary {
-  background-color: #4338CA;
-  border: 1px solid #4338CA;
-  color: #FFFFFF;
-}
-
-.button--secondary {
-  background-color: #FFFFFF;
-  border: 1px solid #D1D5DB;
-  color: #374151;
-}
-
-.button--secondary:hover {
-  border-color: #4338CA;
-  color: #4338CA;
-}
-
-.button--sm {
-  padding: 3px 8px;
-  font-size: 11px;
-}
-
-.button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.field-error {
-  color: #DC2626;
-  margin: 2px 0 0;
-  font-size: 11px;
-}
-
-.status-saving-hint {
-  font-size: 10px;
-  color: #6B7280;
-  font-style: italic;
-}
-
-.empty-hint {
-  color: #6B7280;
-  font-size: 12px;
-  font-style: italic;
-  margin: 0;
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
+  width: 100%;
+  padding: 8px;
   border: 0;
+  border-radius: var(--control-radius);
+  background: transparent;
+  color: var(--text);
+  overflow-wrap: anywhere;
+  text-align: left;
+  cursor: pointer;
+}
+.sprint-sidebar__item:hover { background: var(--surface-soft); }
+.sprint-sidebar__item[aria-pressed='true'] { background: var(--primary-soft); color: var(--primary); font-weight: 700; }
+
+.sprint-add-form, .task-inline-create {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--surface-soft);
+  border-bottom: 1px solid var(--border);
 }
 
-/* ── 4. Responsive Mobile (<= 768px, đặc biệt 390x844) ──────────────────────
-   Đổi cột Sprint thành ô chọn, mỗi Task thành một hàng hai dòng, không tràn ngang
-   ────────────────────────────────────────────────────────────────────────── */
-@media (max-width: 768px) {
-  /* Điều chỉnh shell padding trên mobile */
-  .app-main:has(.project-detail) {
-    width: 100% !important;
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-    padding-top: 12px !important;
-  }
+.sprint-add-form label, .task-form-field label { color: var(--text); font-size: 13px; font-weight: 650; }
+.mobile-sprint-bar, .task-mobile-list { display: none; }
 
-  .project-detail-body {
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-  }
+.sprint-main-area { min-width: 0; }
+.sprint-workspace-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
 
-  /* Ẩn cột Sprint trên mobile */
-  .sprint-sidebar {
-    display: none;
-  }
+.sprint-workspace-header { flex-wrap: wrap; }
+.sprint-workspace-header__title-group { min-width: 0; flex: 1 1 210px; }
+.sprint-workspace-title { margin-bottom: 4px; font-size: 17px; }
+.sprint-workspace-header__actions,
+.task-create-actions,
+.task-edit-btns { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
 
-  /* Hiện thanh chọn Sprint dropdown trên mobile */
-  .mobile-sprint-bar {
+.sprint-progress-text,
+.sprint-progress-rate,
+.status-saving-hint,
+.task-empty-val { color: var(--text-muted); font-size: 12px; }
+
+.sprint-progress-detail { display: flex; align-items: center; flex-wrap: wrap; gap: 5px 8px; }
+.sprint-progress-bar { width: 56px; height: 5px; border-radius: 4px; background: var(--surface-muted); }
+.sprint-progress-fill { display: block; height: 100%; border-radius: inherit; background: var(--primary); }
+
+.sprint-blocked-tag {
+  padding: 1px 5px;
+  border-radius: var(--control-radius);
+  background: var(--error-bg);
+  color: var(--error-text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.task-form-row, .task-edit-fields {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.task-form-field { display: grid; gap: 3px; flex: 1 1 125px; min-width: 0; }
+.task-form-field--title { flex-basis: 190px; }
+
+.task-status-notice, .task-error-box, .task-empty-box { padding: 12px; }
+.task-status-notice, .task-empty-box { color: var(--text-muted); }
+.task-error-box { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 8px; background: var(--error-bg); }
+
+.task-table { font-size: 13px; }
+.task-table :is(th, td) { vertical-align: middle; padding: 8px 10px; }
+.task-table thead th { border-radius: 0; }
+.task-table .task-th--title { width: 43%; }
+.task-table :is(.task-th--actions, .task-td--actions) { text-align: right; }
+.task-td--title { min-width: 0; font-weight: 650; }
+.task-name { display: block; overflow-wrap: anywhere; color: var(--text-strong); font-weight: 650; }
+
+select.task-status-select { font-size: 12px; font-weight: 650; min-height: 34px; }
+select.task-status-select--todo { background: var(--surface-soft); }
+select.task-status-select--in_progress { background: var(--primary-soft); color: var(--primary); }
+select.task-status-select--blocked { background: var(--error-bg); color: var(--error-text); }
+select.task-status-select--done { background: var(--success-bg); color: var(--success-text); }
+
+.task-edit-subform {
+  margin-top: 7px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--control-radius);
+  background: var(--surface-soft);
+}
+.task-row-error { margin-top: 5px; }
+
+.project-risk-widget { flex: none; position: relative; }
+.project-risk-panel {
+  position: absolute;
+  z-index: 2;
+  inset: calc(100% + 6px) 0 auto auto;
+  width: min(420px, calc(100vw - 2 * var(--page-gutter)));
+  display: grid;
+  gap: 8px;
+  box-shadow: 0 10px 28px #181b2926;
+}
+
+.project-risk-panel__header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.project-risk-panel__error { display: grid; gap: 6px; justify-items: start; }
+.project-risk-grid { display: grid; gap: 6px; padding-top: 8px; border-top: 1px solid var(--border); }
+.project-risk-item { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13px; }
+.project-risk-item__label { color: var(--text-muted); }
+.project-risk-item__value { min-width: 0; color: var(--text-strong); overflow-wrap: anywhere; }
+.project-risk-item--warning .project-risk-item__value { color: var(--notice-text); }
+
+@media (max-width: 860px) {
+  .project-detail-body { grid-template-columns: minmax(0, 1fr); }
+  .sprint-sidebar__list { display: none; }
+  .mobile-sprint-bar { display: block; padding: 8px 12px; }
+  .mobile-sprint-bar select { width: 100%; }
+}
+
+@media (max-width: 680px) {
+  .project-detail-topbar { align-items: stretch; }
+  .project-risk-widget > .button { width: 100%; }
+  .project-risk-panel { position: static; width: 100%; margin-top: 8px; box-shadow: none; }
+
+  .sprint-workspace-header__actions { width: 100%; justify-content: flex-end; }
+  .task-table { display: none; }
+  .task-mobile-list { display: block; }
+  .task-mobile-card { padding: 10px 12px; }
+  .task-mobile-card + .task-mobile-card { border-top: 1px solid var(--border); }
+
+  .task-mobile-row1, .task-mobile-row2 {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    padding: 6px 10px;
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
-    border-radius: 5px;
-    box-sizing: border-box;
-  }
-
-  .mobile-sprint-bar__label {
-    font-size: 12px;
-    font-weight: 700;
-    color: #374151;
-    white-space: nowrap;
-  }
-
-  .mobile-sprint-bar__select {
-    flex: 1;
-    min-width: 0;
-    padding: 5px 8px;
-    border: 1px solid #D1D5DB;
-    border-radius: 4px;
-    font-size: 12px;
-    background: #FFFFFF;
-    color: #111827;
-    box-sizing: border-box;
-  }
-
-  /* Header Sprint trên mobile: Xếp dọc gọn gàng không tràn ngang */
-  .sprint-workspace-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-    padding: 8px 10px;
-  }
-
-  .sprint-workspace-header__title-group {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    width: 100%;
-  }
-
-  .sprint-progress-indicator {
-    width: 100%;
-  }
-
-  .sprint-progress-detail {
-    flex-wrap: wrap;
-    gap: 6px;
-    width: 100%;
-  }
-
-  .sprint-workspace-header__actions {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  /* Ẩn bảng table trên mobile */
-  .task-table {
-    display: none !important;
-  }
-
-  /* Hiện danh sách card 2 dòng trên mobile */
-  .task-mobile-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 6px 8px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .task-mobile-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
-    border-radius: 5px;
-    padding: 8px 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  /* Dòng 1: Tên Task (ưu tiên chiều rộng) + Trạng thái */
-  .task-mobile-row1 {
-    display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: 8px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .task-mobile-row1 .task-name {
-    flex: 1;
-    min-width: 0;
-    font-size: 13px;
-    font-weight: 600;
-    color: #111827;
-    overflow-wrap: anywhere;
-  }
-
-  .task-mobile-row1 select {
-    flex-shrink: 0;
-  }
-
-  /* Dòng 2: Hạn hoàn thành + Giờ ước tính + Nút Sửa */
-  .task-mobile-row2 {
-    display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    font-size: 11px;
-    color: #6B7280;
-    padding-top: 4px;
-    border-top: 1px dashed #F3F4F6;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .task-mobile-meta {
-    display: flex;
-    align-items: center;
-    gap: 6px;
     flex-wrap: wrap;
-    min-width: 0;
+    gap: 5px 10px;
   }
 
-  .task-edit-subform--mobile {
-    margin-top: 6px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  /* Form tạo task trên mobile */
-  .task-form-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .task-form-field {
-    width: 100%;
-    flex: none;
-  }
-
-  /* Header mobile */
-  .project-detail-topbar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .project-detail-title-line {
-    width: 100%;
-  }
-
-  .project-detail-title {
-    font-size: 18px;
-    white-space: normal;
-  }
-
-  .project-detail-topbar__action {
-    width: 100%;
-  }
-
-  .project-risk-btn {
-    width: 100%;
-  }
-
-  .project-risk-panel {
-    position: static;
-    width: 100%;
-    margin-top: 6px;
-  }
+  .task-mobile-row1 .task-name { flex: 1 1 155px; min-width: 0; }
+  .task-mobile-row2 { margin-top: 6px; color: var(--text-muted); font-size: 13px; }
+  .task-mobile-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; }
+  .task-form-field--title { flex-basis: 100%; }
 }

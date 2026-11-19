@@ -18,7 +18,7 @@ export const mockProjectRisks: readonly MockProjectRiskViewModel[] = [
     id: 'project-a-mock',
     name: 'Dự án A',
     assessmentState: 'available',
-    assessmentText: '[Cách biểu diễn rủi ro: Chưa xác định]',
+    assessmentText: 'Có đánh giá minh họa',
     explanatoryFactors: [
       'Yếu tố giải thích A',
       'Yếu tố giải thích B',
@@ -36,7 +36,7 @@ export const mockProjectRisks: readonly MockProjectRiskViewModel[] = [
     id: 'project-c-mock',
     name: 'Dự án C',
     assessmentState: 'available',
-    assessmentText: '[Cách biểu diễn rủi ro: Chưa xác định]',
+    assessmentText: 'Có đánh giá minh họa',
     explanatoryFactors: [
       'Yếu tố giải thích A',
       'Yếu tố giải thích B',

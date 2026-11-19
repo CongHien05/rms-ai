@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import './project-detail.css'
+import { formatCalendarDate } from '../layout/formatCalendarDate'
+import { Pagination } from '../layout/Pagination'
+import { usePagination } from '../layout/usePagination'
 import { TaskLoadGuard } from './taskLoadGuard'
 import { ProjectRiskAssessment } from './ProjectRiskAssessment'
 import {
@@ -32,6 +35,7 @@ type Task = {
 }
 
 const PAGE_SIZE = 10
+const taskHoursFormat = new Intl.NumberFormat('vi-VN', { maximumSignificantDigits: 15 })
 
 // ── Cột phải: Công việc của đúng một Sprint đang chọn ─────────────────────────
 
@@ -91,7 +95,7 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
         setCurrentPage(1)
       }
     } catch {
-      if (!ctrl.signal.aborted) setLoadError('Không tải được task. Thử lại.')
+      if (!ctrl.signal.aborted) setLoadError('Không tải được danh sách công việc.')
     } finally {
       if (request.current === ctrl) {
         request.current = null
@@ -109,12 +113,12 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
   async function create(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (submitting.current || loading || updatingTasksRef.current.size > 0) return
-    if (!title.trim()) { setFormError('Tiêu đề Task không được để trống.'); return }
+    if (!title.trim()) { setFormError('Tên công việc không được để trống.'); return }
     let planning: TaskPlanningPayload
     try {
       planning = buildTaskPlanningPayload(dueDate, estimatedHours)
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'Thông tin Task không hợp lệ.')
+      setFormError(error instanceof Error ? error.message : 'Thông tin công việc không hợp lệ.')
       return
     }
     submitting.current = true
@@ -130,7 +134,7 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
         const err = await res.json().catch(() => ({}))
         const msg: string = Array.isArray(err?.message)
           ? (err.message as string[]).join('; ')
-          : (typeof err?.message === 'string' ? err.message : 'Tạo task thất bại.')
+          : (typeof err?.message === 'string' ? err.message : 'Tạo công việc thất bại.')
         setFormError(msg)
         return
       }
@@ -232,7 +236,7 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
     } catch (error) {
       setTaskErrors(prev => ({
         ...prev,
-        [taskId]: error instanceof Error ? error.message : 'Thông tin Task không hợp lệ.',
+        [taskId]: error instanceof Error ? error.message : 'Thông tin công việc không hợp lệ.',
       }))
       return
     }
@@ -293,20 +297,21 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
         <div className="sprint-workspace-header__actions">
           <button
             type="button"
-            className="button button--secondary button--sm sprint-reload-btn"
+            className="button button--secondary button--sm"
             onClick={() => void load()}
             disabled={loading || saving || isAnyTaskUpdating}
-            title="Tải lại danh sách task"
+            title="Tải lại danh sách công việc"
           >
             Tải lại
           </button>
           <button
             type="button"
-            className="button button--primary button--sm sprint-add-task-btn"
+            className="button button--primary button--sm"
+            aria-expanded={showCreateTask}
             onClick={() => setShowCreateTask(show => !show)}
             disabled={saving || loading || isAnyTaskUpdating}
           >
-            {showCreateTask ? 'Đóng form' : '+ Thêm Task'}
+            {showCreateTask ? 'Đóng biểu mẫu' : 'Tạo công việc'}
           </button>
         </div>
       </div>
@@ -316,10 +321,10 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
         <form className="task-inline-create" onSubmit={create} noValidate>
           <div className="task-form-row">
             <div className="task-form-field task-form-field--title">
-              <label htmlFor={`task-title-${sprint.id}`}>Tiêu đề Task</label>
+              <label htmlFor={`task-title-${sprint.id}`}>Tên công việc</label>
               <input
                 id={`task-title-${sprint.id}`}
-                placeholder="Nhập tiêu đề task mới…"
+                placeholder="Nhập tên công việc…"
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 disabled={saving || isAnyTaskUpdating}
@@ -358,7 +363,7 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
               disabled={saving || loading || isAnyTaskUpdating}
               type="submit"
             >
-              {saving ? 'Đang tạo…' : 'Tạo task'}
+              {saving ? 'Đang tạo…' : 'Tạo công việc'}
             </button>
             <button
               className="button button--secondary button--sm"
@@ -383,7 +388,7 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
       {/* Thông báo tải / lỗi */}
       {loading && (
         <p role="status" className="status-text task-status-notice">
-          Đang tải danh sách task…
+          Đang tải công việc…
         </p>
       )}
 
@@ -398,14 +403,7 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
 
       {!loading && !loadError && tasks.length === 0 && (
         <div className="task-empty-box">
-          <p className="empty-hint">Chưa có công việc nào trong sprint này.</p>
-          <button
-            className="button button--secondary button--sm"
-            type="button"
-            onClick={() => setShowCreateTask(true)}
-          >
-            + Thêm task đầu tiên
-          </button>
+          <p className="empty-hint">Sprint này chưa có công việc.</p>
         </div>
       )}
 
@@ -413,10 +411,10 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
       {!loading && !loadError && tasks.length > 0 && (
         <div className="task-table-wrapper">
           {/* Desktop Table View */}
-          <table className="task-table" role="table" aria-label={`Danh sách task của ${sprint.name}`}>
+          <table className="table task-table" aria-label={`Danh sách công việc của ${sprint.name}`}>
             <thead>
               <tr role="row">
-                <th scope="col" className="task-th task-th--title">Tên Task</th>
+                <th scope="col" className="task-th task-th--title">Tên công việc</th>
                 <th scope="col" className="task-th task-th--status">Trạng thái</th>
                 <th scope="col" className="task-th task-th--date">Hạn</th>
                 <th scope="col" className="task-th task-th--hours">Ước tính</th>
@@ -498,7 +496,7 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
                     <td className="task-td task-td--status">
                       <div className="task-status-wrap">
                         <label htmlFor={`task-status-${task.id}`} className="sr-only">
-                          Trạng thái task {task.title}
+                          Trạng thái công việc {task.title}
                         </label>
                         <select
                           id={`task-status-${task.id}`}
@@ -525,15 +523,15 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
 
                     {/* Cột 3: Hạn */}
                     <td className="task-td task-td--date">
-                      <span className={task.dueDate ? 'task-date-val' : 'task-empty-val'}>
-                        {task.dueDate ?? '—'}
-                      </span>
+                      {task.dueDate
+                        ? <time dateTime={task.dueDate}>{formatCalendarDate(task.dueDate)}</time>
+                        : <span className="task-empty-val">Chưa đặt</span>}
                     </td>
 
                     {/* Cột 4: Giờ ước tính */}
                     <td className="task-td task-td--hours">
                       <span className={task.estimatedHours !== null ? 'task-hours-val' : 'task-empty-val'}>
-                        {task.estimatedHours !== null ? `${task.estimatedHours} giờ` : '—'}
+                        {task.estimatedHours !== null ? `${taskHoursFormat.format(task.estimatedHours)} giờ` : '—'}
                       </span>
                     </td>
 
@@ -576,6 +574,9 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
                   {/* Dòng 1: Tên Task + Trạng thái */}
                   <div className="task-mobile-row1">
                     <span className="task-name">{task.title}</span>
+                    <label htmlFor={`m-task-status-${task.id}`} className="visually-hidden">
+                      Trạng thái công việc {task.title}
+                    </label>
                     <select
                       id={`m-task-status-${task.id}`}
                       className={`task-status-select task-status-select--${task.status.toLowerCase()}`}
@@ -600,13 +601,16 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
                   {/* Dòng 2: Hạn hoàn thành + Giờ ước tính + Nút Sửa */}
                   <div className="task-mobile-row2">
                     <div className="task-mobile-meta">
-                      <span>Hạn: {task.dueDate ?? 'Chưa đặt'}</span>
+                      <span>Hạn: {task.dueDate
+                        ? <time dateTime={task.dueDate}>{formatCalendarDate(task.dueDate)}</time>
+                        : 'Chưa đặt'}</span>
                       <span>·</span>
-                      <span>{task.estimatedHours !== null ? `${task.estimatedHours}h` : 'Chưa ước tính'}</span>
+                      <span>{task.estimatedHours !== null ? `${taskHoursFormat.format(task.estimatedHours)} giờ` : 'Chưa ước tính'}</span>
                     </div>
                     <button
                       className="button button--secondary button--sm task-edit-btn"
                       type="button"
+                      aria-expanded={isEditing}
                       onClick={() => {
                         if (isEditing) setEditingTaskId(null)
                         else beginPlanningEdit(task)
@@ -673,35 +677,8 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
             })}
           </div>
 
-          {/* Phân trang 10 dòng */}
-          {totalPages > 1 && (
-            <div className="task-pagination">
-              <span className="task-pagination__info">
-                Hiển thị {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, tasks.length)} trong {tasks.length} task
-              </span>
-              <div className="task-pagination__controls">
-                <button
-                  type="button"
-                  className="button button--secondary button--sm"
-                  disabled={currentPage <= 1}
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                >
-                  Trang trước
-                </button>
-                <span className="task-pagination__page-badge">
-                  {currentPage} / {totalPages}
-                </span>
-                <button
-                  type="button"
-                  className="button button--secondary button--sm"
-                  disabled={currentPage >= totalPages}
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                >
-                  Trang sau
-                </button>
-              </div>
-            </div>
-          )}
+          <Pagination label="Phân trang công việc" page={currentPage}
+            pageCount={totalPages} setPage={setCurrentPage} />
         </div>
       )}
     </div>
@@ -728,6 +705,9 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
   const [savingSprint, setSavingSprint] = useState(false)
   const [sprintFormError, setSprintFormError] = useState('')
   const [showCreateSprint, setShowCreateSprint] = useState(false)
+  const [sprintNotice, setSprintNotice] = useState('')
+  const sprintPageSize = 6
+  const sprintPage = usePagination(sprints, sprintPageSize)
 
   const submitting = useRef(false)
   const request = useRef<AbortController | null>(null)
@@ -780,6 +760,7 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
   async function createSprint(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (submitting.current) return
+    setSprintNotice('')
     if (!sprintName.trim()) { setSprintFormError('Tên Sprint không được để trống.'); return }
     submitting.current = true
     setSavingSprint(true)
@@ -794,7 +775,7 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
         const err = await res.json().catch(() => ({}))
         const msg: string = Array.isArray(err?.message)
           ? (err.message as string[]).join('; ')
-          : (typeof err?.message === 'string' ? err.message : 'Tạo sprint thất bại.')
+          : (typeof err?.message === 'string' ? err.message : 'Không tạo được Sprint.')
         setSprintFormError(msg)
         return
       }
@@ -803,6 +784,8 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
       setShowCreateSprint(false)
       setSprints(prev => [...prev, newSprint])
       setSelectedSprintId(newSprint.id)
+      sprintPage.setPage(Math.ceil((sprints.length + 1) / sprintPageSize))
+      setSprintNotice(`Đã tạo Sprint ${newSprint.name}.`)
     } catch {
       setSprintFormError('Chưa xác nhận kết quả. Tải lại danh sách trước khi thử lại.')
     } finally {
@@ -811,173 +794,103 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
     }
   }
 
-  // ── Render ──────────────────────────────────────────────────────────────────
-
   if (projectError) {
     return (
-      <section className="workspace-view project-detail-error" aria-label="Chi tiết dự án">
-        <button className="button button--secondary back-btn" type="button" onClick={onBack}>
-          ← Quay lại danh sách
-        </button>
-        <p role="alert" className="field-error">{projectError}</p>
+      <section aria-label="Chi tiết dự án">
+        <button className="back-button" type="button" onClick={onBack}>Danh sách dự án</button>
+        <p role="alert" className="feedback-panel feedback-panel--error">{projectError}</p>
       </section>
     )
   }
 
   const selectedSprint = sprints.find(s => s.id === selectedSprintId) ?? sprints[0] ?? null
 
-  return (
-    <section className="workspace-view project-detail" aria-labelledby="project-detail-title">
-      {/* 1. Desktop: đầu trang chỉ có đường quay lại, tên dự án và nút “Đánh giá rủi ro” */}
-      <header className="project-detail-topbar">
-        <div className="project-detail-topbar__main">
-          <button className="back-button project-back-link" type="button" onClick={onBack}>
-            ← Danh sách dự án
-          </button>
-          <div className="project-detail-title-line">
-            <h1 id="project-detail-title" className="project-detail-title">
-              {project?.id === projectId ? project.name : (loading ? 'Đang tải…' : 'Dự án')}
-            </h1>
-          </div>
-        </div>
+  function cancelCreateSprint() {
+    setShowCreateSprint(false)
+    setSprintFormError('')
+  }
 
-        {/* Nút Đánh giá rủi ro & Panel kết quả có thể đóng */}
-        <div className="project-detail-topbar__action">
-          {project?.id === projectId && (
-            <ProjectRiskAssessment key={projectId} projectId={projectId} />
-          )}
-        </div>
+  return (
+    <section className="project-detail" aria-labelledby="project-detail-title">
+      <button className="back-button" type="button" onClick={onBack}>Danh sách dự án</button>
+      <header className="page-heading project-detail-topbar">
+        <h1 id="project-detail-title">
+          {project?.id === projectId ? project.name : (loading ? 'Đang tải…' : 'Dự án')}
+        </h1>
+        {project?.id === projectId && <ProjectRiskAssessment key={projectId} projectId={projectId} />}
       </header>
 
-      {/* Thông báo tải dự án / lỗi chung */}
-      {loading && <p role="status" className="status-text">Đang tải dữ liệu dự án…</p>}
+      {sprintNotice && <p role="status" className="feedback-panel feedback-panel--success">{sprintNotice}</p>}
+      {loading && <p role="status" className="feedback-panel">Đang tải dữ liệu dự án…</p>}
       {!loading && loadError && (
-        <div role="alert" className="task-error-box">
-          <p className="field-error">{loadError}</p>
-          <button className="button button--secondary button--sm" type="button" onClick={() => void load()}>
-            Thử lại
-          </button>
+        <div className="feedback-panel feedback-panel--error">
+          <p role="alert">{loadError}</p>
+          <button className="button button--secondary" type="button" onClick={() => void load()}>Thử lại</button>
         </div>
       )}
 
-      {/* 2 Cột: trái là danh sách Sprint (~240px), phải là công việc của đúng một Sprint đang chọn */}
       {!loading && !loadError && (
         <div className="project-detail-body">
-          {/* Mobile Sprint Selector: Trên mobile đổi cột Sprint thành ô chọn */}
-          <div className="mobile-sprint-bar">
-            <label htmlFor="mobile-sprint-select" className="mobile-sprint-bar__label">
-              Sprint:
-            </label>
-            <select
-              id="mobile-sprint-select"
-              className="mobile-sprint-bar__select"
-              value={selectedSprint?.id ?? ''}
-              onChange={e => setSelectedSprintId(e.target.value)}
-            >
-              {sprints.map(s => (
-                <option key={s.id} value={s.id}>{s.name}</option>
-              ))}
-            </select>
-            <button
-              type="button"
-              className="button button--secondary button--sm"
-              onClick={() => setShowCreateSprint(s => !s)}
-            >
-              {showCreateSprint ? 'Đóng' : '+ Sprint'}
-            </button>
-          </div>
-
-          {/* Cột trái Desktop: Danh sách Sprint gọn (~240px) */}
-          <aside className="sprint-sidebar" aria-label="Danh sách Sprint">
+          <aside className="sprint-sidebar data-panel" aria-label="Danh sách Sprint">
             <div className="sprint-sidebar__header">
-              <span className="sprint-sidebar__title">Sprint ({sprints.length})</span>
-              <button
-                type="button"
-                className="sprint-sidebar__add-btn"
-                onClick={() => setShowCreateSprint(s => !s)}
-                title="Tạo sprint mới"
-              >
-                {showCreateSprint ? 'Đóng' : '+ Thêm Sprint'}
+              <h2>Sprint <span className="muted">({sprints.length})</span></h2>
+              <button className="button button--secondary button--sm" type="button"
+                aria-expanded={showCreateSprint} disabled={showCreateSprint}
+                onClick={() => setShowCreateSprint(true)}>
+                Tạo Sprint
               </button>
             </div>
 
-            {/* Form Thêm Sprint chỉ mở khi bấm */}
             {showCreateSprint && (
               <form className="sprint-add-form" onSubmit={createSprint} noValidate>
-                <label htmlFor="sprint-name-input" className="sr-only">Tên sprint mới</label>
-                <input
-                  id="sprint-name-input"
-                  placeholder="Tên sprint…"
-                  value={sprintName}
-                  onChange={e => setSprintName(e.target.value)}
-                  disabled={savingSprint}
-                  autoFocus
-                />
-                <div className="sprint-add-form__actions">
-                  <button
-                    className="button button--primary button--sm"
-                    type="submit"
-                    disabled={savingSprint}
-                  >
-                    {savingSprint ? 'Lưu…' : 'Lưu'}
+                <label htmlFor="sprint-name-input">Tên Sprint</label>
+                <input id="sprint-name-input" value={sprintName} onChange={e => setSprintName(e.target.value)}
+                  disabled={savingSprint} required autoFocus
+                  aria-invalid={!!sprintFormError} aria-describedby={sprintFormError ? 'sprint-form-error' : undefined} />
+                <div className="action-group">
+                  <button className="button button--primary button--sm" type="submit" disabled={savingSprint}>
+                    {savingSprint ? 'Đang tạo…' : 'Tạo Sprint'}
                   </button>
-                  <button
-                    className="button button--secondary button--sm"
-                    type="button"
-                    onClick={() => {
-                      setShowCreateSprint(false)
-                      setSprintFormError('')
-                    }}
-                    disabled={savingSprint}
-                  >
-                    Hủy
-                  </button>
+                  <button className="button button--secondary button--sm" type="button"
+                    onClick={cancelCreateSprint} disabled={savingSprint}>Hủy</button>
                 </div>
-                {sprintFormError && <p role="alert" className="field-error">{sprintFormError}</p>}
+                {sprintFormError && <p role="alert" className="field-error" id="sprint-form-error">{sprintFormError}</p>}
               </form>
             )}
 
-            {/* Danh sách các Sprint */}
-            <div className="sprint-sidebar__list" role="tablist" aria-orientation="vertical">
-              {sprints.length === 0 ? (
-                <p className="sprint-sidebar__empty">Chưa có sprint</p>
-              ) : (
-                sprints.map(sprint => {
-                  const isSelected = selectedSprint?.id === sprint.id
-                  return (
-                    <button
-                      key={sprint.id}
-                      type="button"
-                      role="tab"
-                      aria-selected={isSelected}
-                      className={`sprint-sidebar__item ${isSelected ? 'sprint-sidebar__item--active' : ''}`}
-                      onClick={() => setSelectedSprintId(sprint.id)}
-                    >
-                      <span className="sprint-sidebar__item-name">{sprint.name}</span>
-                    </button>
-                  )
-                })
-              )}
-            </div>
+            {selectedSprint && (
+              <>
+                <div className="mobile-sprint-bar">
+                  <label htmlFor="mobile-sprint-select" className="visually-hidden">Chọn Sprint</label>
+                  <select id="mobile-sprint-select" value={selectedSprint.id}
+                    onChange={e => setSelectedSprintId(e.target.value)}>
+                    {sprints.map(sprint => <option key={sprint.id} value={sprint.id}>{sprint.name}</option>)}
+                  </select>
+                </div>
+                <div className="sprint-sidebar__list">
+                  {sprintPage.items.map(sprint => {
+                    const isSelected = selectedSprint.id === sprint.id
+                    return (
+                      <button key={sprint.id} type="button" aria-pressed={isSelected}
+                        className="sprint-sidebar__item" onClick={() => setSelectedSprintId(sprint.id)}>
+                        {sprint.name}
+                      </button>
+                    )
+                  })}
+                  <Pagination label="Phân trang Sprint" page={sprintPage.page}
+                    pageCount={sprintPage.pageCount} setPage={sprintPage.setPage} />
+                </div>
+              </>
+            )}
           </aside>
 
-          {/* Cột phải Desktop: Công việc của đúng một Sprint đang chọn */}
-          <main className="sprint-main-area">
+          <div className="sprint-main-area">
             {selectedSprint ? (
               <SelectedSprintWorkspace key={selectedSprint.id} sprint={selectedSprint} />
             ) : (
-              <div className="task-empty-box">
-                <p className="empty-hint">Chưa có sprint nào trong dự án này.</p>
-                <button
-                  className="button button--primary button--sm"
-                  type="button"
-                  onClick={() => setShowCreateSprint(true)}
-                >
-                  + Tạo sprint đầu tiên
-                </button>
-              </div>
+              <p className="feedback-panel" role="status">Dự án này chưa có Sprint.</p>
             )}
-          </main>
+          </div>
         </div>
       )}
     </section>

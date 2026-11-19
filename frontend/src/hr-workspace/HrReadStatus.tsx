@@ -3,13 +3,13 @@ type ReadStatusProps =
   | { status: 'error'; message: string; retry: () => void }
 
 export function HrReadStatus(props: ReadStatusProps) {
+  const hasError = props.status === 'error'
+
   return (
-    <div className="foundation-primary">
-      <p role={props.status === 'error' ? 'alert' : 'status'}>{props.message}</p>
+    <div className={`feedback-panel${hasError ? ' feedback-panel--error' : ''}`}>
+      <p role={hasError ? 'alert' : 'status'}>{props.message}</p>
       {props.status === 'error' && (
-        <button className="button button--secondary" type="button" onClick={props.retry}>
-          Thử lại
-        </button>
+        <button className="button button--secondary" type="button" onClick={props.retry}>Thử lại</button>
       )}
     </div>
   )

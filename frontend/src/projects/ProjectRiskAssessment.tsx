@@ -55,9 +55,11 @@ export function ProjectRiskAssessment({ projectId }: { readonly projectId: strin
   return (
     <div className="project-risk-widget">
       <button
-        className="button button--primary project-risk-btn"
+        className="button button--primary"
         type="button"
         disabled={state.status === 'loading'}
+        aria-expanded={showPanel}
+        aria-controls={showPanel ? 'project-risk-panel' : undefined}
         onClick={() => void assess()}
       >
         {state.status === 'loading' ? 'Đang đánh giá…' : 'Đánh giá rủi ro'}
@@ -66,16 +68,17 @@ export function ProjectRiskAssessment({ projectId }: { readonly projectId: strin
       {/* Kết quả rủi ro mở trong panel có thể đóng */}
       {showPanel && (
         <section
-          className="project-risk-panel"
+          className="panel project-risk-panel"
+          id="project-risk-panel"
           aria-labelledby="project-risk-title"
         >
           <div className="project-risk-panel__header">
             <h2 id="project-risk-title" className="project-risk-panel__title">
-              Nguy cơ phát sinh Task quá hạn trong 7 ngày tới
+              Nguy cơ có công việc quá hạn trong 7 ngày tới
             </h2>
             <button
               type="button"
-              className="project-risk-panel__close-btn"
+              className="button button--secondary button--sm"
               onClick={() => setShowPanel(false)}
               aria-label="Đóng bảng kết quả rủi ro"
               title="Đóng bảng kết quả"
@@ -84,12 +87,12 @@ export function ProjectRiskAssessment({ projectId }: { readonly projectId: strin
             </button>
           </div>
 
-          <p className="project-risk-panel__subtext">
+          <p className="muted">
             Mô hình demo được huấn luyện bằng dữ liệu giả lập.
           </p>
 
           {state.status === 'loading' && (
-            <p role="status" className="project-risk-panel__status">
+            <p role="status">
               Đang đánh giá rủi ro…
             </p>
           )}
@@ -104,7 +107,7 @@ export function ProjectRiskAssessment({ projectId }: { readonly projectId: strin
                 type="button"
                 onClick={() => void assess()}
               >
-                Thử lại đánh giá rủi ro
+                Thử lại
               </button>
             </div>
           )}
@@ -121,10 +124,10 @@ export function ProjectRiskAssessment({ projectId }: { readonly projectId: strin
 
                 {assessment.status === 'scored' && (
                   <>
-                    <div className="project-risk-item project-risk-item--highlight">
-                      <span className="project-risk-item__label">Xác suất trễ hạn 7 ngày</span>
+                    <div className="project-risk-item">
+                      <span className="project-risk-item__label">Xác suất có công việc quá hạn</span>
                       <span className="project-risk-item__value">
-                        Xác suất <strong>{percent.format(assessment.probability)}</strong>
+                        <strong>{percent.format(assessment.probability)}</strong>
                       </span>
                     </div>
                     <div className="project-risk-item">
@@ -140,7 +143,7 @@ export function ProjectRiskAssessment({ projectId }: { readonly projectId: strin
                   <div className="project-risk-item project-risk-item--warning">
                     <span className="project-risk-item__label">Dữ liệu đầu vào</span>
                     <span className="project-risk-item__value">
-                      Chưa đủ dữ liệu. Có {assessment.openTasksMissingDeadline} Task đang mở thiếu hạn hoàn thành.
+                      Chưa đủ dữ liệu. Có {assessment.openTasksMissingDeadline} công việc đang mở thiếu hạn hoàn thành.
                     </span>
                   </div>
                 )}
@@ -149,7 +152,7 @@ export function ProjectRiskAssessment({ projectId }: { readonly projectId: strin
                   <div className="project-risk-item">
                     <span className="project-risk-item__label">Dữ liệu đầu vào</span>
                     <span className="project-risk-item__value">
-                      Không có Task đang mở đến hạn trong 7 ngày tới.
+                      Không có công việc đang mở đến hạn trong 7 ngày tới.
                     </span>
                   </div>
                 )}
