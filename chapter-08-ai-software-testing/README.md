@@ -216,3 +216,50 @@ Kiểm thử trên database `rms_ai_pm_dev`, API NestJS và trình duyệt thậ
 
 Lập chiến lược kiểm thử dựa trên Acceptance Criteria, xác định ưu tiên cho
 Frontend, Backend và dịch vụ AI trước khi bổ sung test mới trong tác vụ riêng.
+
+### Kiểm chứng What-if 001 (2026-11-25)
+
+Gate 2 phê duyệt lát cắt **PROPOSED DEMO**. AI thực hiện kiểm thử theo
+[ma trận FR/AT/SC](../specs/001-what-if-simulation/plan.md#ma-trận-kiểm-thử)
+và đối chiếu bằng [quickstart](../specs/001-what-if-simulation/quickstart.md).
+
+| Lớp bằng chứng | Kết quả |
+| --- | --- |
+| Backend unit | `npm test` **83/83 đạt**, gồm HMAC, phân loại lỗi nguồn, tính BigInt với số thập phân/số mũ và giới hạn giờ. |
+| Backend HTTP E2E với test double | `npm run test:e2e` **16/16 đạt**. Luồng đề xuất cũ có 11 test ở baseline. Suite mới lấy proof thật từ response đề xuất, kiểm tra DTO, thay đổi nguồn 8/12,5 → 4, null/0/khác tuần, retry và không gọi save. |
+| Frontend unit | `npm test` **25/25 đạt**. Suite mới có 15 test, dùng deferred promises cho chuyển ngữ cảnh, sửa rồi quay lại, retry, success/error/finally đến muộn và snapshot không khớp. |
+| Build/lint | `npm run build` và `npm run lint` đều đạt cho cả Backend lẫn Frontend. |
+| Browser runtime và HTTP thật | Vite :5191 → NestJS :3191 → `rms_ai_pm_dev`. TypeScript, tuần `2026-11-16`, nhu cầu 8 giờ. An Mây cho kết quả hỗ trợ/thiếu/trống **8/0/4,5**, **9/0/3,5** và **0,1/7,9/12,4**. Bình Sương cho **4/4/0**. Ca nhập 13 giờ bị chặn và giữ đầu vào. Đổi đầu vào ẩn tác động cũ. Luồng PM thật kết thúc ở ba chỉ báo. Luồng mock vẫn mở được Quyết định. Kiểm tra desktop 1280×900 và viewport đặt 390×844. Chiều rộng nội dung và viewport trên màn hẹp đều là 375 px, không cuộn ngang. HTTP qua proxy trả 200 và echo run ID đúng. |
+| Browser có can thiệp network | Vite :5192 → proxy kiểm thử :3192 → NestJS :3191. Chèn một HTTP 503, UI giữ 2,25 giờ và cho thử lại. Lượt retry trả **2,25/5,75/10,25**. Trì hoãn phản hồi 3,25 giờ, đổi thành 4 giờ và chạy B; B giữ **4/4/8,5**. Rời dự án trong một lượt đang chờ rồi mở dự án khác; màn mới không có kết quả cũ. Các ca success/error/finally đảo thứ tự đầy đủ nằm ở unit Frontend. |
+| SQL before/after | SELECT cùng 1 Project, 5 Employee, 7 EmployeeSkill và 3 Skill đã sắp xếp theo khóa. SHA-256 của tập kết quả trước/sau đều là `186548f417e67d7cda0faeffc6daf6c4adf03e1d7a4c4a0bb02b9b326c648621`. Không reset, seed, migration hoặc sửa fixture dev. |
+
+AT-01/02 và một ca AT-04 chạy trên browser với MariaDB dev. AT-03 có trạng
+thái thiếu giờ đúng tuần trên browser và cả ba outcome trong HTTP test double.
+AT-06 và AT-08/09 có kiểm tra trình duyệt, với can thiệp riêng nêu trên.
+Các ca null/0/khác tuần sau khi đã phát proof (AT-05) và thay đổi giờ thật
+giữa hai lượt (AT-07) được kiểm chứng bằng test double. Tạo lại các ca đó
+trên MariaDB dev cần ghi vào fixture, nên không chạy trên nguồn dev hiện có.
+SC-004 áp dụng cho dữ liệu được đối chiếu trước/sau. Chưa nghiệm thu
+`ProjectAllocation` vận hành.
+
+Final code review bổ sung hai ca timeout cho Frontend, đưa kết quả
+`npm test` lên **27/27 đạt**. Hai ca dùng đồng hồ giả để kiểm tra request
+treo, body treo và retry sau timeout. Minh chứng trình duyệt/MariaDB ở trên
+được ghi trước thay đổi giới hạn chờ.
+
+### Smoke browser sau Gate 3 (2026-11-25)
+
+- Chrome → Vite :5191 → proxy kiểm thử :3192 → NestJS :3191 → MariaDB
+  dev `rms_ai_pm_dev`. Dùng TypeScript, tuần `2026-11-16`, nhu cầu 8 giờ
+  và ứng viên [Demo HR] An Mây. HTTP 200 trả **8/0/4,5** giờ
+  hỗ trợ/thiếu/trống giả định.
+- Proxy giữ phản hồi HTTP 200 của lượt 2,25 giờ trong 19 giây. UI báo lỗi sau khi hết
+  thời gian chờ (**10,033 giây**), giữ 2,25 giờ và bật **Thử lại mô
+  phỏng**. Lượt thử lại có run ID mới, nhận HTTP 200 và hiện
+  **2,25/5,75/10,25**. Lượt kế tiếp với 4 giờ hiện **4/4/8,5**. Khi
+  proxy thả phản hồi cũ, kết nối của lượt cũ đã đóng và kết quả mới vẫn
+  hiển thị. Chỉ lượt kiểm tra timeout có độ trễ chèn ở proxy.
+- Chỉ dùng SELECT để chụp toàn bộ 8 Project, 5 Employee, 7 EmployeeSkill
+  và 3 Skill, sắp xếp theo khóa. SHA-256 trước và sau trùng nhau
+  (`3610d8f77c9fcdbf8f263ec5970a35ad81d3988960c6e7ac710ca13003bb6f29`).
+  Không chạy migration, seed hoặc chỉnh dữ liệu dev.

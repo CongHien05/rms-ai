@@ -8,6 +8,7 @@ import { Project } from './project.entity.js';
 import { ProjectRiskService } from './project-risk.service.js';
 import { ProjectsController } from './projects.controller.js';
 import { ProjectsService } from './projects.service.js';
+import { ProjectSimulationService } from './project-simulation.service.js';
 import { RiskClient } from './risk-client.js';
 
 @Module({
@@ -21,6 +22,7 @@ import { RiskClient } from './risk-client.js';
     ProjectsService,
     ProjectRiskService,
     ProjectResourceRecommendationService,
+    ProjectSimulationService,
     RiskClient,
   ],
   exports: [ProjectsService],

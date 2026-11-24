@@ -3,14 +3,24 @@ import { useHrData } from '../hr-workspace/useHrData'
 import { formatCalendarDate } from '../layout/formatCalendarDate'
 import { Pagination } from '../layout/Pagination'
 import { usePagination } from '../layout/usePagination'
+import { ProjectWhatIfSimulation } from './ProjectWhatIfSimulation'
+import { recommendationPresentation } from './simulationRun'
 
 type Skill = { id: string; name: string }
 type Criteria = { skillId: string; weekStart: string; hours: string }
+type Candidate = {
+  employeeId: string
+  displayName: string
+  availableHours: number
+  supportHours: number
+  recommendationContext?: string
+}
 type Recommendation = {
   skill: Skill
   weekStart: string
   requiredHours: number
-  candidates: { employeeId: string; displayName: string; availableHours: number; supportHours: number }[]
+  outcome?: 'candidates_available' | 'unavailable' | 'no_suitable_candidate'
+  candidates: Candidate[]
 }
 
 type Result =
@@ -45,8 +55,15 @@ export function ProjectResourceRecommendations({ projectId }: { projectId: strin
   }))
   const [fieldError, setFieldError] = useState('')
   const [result, setResult] = useState<Result>({ status: 'idle' })
+  const [selection, setSelection] = useState<{
+    data: Recommendation
+    candidate: Candidate
+    proof: string
+    replaced: boolean
+  } | null>(null)
   const active = useRef<AbortController | null>(null)
   const data = result.status === 'ready' ? result.data : null
+  const activeSelection = selection?.data === data ? selection : null
   const { items, page, pageCount, setPage } = usePagination(data?.candidates ?? [], 8)
 
   useEffect(() => () => active.current?.abort(), [])
@@ -162,8 +179,12 @@ export function ProjectResourceRecommendations({ projectId }: { projectId: strin
         </div>
       )}
       {data && (
-        data.candidates.length === 0 ? (
-          <p className="feedback-panel" role="status">Không có ứng viên phù hợp với tiêu chí đã chọn.</p>
+        recommendationPresentation(data.outcome, data.candidates.length) !== 'candidates' ? (
+          <p className="feedback-panel" role="status">
+            {data.outcome === 'unavailable'
+              ? 'Chưa đủ dữ liệu giờ trống cho tuần đã chọn.'
+              : 'Không có ứng viên phù hợp với tiêu chí đã chọn.'}
+          </p>
         ) : (
           <div>
             <p className="muted" role="status">
@@ -177,12 +198,39 @@ export function ProjectResourceRecommendations({ projectId }: { projectId: strin
                     {data.skill.name} · còn {hoursFormat.format(candidate.availableHours)} giờ
                     {' · đáp ứng '}{hoursFormat.format(candidate.supportHours)}/{hoursFormat.format(data.requiredHours)} giờ
                   </p>
+                  <button type="button" className="button button--secondary button--sm"
+                    disabled={!candidate.recommendationContext}
+                    aria-pressed={activeSelection?.candidate === candidate}
+                    onClick={() => {
+                      const proof = candidate.recommendationContext
+                      if (!proof) return
+                      setSelection(previous => previous?.data === data && previous.candidate === candidate
+                        ? previous
+                        : { data, candidate, proof, replaced: previous !== null })
+                    }}>
+                    Mô phỏng với {candidate.displayName}
+                  </button>
                 </li>
               ))}
             </ol>
+            {data.candidates.every(candidate => !candidate.recommendationContext) &&
+              <p className="feedback-panel" role="status">What-if chưa khả dụng. Danh sách đề xuất vẫn có thể xem.</p>}
             <Pagination label="Phân trang người hỗ trợ" page={page} pageCount={pageCount} setPage={setPage} />
           </div>
         )
+      )}
+      {selection && !activeSelection && (
+        <p className="feedback-panel" role="status">Phương án cũ đã hết hiệu lực. Chọn ứng viên từ kết quả đề xuất hiện tại.</p>
+      )}
+      {activeSelection && (
+        <ProjectWhatIfSimulation key={activeSelection.proof}
+          scenario={{
+            projectId, employeeId: activeSelection.candidate.employeeId, skillId: activeSelection.data.skill.id,
+            weekStart: activeSelection.data.weekStart, requiredHours: activeSelection.data.requiredHours,
+            recommendationContext: activeSelection.proof,
+          }}
+          suggestedHours={activeSelection.candidate.supportHours} employeeName={activeSelection.candidate.displayName}
+          skillName={activeSelection.data.skill.name} initiallyStale={activeSelection.replaced} />
       )}
     </section>
   )
