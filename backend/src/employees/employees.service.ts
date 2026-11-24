@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThan, type Repository } from 'typeorm';
+import type { Repository } from 'typeorm';
 import type { SkillResponse } from '../skills/skills.service.js';
 import { getAvailabilityWeek } from './availability-week.js';
 import { Employee } from './employee.entity.js';
@@ -23,7 +23,10 @@ export interface EmployeeAvailabilityResponse {
   })[];
 }
 
-export type AvailableEmployee = EmployeeResponse & { availableHours: number };
+type WeeklyAvailability = Pick<
+  Employee,
+  'availabilityWeekStart' | 'availableHours'
+>;
 
 @Injectable()
 export class EmployeesService {
@@ -76,21 +79,34 @@ export class EmployeesService {
     };
   }
 
-  async findAvailableForSkill(
+  async findAvailabilityForSkill(
     skillId: string,
-    weekStart: string,
-  ): Promise<AvailableEmployee[]> {
-    const employees = await this.employeesRepository.find({
-      select: { id: true, displayName: true, availableHours: true },
-      where: {
-        employeeSkills: { skillId },
-        availabilityWeekStart: weekStart,
-        availableHours: MoreThan(0),
+  ): Promise<(EmployeeResponse & WeeklyAvailability)[]> {
+    return this.employeesRepository.find({
+      select: {
+        id: true,
+        displayName: true,
+        availabilityWeekStart: true,
+        availableHours: true,
       },
+      where: { employeeSkills: { skillId } },
     });
-    return employees.flatMap(({ id, displayName, availableHours }) =>
-      availableHours === null ? [] : [{ id, displayName, availableHours }],
-    );
+  }
+
+  async findSimulationAvailability(employeeId: string, skillId: string) {
+    const employee = await this.employeesRepository.findOne({
+      where: { id: employeeId },
+      relations: { employeeSkills: true },
+      relationLoadStrategy: 'join',
+    });
+    if (!employee) throw new NotFoundException('Không tìm thấy Employee.');
+    return {
+      weekStart: employee.availabilityWeekStart,
+      availableHours: employee.availableHours,
+      matchesSkill: employee.employeeSkills.some(
+        (link) => link.skillId === skillId,
+      ),
+    };
   }
 
   async findOne(employeeId: string): Promise<EmployeeResponse> {

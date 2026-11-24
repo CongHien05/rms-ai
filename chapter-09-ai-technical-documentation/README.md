@@ -56,6 +56,18 @@ là What-if Simulation. AI ghi lại các quyết định PROPOSED DEMO trong Ch
 Kiểm tra chỉ đọc MySQL dev đạt. Trạng thái nghiệm thu What-if vẫn mở.
 [Kết quả và giới hạn kiểm tra](docs/spec-kit-adoption-audit.md).
 
+### Bàn giao kiểm thử What-if 001 (2026-11-25)
+
+Phạm vi **PROPOSED DEMO** đã chạy trên MariaDB dev. What-if chỉ cần Backend
+và Frontend, sử dụng `WHAT_IF_CONTEXT_SECRET` trong `backend/.env` cục bộ
+để xác minh ngữ cảnh. Phép tính deterministic dùng giờ trống đọc lại. Khi thiếu khóa,
+danh sách đề xuất vẫn khả dụng và What-if không thể chạy.
+
+Người phụ trách duyệt thiết kế ở Gate 2; AI ghi lệnh, fixture dev, số đo và
+giới hạn của từng lớp bằng chứng. Gate 3 chờ người phụ trách review.
+[Quickstart](../specs/001-what-if-simulation/quickstart.md)
+· [Kết quả unit, HTTP E2E và runtime](../chapter-08-ai-software-testing/README.md).
+
 ## 6. Việc tiếp theo
 
 Khi dự án đạt mốc cuối, kiểm tra link, thuật ngữ, lệnh vận hành và sự phù hợp

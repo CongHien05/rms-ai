@@ -4,7 +4,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import type { FindOperator } from 'typeorm';
 import { AppModule } from './../src/app.module.js';
 import { EmployeeSkill } from './../src/employee-skills/employee-skill.entity.js';
 import { getAvailabilityWeek } from './../src/employees/availability-week.js';
@@ -28,6 +27,8 @@ describe('Backend foundations (e2e)', () => {
   let employees: Map<string, Employee>;
   let skills: Map<string, Skill>;
   let employeeSkills: Map<string, EmployeeSkill>;
+  let employeeRead: ReturnType<typeof vi.fn>;
+  let resourceWrites: ReturnType<typeof vi.fn>[];
 
   beforeEach(async () => {
     process.env.DB_HOST = 'test-host';
@@ -35,6 +36,7 @@ describe('Backend foundations (e2e)', () => {
     process.env.DB_USERNAME = 'test-user';
     process.env.DB_PASSWORD = 'test-password';
     process.env.DB_DATABASE = 'test-database';
+    vi.stubEnv('WHAT_IF_CONTEXT_SECRET', undefined);
 
     projects = new Map();
     sprints = new Map();
@@ -109,6 +111,13 @@ describe('Backend foundations (e2e)', () => {
       ),
     };
 
+    employeeRead = vi.fn(async ({ where: { id } }: { where: { id: string } }) => {
+      const employee = employees.get(id);
+      return employee ? {
+        ...employee,
+        employeeSkills: [...employeeSkills.values()].filter((link) => link.employeeId === id),
+      } : null;
+    });
     const employeeRepository = {
       create: vi.fn((input: Pick<Employee, 'displayName'>) => ({
         id: randomUUID(),
@@ -121,25 +130,13 @@ describe('Backend foundations (e2e)', () => {
       find: vi.fn(
         async (options?: {
           relations?: unknown;
-          where?: {
-            employeeSkills: { skillId: string };
-            availabilityWeekStart: string;
-            availableHours: FindOperator<number>;
-          };
+          where?: { employeeSkills: { skillId: string } };
         }) => {
           const roster = [...employees.values()];
           if (options?.where) {
-            const {
-              employeeSkills: { skillId },
-              availabilityWeekStart,
-              availableHours,
-            } = options.where;
-            expect(availableHours.type).toBe('moreThan');
+            const { employeeSkills: { skillId } } = options.where;
             return roster.filter(
               (employee) =>
-                employee.availabilityWeekStart === availabilityWeekStart &&
-                employee.availableHours !== null &&
-                employee.availableHours > availableHours.value &&
                 employeeSkills.has(employeeSkillKey(employee.id, skillId)),
             );
           }
@@ -161,6 +158,7 @@ describe('Backend foundations (e2e)', () => {
       findOneBy: vi.fn(
         async ({ id }: { id: string }) => employees.get(id) ?? null,
       ),
+      findOne: employeeRead,
     };
 
     const skillRepository = {
@@ -203,6 +201,8 @@ describe('Backend foundations (e2e)', () => {
             })),
       ),
     };
+
+    resourceWrites = [projectRepository.save, employeeRepository.save, skillRepository.save, employeeSkillRepository.save];
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -633,6 +633,7 @@ describe('Backend foundations (e2e)', () => {
       skill: { id: skillId, name: 'TypeScript' },
       weekStart,
       requiredHours,
+      outcome: 'candidates_available',
       candidates: [2, 1, 3, 0].map((index) => ({
         employeeId: ids[index],
         displayName: roster[index].name,
@@ -646,6 +647,7 @@ describe('Backend foundations (e2e)', () => {
       .send({ skillId, weekStart: '2026-11-23', requiredHours })
       .expect(200);
     expect(empty.body.candidates).toEqual([]);
+    expect(empty.body.outcome).toBe('unavailable');
     const after = await request(app.getHttpServer())
       .get('/employees/availability')
       .expect(200);
@@ -690,6 +692,166 @@ describe('Backend foundations (e2e)', () => {
       .post(`/projects/${randomUUID()}/resource-recommendations`)
       .send(criteria)
       .expect(404);
+  });
+
+  function simulationFixture() {
+    vi.stubEnv('WHAT_IF_CONTEXT_SECRET', Buffer.alloc(32, 23).toString('base64url'));
+    const projectId = randomUUID();
+    const employeeId = randomUUID();
+    const skillId = randomUUID();
+    const weekStart = '2026-11-16';
+    const employee = {
+      id: employeeId, displayName: 'What-if candidate', availableHours: 12.5, availabilityWeekStart: weekStart,
+    } as Employee;
+    projects.set(projectId, { id: projectId, name: 'What-if project' });
+    skills.set(skillId, { id: skillId, name: 'TypeScript' });
+    employees.set(employeeId, employee);
+    employeeSkills.set(employeeSkillKey(employeeId, skillId), { employeeId, skillId } as EmployeeSkill);
+    return {
+      route: `/projects/${projectId}`,
+      projectId, employeeId, employee, skillId, weekStart, requiredHours: 8,
+    };
+  }
+
+  async function simulationRequest(fixture: ReturnType<typeof simulationFixture>) {
+    const { route, skillId, weekStart, requiredHours, employeeId } = fixture;
+    const result = await request(app.getHttpServer()).post(`${route}/resource-recommendations`)
+      .send({ skillId, weekStart, requiredHours }).expect(200);
+    const { recommendationContext, ...candidate } = result.body.candidates[0];
+    expect(result.body.outcome).toBe('candidates_available');
+    expect(recommendationContext).toMatch(/^v1\.[A-Za-z0-9_-]{43}$/);
+    expect(candidate).toEqual({
+      employeeId, displayName: fixture.employee.displayName,
+      availableHours: fixture.employee.availableHours, supportHours: Math.min(fixture.employee.availableHours!, requiredHours),
+    });
+    return { runId: randomUUID(), scenario: { skillId, weekStart, requiredHours, employeeId, recommendationContext, supportHours: 8 } };
+  }
+
+  function resourceSnapshot() {
+    return structuredClone([[...projects], [...employees], [...skills], [...employeeSkills]]);
+  }
+
+  function expectUnchanged(before: ReturnType<typeof resourceSnapshot>) {
+    expect(resourceSnapshot()).toEqual(before);
+    for (const spy of resourceWrites) expect(spy).not.toHaveBeenCalled();
+  }
+
+  it('uses signed candidates and supports full, partial, decimal and over-demand hours without writes', async () => {
+    const fixture = simulationFixture();
+    const body = await simulationRequest(fixture);
+    const before = resourceSnapshot();
+    for (const [supportHours, remainingRequiredHours, remainingAvailableHours] of [
+      [8, 0, 4.5], [4, 4, 8.5], [9, 0, 3.5], [0.1, 7.9, 12.4],
+    ]) {
+      const runId = randomUUID();
+      const result = await request(app.getHttpServer()).post(`${fixture.route}/simulations`)
+        .send({ runId, scenario: { ...body.scenario, supportHours } }).expect(200);
+      expect(result.body).toEqual({
+        outcome: 'available', scenarioReference: expect.stringMatching(/^[a-f0-9]{64}$/), runId,
+        snapshot: {
+          projectId: fixture.projectId, employeeId: fixture.employeeId, skillId: fixture.skillId,
+          weekStart: fixture.weekStart, requiredHours: 8, supportHours, availableHours: 12.5,
+        },
+        expectedImpact: { hypotheticalSupportHours: supportHours, remainingRequiredHours, remainingAvailableHours },
+      });
+    }
+    expectUnchanged(before);
+  });
+
+  it('rejects malformed or forged DTOs before considering availability', async () => {
+    const fixture = simulationFixture();
+    const body = await simulationRequest(fixture);
+    const before = resourceSnapshot();
+    const url = `${fixture.route}/simulations`;
+    for (const change of [
+      { supportHours: undefined }, { supportHours: null }, { supportHours: 0 },
+      { supportHours: -1 }, { supportHours: '8' }, { weekStart: '2026-11-17' },
+      { weekStart: '2026-11-23' }, { employeeId: randomUUID() }, { skillId: randomUUID() },
+      { availableHours: 1000 }, { expectedImpact: { remainingRequiredHours: 0 } },
+      { requiredHours: 9 }, { recommendationContext: 'v1.' + 'A'.repeat(43) },
+    ]) {
+      await request(app.getHttpServer()).post(url).send({ ...body, scenario: { ...body.scenario, ...change } }).expect(400);
+    }
+    for (const invalid of [null, [body.scenario], undefined]) {
+      await request(app.getHttpServer()).post(url).send({ ...body, scenario: invalid }).expect(400);
+    }
+    await request(app.getHttpServer()).post(url).set('Content-Type', 'application/json')
+      .send(JSON.stringify(body).replace('"supportHours":8', '"supportHours":1e309')).expect(400);
+    await request(app.getHttpServer()).post(`/projects/${randomUUID()}/simulations`).send(body).expect(400);
+    await request(app.getHttpServer()).post('/projects/invalid/simulations').send(body).expect(400);
+    expect(employeeRead).not.toHaveBeenCalled();
+    expectUnchanged(before);
+  });
+
+  it('re-reads availability and distinguishes missing or wrong-week hours from zero', async () => {
+    const fixture = simulationFixture();
+    const body = await simulationRequest(fixture);
+    const cases = [
+      { hours: 4, week: fixture.weekStart, status: 400, code: 'INVALID_SCENARIO' },
+      { hours: 0, week: fixture.weekStart, status: 400, code: 'INVALID_SCENARIO' },
+      { hours: null, week: fixture.weekStart, status: 422, code: 'MISSING_AVAILABILITY' },
+      { hours: 12.5, week: '2026-11-09', status: 422, code: 'MISSING_AVAILABILITY' },
+    ];
+    for (const { hours, week, status, code } of cases) {
+      fixture.employee.availableHours = hours;
+      fixture.employee.availabilityWeekStart = week;
+      const before = resourceSnapshot();
+      const response = await request(app.getHttpServer()).post(`${fixture.route}/simulations`).send(body).expect(status);
+      expect(response.body.code).toBe(code);
+      expect(response.body.expectedImpact).toBeUndefined();
+      expectUnchanged(before);
+    }
+    fixture.employee.availableHours = 4;
+    fixture.employee.availabilityWeekStart = fixture.weekStart;
+    const before = resourceSnapshot();
+    const result = await request(app.getHttpServer()).post(`${fixture.route}/simulations`)
+      .send({ runId: randomUUID(), scenario: { ...body.scenario, supportHours: 4 } }).expect(200);
+    expect(result.body.snapshot.availableHours).toBe(4);
+    expect(result.body.expectedImpact).toEqual({
+      hypotheticalSupportHours: 4, remainingRequiredHours: 4, remainingAvailableHours: 0,
+    });
+    expectUnchanged(before);
+  });
+
+  it('retains recommendation without a key and distinguishes unavailable from empty', async () => {
+    const fixture = simulationFixture();
+    const body = await simulationRequest(fixture);
+    vi.stubEnv('WHAT_IF_CONTEXT_SECRET', undefined);
+    const before = resourceSnapshot();
+    const { skillId, weekStart, requiredHours } = fixture;
+    const propose = () => request(app.getHttpServer()).post(`${fixture.route}/resource-recommendations`)
+      .send({ skillId, weekStart, requiredHours });
+    const result = await propose().expect(200);
+    expect(result.body.outcome).toBe('candidates_available');
+    expect(result.body.candidates[0].recommendationContext).toBeUndefined();
+    const error = await request(app.getHttpServer()).post(`${fixture.route}/simulations`).send(body).expect(503);
+    expect(error.body.code).toBe('SIMULATION_UNAVAILABLE');
+    expectUnchanged(before);
+    fixture.employee.availableHours = null;
+    expect((await propose().expect(200)).body).toMatchObject({ outcome: 'unavailable', candidates: [] });
+    fixture.employee.availableHours = 0;
+    expect((await propose().expect(200)).body).toMatchObject({ outcome: 'no_suitable_candidate', candidates: [] });
+  });
+
+  it('reports an unavailable source and permits retry for the same signed scenario', async () => {
+    const fixture = simulationFixture();
+    const body = await simulationRequest(fixture);
+    const before = resourceSnapshot();
+    employeeRead.mockRejectedValueOnce(new Error('DB internals'));
+    const url = `${fixture.route}/simulations`;
+    const failure = await request(app.getHttpServer()).post(url).send(body).expect(503);
+    expect(failure.body).toEqual({ statusCode: 503, code: 'SIMULATION_UNAVAILABLE', message: 'Chưa thể mô phỏng. Vui lòng thử lại.' });
+    const runId = randomUUID();
+    const success = await request(app.getHttpServer()).post(url).send({ ...body, runId }).expect(200);
+    expect(success.body.runId).toBe(runId);
+    expect(employeeRead).toHaveBeenCalledTimes(2);
+    expectUnchanged(before);
+    employeeSkills.delete(employeeSkillKey(fixture.employeeId, fixture.skillId));
+    const invalid = await request(app.getHttpServer()).post(url).send(body).expect(400);
+    expect(invalid.body.code).toBe('INVALID_SCENARIO');
+    projects.delete(fixture.projectId);
+    const deleted = await request(app.getHttpServer()).post(url).send(body).expect(404);
+    expect(deleted.body.code).toBe('INVALID_SCENARIO');
   });
 
   it('creates Employee and Skill, assigns the relation, and lists it', async () => {
@@ -789,5 +951,6 @@ describe('Backend foundations (e2e)', () => {
 
   afterEach(async () => {
     await app.close();
+    vi.unstubAllEnvs();
   });
 });

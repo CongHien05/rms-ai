@@ -10,6 +10,11 @@ import {
 import { CreateProjectDto } from './dto/create-project.dto.js';
 import { ResourceRecommendationDto } from './dto/resource-recommendation.dto.js';
 import {
+  ResourceSimulationDto,
+  type ResourceSimulationResponseDto,
+} from './dto/resource-simulation.dto.js';
+import { ProjectSimulationService } from './project-simulation.service.js';
+import {
   ProjectResourceRecommendationService,
   type ProjectResourceRecommendations,
 } from './project-resource-recommendation.service.js';
@@ -25,6 +30,7 @@ export class ProjectsController {
     private readonly projectsService: ProjectsService,
     private readonly projectRiskService: ProjectRiskService,
     private readonly projectResourceRecommendationService: ProjectResourceRecommendationService,
+    private readonly projectSimulationService: ProjectSimulationService,
   ) {}
 
   @Post()
@@ -59,5 +65,14 @@ export class ProjectsController {
     @Body() body: ResourceRecommendationDto,
   ): Promise<ProjectResourceRecommendations> {
     return this.projectResourceRecommendationService.recommend(projectId, body);
+  }
+
+  @Post(':projectId/simulations')
+  @HttpCode(200)
+  simulateResources(
+    @Param('projectId', ParseUUIDPipe) projectId: string,
+    @Body() body: ResourceSimulationDto,
+  ): Promise<ResourceSimulationResponseDto> {
+    return this.projectSimulationService.simulate(projectId, body);
   }
 }

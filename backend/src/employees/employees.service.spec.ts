@@ -9,6 +9,7 @@ describe('EmployeesService', () => {
     create: ReturnType<typeof vi.fn>;
     save: ReturnType<typeof vi.fn>;
     find: ReturnType<typeof vi.fn>;
+    findOne: ReturnType<typeof vi.fn>;
     findOneBy: ReturnType<typeof vi.fn>;
   };
   let service: EmployeesService;
@@ -18,6 +19,7 @@ describe('EmployeesService', () => {
       create: vi.fn(),
       save: vi.fn(),
       find: vi.fn(),
+      findOne: vi.fn(),
       findOneBy: vi.fn(),
     };
     service = new EmployeesService(
@@ -78,5 +80,41 @@ describe('EmployeesService', () => {
     await expect(service.findOne(employeeId)).rejects.toBeInstanceOf(
       NotFoundException,
     );
+  });
+
+  it('keeps raw weekly availability in the proposal roster', async () => {
+    const roster = [
+      { availabilityWeekStart: null, availableHours: null },
+      { availabilityWeekStart: '2026-11-16', availableHours: 0 },
+      { availabilityWeekStart: '2026-11-09', availableHours: 8 },
+    ];
+    repository.find.mockResolvedValue(roster);
+    await expect(service.findAvailabilityForSkill('skill')).resolves.toEqual(roster);
+    expect(repository.find).toHaveBeenCalledWith({
+      select: { id: true, displayName: true, availabilityWeekStart: true, availableHours: true },
+      where: { employeeSkills: { skillId: 'skill' } },
+    });
+    expect(repository.save).not.toHaveBeenCalled();
+  });
+
+  it('reads association and availability together and keeps zero distinct from missing', async () => {
+    repository.findOne.mockResolvedValueOnce({
+      id: employeeId, availabilityWeekStart: '2026-11-16', availableHours: 0,
+      employeeSkills: [{ skillId: 'skill' }],
+    }).mockResolvedValueOnce({
+      id: employeeId, availabilityWeekStart: '2026-11-09', availableHours: null,
+      employeeSkills: [],
+    }).mockResolvedValueOnce(null);
+    await expect(service.findSimulationAvailability(employeeId, 'skill')).resolves.toEqual({
+      weekStart: '2026-11-16', availableHours: 0, matchesSkill: true,
+    });
+    await expect(service.findSimulationAvailability(employeeId, 'skill')).resolves.toEqual({
+      weekStart: '2026-11-09', availableHours: null, matchesSkill: false,
+    });
+    await expect(service.findSimulationAvailability(employeeId, 'skill')).rejects.toBeInstanceOf(NotFoundException);
+    expect(repository.findOne).toHaveBeenCalledWith(expect.objectContaining({
+      where: { id: employeeId }, relations: { employeeSkills: true }, relationLoadStrategy: 'join',
+    }));
+    expect(repository.save).not.toHaveBeenCalled();
   });
 });

@@ -54,3 +54,15 @@ pattern, hai sơ đồ và disposition conflict trước khi duyệt B1.
 Human reviewer xử lý các mục `B1-DEC-01` đến `B1-DEC-04` và `B1-VIEW-01/02`
 trong tài liệu B1. Sau khi B1 được duyệt, nhóm mới chọn một phạm vi tiếp theo;
 không tự mở endpoint, schema, Auth/RBAC hoặc AI/model work.
+
+### Addendum What-if 001 (2026-11-25)
+
+What-if **PROPOSED DEMO** chạy từ màn đề xuất trên dự án thật qua Vite tới
+`POST /projects/:projectId/simulations` của NestJS. Server xác minh HMAC
+cho ngữ cảnh đã đề xuất, đọc Project, Skill và một Employee với liên kết
+kỹ năng cùng giờ trống, rồi tính ba chỉ báo theo giờ. Phép tính deterministic
+chỉ đọc MariaDB và luồng này kết thúc ở kết quả mô phỏng. Gate 2 đã duyệt
+cách xử lý dữ liệu hiện có, proof không lưu và snapshot theo lượt chạy.
+Chapter 5 B1 tiếp tục **chờ duyệt**.
+[Hợp đồng HTTP](../specs/001-what-if-simulation/contracts/what-if-api.md)
+· [Bằng chứng Chapter 8](../chapter-08-ai-software-testing/README.md).

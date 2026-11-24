@@ -110,6 +110,12 @@ chứng đã ghi nhận.
   [Quyết định What-if](chapter-03-ai-for-requirements-product-analysis/docs/user-stories.md#quyết-định-cho-what-if-đầu-tiên-2026-11-25).
 - `origin/main` đã chứa PR #21 tại `616f417`. Cây nội dung của commit đó
   khớp với HEAD `83e13b0`. [Báo cáo tích hợp](chapter-09-ai-technical-documentation/docs/spec-kit-adoption-audit.md).
+- What-if 001 đã triển khai ở phạm vi **PROPOSED DEMO**, chờ review Gate 3.
+  Phép tính deterministic trong NestJS dùng giờ trống đọc lại và kết thúc
+  ở kết quả giả định. Backend đạt 83 unit và 16 HTTP E2E với test double;
+  Frontend đạt 25 unit. Browser dev và SQL trước/sau xác nhận lát cắt
+  chỉ đọc trên dữ liệu hiện có. Chapter 5 B1 tiếp tục chờ duyệt.
+  [Bằng chứng và giới hạn](chapter-08-ai-software-testing/README.md#kiểm-chứng-what-if-001-2026-11-25).
 
 ## Mốc trước tích hợp PM (lịch sử)
 

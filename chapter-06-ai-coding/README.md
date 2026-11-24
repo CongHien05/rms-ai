@@ -192,3 +192,19 @@ Kết quả smoke test và đối chiếu số giờ trước/sau ở
 
 Với các phạm vi lập trình được phê duyệt tiếp theo, lưu prompt, quyết định rà
 soát, vòng hiệu chỉnh và kết quả kiểm tra xác nhận thành bằng chứng có truy vết.
+
+### What-if Simulation 001 (2026-11-25)
+
+Đã triển khai **PROPOSED DEMO** từ ứng viên trong đề xuất của dự án thật.
+PM xác nhận số giờ hỗ trợ và xem giờ hỗ trợ giả định, giờ cần còn thiếu,
+giờ trống giả định còn lại. Backend đọc lại availability và tính toán
+deterministic bằng BigInt trên các giá trị thập phân chuẩn hóa. Giao diện
+giữ đầu vào khi lỗi và dùng revision/run ID để bỏ qua phản hồi cũ.
+Luồng mock vẫn gọi bước Quyết định như trước; luồng thật kết thúc ở kết quả.
+
+Người phụ trách duyệt phạm vi giờ giả định và các quyết định kỹ thuật ở Gate 2.
+AI thực hiện các task, viết kiểm thử và đối chiếu mã với spec ở Gate 3.
+Auth/RBAC, PM Decision trên dự án thật, Apply Allocation, ProjectAllocation
+vận hành và AI inference nằm ngoài phạm vi đã triển khai.
+[Spec và task](../specs/001-what-if-simulation/tasks.md)
+· [Kết quả Chapter 8](../chapter-08-ai-software-testing/README.md).

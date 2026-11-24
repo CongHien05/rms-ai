@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { PageHeading } from '../layout/PageHeading'
 import type { MockProjectRiskViewModel } from '../project-risk/mockProjectRisks'
 import type { MockRecommendationCandidatePresentation } from './mockResourceRecommendations'
+import { WhatIfSimulationPanels } from './WhatIfSimulationPanels'
 
 type DecisionStatus = 'undecided' | 'accepted' | 'rejected'
 
@@ -28,9 +29,7 @@ export function WhatIfSimulationView({ project, candidate, onBack, onShowDecisio
       <PageHeading id="what-if-title" title={hasResult ? 'Quyết định' : 'Mô phỏng'}
         description={project.name} label="Dữ liệu demo" />
 
-      <div className="simulation-grid">
-        <section className="scenario-panel" aria-labelledby="scenario-title">
-          <h2 id="scenario-title">Phương án</h2>
+      <WhatIfSimulationPanels scenario={<>
           <p><strong>{candidate.displayLabel}</strong></p>
           <p className="muted">{candidate.explanation}</p>
           <p className="tbd-note">Cấu trúc phân bổ của phương án vẫn là TBD.</p>
@@ -39,11 +38,7 @@ export function WhatIfSimulationView({ project, candidate, onBack, onShowDecisio
               Hiển thị kết quả demo
             </button>
           )}
-        </section>
-
-        <section className="impact-section" aria-labelledby="impact-title" aria-live="polite">
-          <h2 id="impact-title">Kết quả mô phỏng</h2>
-          {hasResult ? (
+        </>} impact={hasResult ? (
             <>
               <div className="impact-layout">
                 <div>
@@ -59,9 +54,7 @@ export function WhatIfSimulationView({ project, candidate, onBack, onShowDecisio
             </>
           ) : (
             <p className="empty-copy">Hiển thị kết quả demo để xem phần so sánh và mở bước quyết định.</p>
-          )}
-        </section>
-      </div>
+          )} />
 
       {hasResult && (
         <section className="decision-section" aria-labelledby="decision-title">

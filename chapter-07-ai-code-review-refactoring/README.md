@@ -49,3 +49,25 @@ này, vì vậy Chapter 7 chưa được xem là hoàn thành.
 Ở lần rà soát mã nguồn kế tiếp, lưu phát hiện, quyết định của người rà soát, diff
 sửa lỗi và kết quả kiểm tra xác nhận; không tái cấu trúc ngoài phát hiện đã được
 xác nhận.
+
+### Review What-if 001 (2026-11-25)
+
+Rà soát HMAC với tuple chuẩn hóa, phiên bản, độ dài và so sánh constant time.
+Proof xác nhận ngữ cảnh ứng viên do server phát, còn trạng thái kỹ năng và
+availability được đọc lại trong lượt chạy. Kiểm tra số giờ trước khi tính
+tác động, gồm số thập phân, số mũ, giới hạn sát giờ trống và giờ hỗ trợ
+vượt nhu cầu.
+
+Rà soát guard revision/run ID trong component thật. Test deferred promise
+bao phủ success, error và finally cũ khi lượt mới đang chờ hoặc đã xong.
+Kiểm tra trình duyệt có trì hoãn phản hồi và chuyển dự án. Trạng thái tải
+lại đề xuất khi proof cũ hết hiệu lực và độ chính xác biểu diễn JSON number
+được ghi trong contract. Hồi quy luồng mock mở Quyết định đạt.
+[Chiến lược kiểm thử](../specs/001-what-if-simulation/plan.md#ma-trận-kiểm-thử)
+· [Bằng chứng Chapter 8](../chapter-08-ai-software-testing/README.md).
+
+Final code review đối chiếu với baseline `e45d4c6` và phát hiện lượt
+What-if có thể giữ trạng thái chờ nếu request hoặc body không trả xong.
+Đặt giới hạn 10 giây cho từng lượt, hủy request khi hết hạn và giữ guard
+cho phản hồi đến muộn. Hai regression mới bao phủ cả request treo trước
+header và body treo sau header, cùng khả năng thử lại với run ID mới.
