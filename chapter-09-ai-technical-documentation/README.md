@@ -20,6 +20,8 @@ liệu bàn giao hoàn chỉnh.
 - [Chapter 3 — Yêu cầu và sản phẩm](../chapter-03-ai-for-requirements-product-analysis/README.md)
 - [Chapter 4 — Thiết kế sản phẩm](../chapter-04-ai-for-product-design/README.md)
 - [Quy tắc repository](../AGENTS.md)
+- [Audit tích hợp Spec Kit và roadmap MVP](docs/spec-kit-adoption-audit.md)
+- [RMS-AI Constitution](../.specify/memory/constitution.md)
 
 ## 4. Tiến độ
 
@@ -34,6 +36,25 @@ liệu bàn giao hoàn chỉnh.
 Repository lưu prompt cho một số tài liệu yêu cầu/thiết kế, hướng dẫn, tài liệu
 đã qua nhiều commit và các mốc merge. Chưa tập trung bằng chứng sinh tài liệu và
 rà soát của con người vào Chapter 9.
+
+### Milestone Adopt GitHub Spec Kit (2026-11-24)
+
+Người giao việc chốt áp dụng Spec Kit 1.4.4 vào repository đang phát triển
+và giới hạn thay đổi ở cấu hình, Constitution và tài liệu. AI hỗ trợ kiểm
+kê scaffold, chạy kiểm tra hiện trạng, soạn 14 nguyên tắc và truy vết roadmap
+về PRD, User Stories và Acceptance Criteria. Codex đã nhận diện 9 skill.
+Frontend đạt 10/10 test, Backend đạt 55/55 unit và 11/11 E2E có test double,
+AI service đạt 9/9 unit và 5/5 ca smoke ASGI. MySQL local chưa kết nối lại.
+
+### Hoàn tất hồ sơ tích hợp (2026-11-25)
+
+Người phụ trách phê chuẩn Constitution 1.0.0, Hybrid SDD, giữ LF cho các file
+scaffold do manifest quản lý và roadmap MVP. Milestone chức năng đầu tiên
+là What-if Simulation. AI ghi lại các quyết định PROPOSED DEMO trong Chapter 3,
+đối chiếu baseline sau fetch và cập nhật hướng dẫn chạy. Checkout cách ly giữ
+22/22 hash. AI service đạt 9/9 unit và 5/5 smoke HTTP trong `.venv`.
+Kiểm tra chỉ đọc MySQL dev đạt. Trạng thái nghiệm thu What-if vẫn mở.
+[Kết quả và giới hạn kiểm tra](docs/spec-kit-adoption-audit.md).
 
 ## 6. Việc tiếp theo
 

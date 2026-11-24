@@ -490,6 +490,24 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 **Then:** TBD — nhóm cần xác định quan hệ User Account ↔ Employee và quyền xem chi tiết; không mặc định hai khái niệm là một hoặc thiết kế schema trong Acceptance Criteria.
 
+## Kiểm chứng What-if đầu tiên — PROPOSED DEMO
+
+Người phụ trách chốt phạm vi demo ngày 2026-11-25 tại
+[quyết định What-if trong User Stories](user-stories.md#quyết-định-cho-what-if-đầu-tiên-2026-11-25).
+Bảng dưới đây diễn giải cách kiểm chứng phần được duyệt. Các AC tổng quát và
+các phần TBD ngoài milestone giữ nguyên hiệu lực.
+
+| Truy vết | Kịch bản | Kết quả cần quan sát |
+| --- | --- | --- |
+| AC-US-02-01/02/03/04/05 | PM xem kết quả đề xuất hiện có, gồm ca có ứng viên, không có ứng viên, thiếu dữ liệu hoặc lỗi. | Giữ thứ hạng và giải thích của đề xuất. Chỉ chọn được ứng viên từ kết quả thành công cho đúng dự án và tuần. Phân biệt kết quả rỗng, thiếu dữ liệu và lỗi. Dữ liệu nguồn lực giữ nguyên. |
+| AC-US-03-01/03 | PM chọn một ứng viên, xác nhận dự án/tuần/số giờ và chạy với dữ liệu sẵn có. Lặp lại với số giờ nhỏ hơn nhu cầu, giờ không hợp lệ, sai tham chiếu hoặc vượt giờ trống nguồn, kể cả khi Frontend gửi giờ trống khác. | Backend kiểm tra dự án, nhân sự, kỹ năng, tuần và giờ trống đọc lại. Ca hợp lệ cho thấy giờ hỗ trợ giả định, giờ cần còn thiếu và giờ trống giả định còn lại. Phương án bù một phần hiển thị phần thiếu. Ca không hợp lệ không tạo kết quả tác động. |
+| AC-US-03-02/04 | Đối chiếu dữ liệu nguồn lực trước và sau khi mô phỏng thành công và khi mô phỏng lỗi. Thử thiếu dữ liệu và lỗi hệ thống. | Dữ liệu nguồn lực thật giữ nguyên. Giao diện phân biệt thiếu dữ liệu, đầu vào không hợp lệ và lỗi hệ thống, giữ đầu vào và cho thử lại thủ công. |
+| AC-US-03-01/05 | Chạy mô phỏng thành công, sau đó đổi ứng viên, tuần hoặc số giờ và yêu cầu chạy lại. | Kết quả trước chỉ thuộc snapshot cũ. Mô phỏng mới đọc lại nguồn và chỉ hiển thị tác động của phương án mới sau khi thành công. |
+
+Kết quả kiểm thử trên dữ liệu nguồn lực hiện có chỉ chứng minh hành vi chỉ
+đọc của demo. Bất biến đầy đủ của AC-US-03-02 trên `ProjectAllocation`
+tiếp tục chờ mô hình phân bổ vận hành và bằng chứng tương ứng.
+
 ## Giới hạn nghiệm thu
 
 Mỗi story có tình huống thành công; các nhánh thiếu căn cứ được ghi rõ thay vì tự tạo quy tắc nghiệp vụ. Nguyên tắc thể hiện kết quả rỗng, dữ liệu thiếu và không ép đưa ứng viên không phù hợp đã được xác nhận; tiêu chí phù hợp vẫn TBD. Các tình huống TBD chưa có kết quả kỳ vọng hoàn chỉnh. Bảy mục tiêu người dùng, ranh giới DEV/PM/HR và quyền quyết định của PM được mô tả nhất quán, nhưng còn cần nhóm chốt TBD trước khi nghiệm thu đầy đủ các nhánh tương ứng.

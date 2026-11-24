@@ -1,0 +1,6 @@
+# Spec Kit manifests hash the original LF bytes.
+/.agents/skills/speckit-*/SKILL.md text eol=lf
+/.specify/.gitignore text eol=lf
+/.specify/scripts/powershell/*.ps1 text eol=lf
+/.specify/scripts/powershell/markdown_sections.py text eol=lf
+/.specify/templates/*-template.md text eol=lf
