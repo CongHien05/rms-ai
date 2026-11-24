@@ -248,6 +248,29 @@ Các khoảng trống không làm thay đổi bốn kết quả cốt lõi, như
 hoàn chỉnh của AC. Chưa dùng tài liệu này để tuyên bố sẵn sàng triển khai toàn
 bộ hoặc đã nghiệm thu MVP.
 
+### Quyết định cho What-if đầu tiên (2026-11-25)
+
+Người phụ trách phê chuẩn phương án A cho các mục dưới đây, ở phạm vi
+**PROPOSED DEMO** của milestone What-if đầu tiên. Phạm vi đi từ ứng viên trong
+kết quả đề xuất của dự án đến kết quả What-if. Các TBD ở bảng trên tiếp tục
+áp dụng ngoài phần được phê chuẩn tại đây.
+
+| TBD | Quyết định trong phạm vi PROPOSED DEMO | Truy vết |
+| --- | --- | --- |
+| TBD-01 | Dùng dữ liệu Project, Employee, Skill, tuần, số giờ cần và giờ trống theo tuần từ nguồn hiện có. Backend kiểm tra dự án, nhân sự, kỹ năng và tuần, rồi đọc lại availability từ nguồn dữ liệu. Giá trị giờ trống từ Frontend không có thẩm quyền. Dữ liệu thiếu có trạng thái riêng, không quy thành 0 giờ. | US-02, US-03 · AC-US-02-04, AC-US-03-01/03 |
+| TBD-03 | Chọn nhân sự từ kết quả đề xuất hiện có của đúng dự án và tuần. Tiếp tục dùng bộ lọc và thứ hạng của demo. Kết quả rỗng, dữ liệu thiếu và lỗi tạo đề xuất phải phân biệt được. | US-02 · AC-US-02-01/02/03/04/05 |
+| TBD-04 | Mỗi phương án gồm một nhân sự, một dự án, một tuần và một lượng giờ giả định. Số giờ hỗ trợ từ đề xuất là giá trị điền sẵn để PM xác nhận. Chặn giờ không hợp lệ hoặc vượt giờ trống mà Backend đã kiểm tra. Cho phép phương án chỉ bù một phần nhu cầu. | US-03 · AC-US-03-01/02/03 |
+| TBD-05 | Tác động giới hạn ở ba chỉ báo theo tuần: số giờ hỗ trợ giả định, số giờ cần còn thiếu và giờ trống giả định còn lại. Mốc so sánh là số giờ cần đã xác nhận và số giờ trống đọc lại trước mô phỏng. | US-03 · AC-US-03-01 |
+| TBD-07 | Phân biệt thiếu dữ liệu, phương án không hợp lệ và lỗi hệ thống. Giữ đầu vào khi lỗi và cho thử lại thủ công. Chỉ hiển thị kết quả mới sau khi chạy thành công. | US-02, US-03 · AC-US-02-04, AC-US-03-02/04 |
+| TBD-08 | Gắn kết quả với snapshot của đúng phương án và dữ liệu đầu vào dùng để tính. Khi đầu vào đổi, lần chạy mới phải đọc lại nguồn. Kết quả cũ chỉ thuộc phương án cũ. | US-03 · AC-US-03-01/05 |
+
+Mô phỏng chỉ đọc dữ liệu nguồn lực. Phạm vi này kết thúc ở tác động tính theo
+giờ. Xác suất giảm rủi ro, tối ưu liên dự án, AI chưa được kiểm chứng, Auth/RBAC,
+PM Decision và Apply Allocation nằm ngoài milestone. Bằng chứng trước/sau trên
+dữ liệu hiện có chỉ nghiệm thu hành vi chỉ đọc của demo. Nghiệm thu đầy đủ trên
+`ProjectAllocation` cần mô hình phân bổ vận hành được phê duyệt.
+Xem [tiêu chí kiểm chứng của demo](acceptance-criteria.md#kiểm-chứng-what-if-đầu-tiên--proposed-demo).
+
 ## 5. Ma trận truy vết
 
 | User Story | Nhu cầu người dùng | Bước MVP | Nguồn PRD | Mức ưu tiên | Trạng thái yêu cầu |

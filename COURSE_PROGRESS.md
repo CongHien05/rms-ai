@@ -12,16 +12,17 @@ sao chép vào các thư mục chapter.
 | Chương | Nội dung | Trạng thái | Tài liệu chính |
 | --- | --- | --- | --- |
 | 3 | AI trong Phân tích Yêu cầu & Sản phẩm | HOÀN THÀNH | [Theo dõi Chapter 3](chapter-03-ai-for-requirements-product-analysis/README.md) |
-| 4 | AI trong Thiết kế Sản phẩm | ĐANG THỰC HIỆN | [Theo dõi Chapter 4](chapter-04-ai-for-product-design/README.md) |
+| 4 | AI trong Thiết kế Sản phẩm | HOÀN TẤT REVIEW THIẾT KẾ · 12 TBD GIỮ LẠI | [Theo dõi Chapter 4](chapter-04-ai-for-product-design/README.md) |
 | 5 | AI trong Thiết kế & Kiến trúc Phần mềm | ĐANG THỰC HIỆN | [Theo dõi Chapter 5](chapter-05-ai-for-software-design-architecture/README.md) |
 | 6 | AI Lập trình | ĐANG THỰC HIỆN | [Theo dõi Chapter 6](chapter-06-ai-coding/README.md) |
 | 7 | Tái cấu trúc & Review Mã nguồn cùng AI | ĐANG THỰC HIỆN | [Theo dõi Chapter 7](chapter-07-ai-code-review-refactoring/README.md) |
 | 8 | AI trong Kiểm thử Phần mềm | ĐANG THỰC HIỆN | [Theo dõi Chapter 8](chapter-08-ai-software-testing/README.md) |
 | 9 | AI trong việc sinh tài liệu kỹ thuật | ĐANG THỰC HIỆN | [Theo dõi Chapter 9](chapter-09-ai-technical-documentation/README.md) |
 
-Trạng thái Chapter 3 xác nhận cơ sở yêu cầu đã có, không có nghĩa mọi quy tắc
-nghiệp vụ `TBD` đã được quyết định. Các chapter còn lại đã có một phần bằng chứng
-trong repository nhưng chưa đủ điều kiện để đánh dấu hoàn thành.
+Chapter 3 hoàn thành cơ sở yêu cầu. Chapter 4 đã đóng phạm vi review thiết kế
+với 20 mục UI được duyệt và 12 câu hỏi `TBD` được giữ lại. Chapter 5 B1 vẫn
+chờ duyệt. Trạng thái các chapter phản ánh tiến độ học phần và phạm vi bằng
+chứng đã ghi nhận.
 
 ## Tiến độ ngày 2026-11-17
 
@@ -92,6 +93,23 @@ trong repository nhưng chưa đủ điều kiện để đánh dấu hoàn thà
   nguyên trước/sau. Test, build và lint hai phía đạt.
   [Triển khai Chapter 6](chapter-06-ai-coding/README.md) ·
   [Minh chứng Chapter 8](chapter-08-ai-software-testing/README.md).
+
+## Tiến độ ngày 2026-11-24
+
+- Đã audit GitHub Spec Kit 1.4.4 với Codex và soạn Constitution 1.0.0.
+  Báo cáo, Constitution và đề xuất milestone What-if từ ứng viên của API
+  đang chờ người phụ trách review.
+  [Audit và roadmap MVP](chapter-09-ai-technical-documentation/docs/spec-kit-adoption-audit.md).
+
+## Tiến độ ngày 2026-11-25
+
+- Người phụ trách phê chuẩn Constitution 1.0.0, cách làm Hybrid SDD,
+  cấu hình LF cho scaffold Spec Kit và roadmap MVP.
+- What-if Simulation là milestone chức năng đầu tiên. Quyết định về đầu vào,
+  tác động, lỗi và độ mới đã chốt ở phạm vi PROPOSED DEMO. Milestone chưa triển khai.
+  [Quyết định What-if](chapter-03-ai-for-requirements-product-analysis/docs/user-stories.md#quyết-định-cho-what-if-đầu-tiên-2026-11-25).
+- `origin/main` đã chứa PR #21 tại `616f417`. Cây nội dung của commit đó
+  khớp với HEAD `83e13b0`. [Báo cáo tích hợp](chapter-09-ai-technical-documentation/docs/spec-kit-adoption-audit.md).
 
 ## Mốc trước tích hợp PM (lịch sử)
 
