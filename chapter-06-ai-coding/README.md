@@ -208,3 +208,15 @@ Auth/RBAC, PM Decision trên dự án thật, Apply Allocation, ProjectAllocatio
 vận hành và AI inference nằm ngoài phạm vi đã triển khai.
 [Spec và task](../specs/001-what-if-simulation/tasks.md)
 · [Kết quả Chapter 8](../chapter-08-ai-software-testing/README.md).
+### Authentication & RBAC 002 (2026-11-26)
+
+Người phụ trách duyệt D1–D3 và thiết kế Gate 2. AI triển khai tài khoản nội
+bộ, Login/Logout, phiên 8 giờ có thu hồi, giới hạn scrypt, Origin guard và
+kiểm quyền PM/HR/DEV. PM tạo Project được Backend gán quyền, Project cũ chỉ
+mở theo danh sách duyệt. DEV đọc hồ sơ và kỹ năng từ Employee gắn với phiên.
+FastAPI giữ model hiện có và yêu cầu token dịch vụ.
+
+Bằng chứng gồm 126 ca hồi quy được bảo toàn, thử HTTP đủ 25 route và Chrome
+trên MariaDB clone. Tiến độ và phần review Gate 3 nằm tại
+[Chapter 8](../chapter-08-ai-software-testing/README.md#kiểm-chứng-authentication--rbac-002-2026-11-26)
+và [Chapter 9](../chapter-09-ai-technical-documentation/README.md#bàn-giao-gate-3-authentication--rbac-002-2026-11-26).

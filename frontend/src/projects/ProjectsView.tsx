@@ -1,3 +1,4 @@
+import { apiFetch } from '../auth/session.ts'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { PageHeading } from '../layout/PageHeading'
 import { Pagination } from '../layout/Pagination'
@@ -29,7 +30,7 @@ export function ProjectsView({ onOpenProject }: Props = {}) {
     const controller = new AbortController()
     request.current = controller
     try {
-      const response = await fetch('/api/projects', { signal: controller.signal })
+      const response = await apiFetch('/api/projects', { signal: controller.signal })
       if (!response.ok) throw new Error('load')
       const data: Project[] = await response.json()
       if (!controller.signal.aborted) {
@@ -68,7 +69,7 @@ export function ProjectsView({ onOpenProject }: Props = {}) {
     setSaving(true)
     setFormError('')
     try {
-      const response = await fetch('/api/projects', {
+      const response = await apiFetch('/api/projects', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name.trim() }),
       })

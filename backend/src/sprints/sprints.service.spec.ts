@@ -5,6 +5,7 @@ import { Sprint } from './sprint.entity.js';
 import { SprintsService } from './sprints.service.js';
 
 describe('SprintsService', () => {
+  const owner = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
   const projectId = '11111111-1111-4111-8111-111111111111';
   const sprintId = '22222222-2222-4222-8222-222222222222';
   let repository: {
@@ -13,7 +14,7 @@ describe('SprintsService', () => {
     findBy: ReturnType<typeof vi.fn>;
     findOneBy: ReturnType<typeof vi.fn>;
   };
-  let projectsService: { findOne: ReturnType<typeof vi.fn> };
+  let projectsService: { requireOwned: ReturnType<typeof vi.fn> };
   let service: SprintsService;
 
   beforeEach(() => {
@@ -23,7 +24,7 @@ describe('SprintsService', () => {
       findBy: vi.fn(),
       findOneBy: vi.fn(),
     };
-    projectsService = { findOne: vi.fn() };
+    projectsService = { requireOwned: vi.fn() };
     service = new SprintsService(
       repository as unknown as Repository<Sprint>,
       projectsService as unknown as ProjectsService,
@@ -31,12 +32,12 @@ describe('SprintsService', () => {
   });
 
   it('creates a sprint under an existing project', async () => {
-    projectsService.findOne.mockResolvedValue({ id: projectId, name: 'Alpha' });
+    projectsService.requireOwned.mockResolvedValue({ id: projectId, name: 'Alpha' });
     const sprint = { id: sprintId, projectId, name: 'Sprint 1' } as Sprint;
     repository.create.mockReturnValue(sprint);
     repository.save.mockResolvedValue(sprint);
 
-    await expect(service.create(projectId, '  Sprint 1  ')).resolves.toEqual({
+    await expect(service.create(projectId, '  Sprint 1  ', owner)).resolves.toEqual({
       id: sprintId,
       projectId,
       name: 'Sprint 1',
@@ -48,30 +49,30 @@ describe('SprintsService', () => {
   });
 
   it('rejects creation when the project does not exist', async () => {
-    projectsService.findOne.mockRejectedValue(
+    projectsService.requireOwned.mockRejectedValue(
       new NotFoundException('Không tìm thấy Project.'),
     );
 
-    await expect(service.create(projectId, 'Sprint 1')).rejects.toBeInstanceOf(
+    await expect(service.create(projectId, 'Sprint 1', owner)).rejects.toBeInstanceOf(
       NotFoundException,
     );
     expect(repository.save).not.toHaveBeenCalled();
   });
 
   it('rejects an empty sprint name', async () => {
-    await expect(service.create(projectId, '   ')).rejects.toBeInstanceOf(
+    await expect(service.create(projectId, '   ', owner)).rejects.toBeInstanceOf(
       BadRequestException,
     );
-    expect(projectsService.findOne).not.toHaveBeenCalled();
+    expect(projectsService.requireOwned).not.toHaveBeenCalled();
   });
 
   it('lists only sprints for the requested project', async () => {
-    projectsService.findOne.mockResolvedValue({ id: projectId, name: 'Alpha' });
+    projectsService.requireOwned.mockResolvedValue({ id: projectId, name: 'Alpha' });
     repository.findBy.mockResolvedValue([
       { id: sprintId, projectId, name: 'Sprint 1' } as Sprint,
     ]);
 
-    await expect(service.findAllByProject(projectId)).resolves.toEqual([
+    await expect(service.findAllByProject(projectId, owner)).resolves.toEqual([
       { id: sprintId, projectId, name: 'Sprint 1' },
     ]);
     expect(repository.findBy).toHaveBeenCalledWith({ projectId });

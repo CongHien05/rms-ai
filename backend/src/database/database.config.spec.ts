@@ -1,3 +1,6 @@
+import { UserAccount } from '../auth/user-account.entity.js';
+import { AuthSession } from '../auth/auth-session.entity.js';
+import { AddAuthAndProjectOwner1791240000000 } from './migrations/1791240000000-add-auth-and-project-owner.js';
 import { EmployeeSkill } from '../employee-skills/employee-skill.entity.js';
 import { Employee } from '../employees/employee.entity.js';
 import { Project } from '../projects/project.entity.js';
@@ -40,13 +43,14 @@ describe('database configuration', () => {
       type: 'mysql',
       synchronize: false,
       migrationsRun: false,
-      entities: [Project, Sprint, Task, Employee, Skill, EmployeeSkill],
+      entities: [Project, Sprint, Task, Employee, Skill, EmployeeSkill, UserAccount, AuthSession],
       migrations: [
         CreateProjectSprintTaskFoundation1791120736172,
         CreateEmployeeSkillFoundation1791123398274,
         AddStatusToTasks1791130000000,
         AddTaskPlanningFields1791220000000,
         AddEmployeeAvailability1791230000000,
+        AddAuthAndProjectOwner1791240000000,
       ],
     });
     expect(moduleOptions).not.toHaveProperty('autoLoadEntities');

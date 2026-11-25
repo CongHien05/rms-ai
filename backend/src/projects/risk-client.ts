@@ -78,15 +78,19 @@ function isPrediction(
 @Injectable()
 export class RiskClient {
   async predict(request: RiskRequest): Promise<RiskPrediction> {
-    const baseUrl =
-      process.env.AI_SERVICE_URL?.trim() || 'http://127.0.0.1:8001';
+    const token = process.env.RISK_SERVICE_TOKEN;
+    if (!token || !/^[A-Za-z0-9_-]{43}$/.test(token) || Buffer.from(token, 'base64url').toString('base64url') !== token) {
+      throw new ServiceUnavailableException('Dịch vụ đánh giá rủi ro chưa được cấu hình.');
+    }
+    const endpoint = this.endpoint();
     const signal = AbortSignal.timeout(4000);
     let response: Response;
     let payload: unknown;
     try {
-      response = await fetch(`${baseUrl.replace(/\/+$/, '')}/risk/predict`, {
+      response = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Risk-Service-Token': token },
+        redirect: 'manual',
         body: JSON.stringify(request),
         signal,
       });
@@ -125,5 +129,18 @@ export class RiskClient {
       };
     }
     return { ...counts, status, probability: null, modelVersion: null };
+  }
+
+  private endpoint(): string {
+    const configured = process.env.AI_SERVICE_URL?.trim() || 'http://127.0.0.1:8001';
+    try {
+      const url = new URL(configured);
+      const local = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
+      if ((url.protocol !== 'https:' && !(url.protocol === 'http:' && local)) ||
+          url.username || url.password || url.hash || url.search) throw new Error();
+      return url.href.replace(/\/+$/, '') + '/risk/predict';
+    } catch {
+      throw new ServiceUnavailableException('Địa chỉ dịch vụ đánh giá rủi ro không hợp lệ.');
+    }
   }
 }

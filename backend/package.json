@@ -16,6 +16,7 @@
     "start:prod": "node dist/main",
     "start:local": "node --env-file=.env dist/main.js",
     "migration:local": "node --env-file=.env node_modules/typeorm/cli.js migration:run -d dist/database/data-source.js",
+    "auth:admin:local": "node --env-file=.env dist/auth/auth-admin.js",
     "seed:hr:local": "node --env-file=.env dist/database/seed-hr-demo.js",
     "lint": "oxlint src/ test/",
     "test": "vitest run",

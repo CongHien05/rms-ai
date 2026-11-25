@@ -1,40 +1,35 @@
+import { HrReadStatus } from '../hr-workspace/HrReadStatus'
+import { useHrData } from '../hr-workspace/useHrData'
 import { PageHeading } from '../layout/PageHeading'
 
-export function DevOverview() {
+import { devProfilePath, readDevProfile } from './dev-profile'
+
+const titles = {
+  'dev-overview': 'Tổng quan của tôi',
+  'dev-skills': 'Kỹ năng của tôi',
+  'dev-work': 'Công việc của tôi',
+} as const
+
+export function DevWorkspaceView({ view }: { view: keyof typeof titles }) {
+  const { state, retry } = useHrData(devProfilePath, readDevProfile)
   return (
-    <section aria-labelledby="dev-overview-title">
-      <PageHeading id="dev-overview-title" title="Tổng quan của tôi" label="Chỉ xem" />
-
-      <div className="panel" role="status">
-        <h2>Chưa xác định được hồ sơ cá nhân</h2>
-        <p className="muted">Bản mẫu chưa liên kết tài khoản với hồ sơ nhân sự.</p>
-      </div>
-    </section>
-  )
-}
-
-export function DevSkillsView() {
-  return (
-    <section aria-labelledby="dev-skills-title">
-      <PageHeading id="dev-skills-title" title="Kỹ năng của tôi" label="Chỉ xem" />
-
-      <div className="empty-state" role="status">
-        <h2>Chưa có dữ liệu kỹ năng</h2>
-        <p className="muted">Kỹ năng sẽ hiển thị khi xác định được hồ sơ nhân sự của bạn.</p>
-      </div>
-    </section>
-  )
-}
-
-export function DevWorkView() {
-  return (
-    <section aria-labelledby="dev-work-title">
-      <PageHeading id="dev-work-title" title="Công việc của tôi" label="Chỉ xem" />
-
-      <div className="empty-state" role="status">
-        <h2>Chưa có công việc để hiển thị</h2>
-        <p className="muted">Dự án, Sprint và công việc sẽ xuất hiện khi có dữ liệu gắn với hồ sơ của bạn.</p>
-      </div>
+    <section aria-labelledby="dev-workspace-title">
+      <PageHeading id="dev-workspace-title" title={titles[view]} label="Chỉ xem" />
+      {state.status === 'loading' && <HrReadStatus status="loading" message="Đang tải hồ sơ cá nhân…" />}
+      {state.status === 'error' && <HrReadStatus status="error" message="Chưa tải được hồ sơ cá nhân." retry={retry} />}
+      {state.status === 'ready' && view === 'dev-overview' && (
+        <div className="panel"><h2>{state.data.employee.displayName}</h2></div>
+      )}
+      {state.status === 'ready' && view === 'dev-skills' && (
+        state.data.skills.length ? (
+          <div className="data-panel">
+            <ul className="data-list">{state.data.skills.map(skill => <li key={skill.id}>{skill.name}</li>)}</ul>
+          </div>
+        ) : <HrReadStatus status="empty" message="Chưa có dữ liệu kỹ năng." />
+      )}
+      {state.status === 'ready' && view === 'dev-work' && state.data.workContext.status === 'unavailable' && (
+        <HrReadStatus status="empty" message="Chưa có ngữ cảnh công việc được cấp cho bạn." />
+      )}
     </section>
   )
 }

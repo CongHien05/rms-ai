@@ -460,7 +460,7 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 **When:** Người dùng truy cập RMS-AI.
 
-**Then:** Sản phẩm trình bày workspace, điều hướng và capability phù hợp với role đã xác định: PM sử dụng luồng quyết định AI, HR duy trì dữ liệu nguồn lực trong phạm vi, và DEV xem ngữ cảnh của chính mình. Cách xác định danh tính/role và thực thi quyền vẫn là TBD-11.
+**Then:** Sản phẩm trình bày workspace, điều hướng và capability phù hợp với role đã xác định: PM sử dụng luồng quyết định AI, HR duy trì dữ liệu nguồn lực trong phạm vi, và DEV xem ngữ cảnh của chính mình. Milestone 002 áp dụng quy tắc tài khoản và phạm vi Project theo [D1–D2](user-stories.md#quyết-định-authentication--rbac-cho-milestone-002-2026-11-26).
 
 ### AC-US-07-02 — PM giữ quyền quyết định cuối cùng — ĐÃ XÁC NHẬN
 
@@ -476,19 +476,19 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 **Then:** Capability quyết định thuộc về PM; HR và DEV không được thực hiện quyết định thay PM. AI, dữ liệu do HR duy trì và hành vi xem của DEV không được suy diễn thành sự chấp nhận.
 
-### AC-US-07-03 — Quan hệ User Account và Employee — TBD
+### AC-US-07-03 — Quan hệ User Account và Employee — ĐÃ XÁC NHẬN
 
 **Liên quan:** US-05, US-06, US-07
 
-**Trạng thái:** TBD
+**Trạng thái:** ĐÃ XÁC NHẬN trong Milestone 002
 
-**Nguồn khoảng trống:** TBD-11.
+**Nguồn:** [D3](user-stories.md#quyết-định-authentication--rbac-cho-milestone-002-2026-11-26).
 
-**Given:** Một người dùng có role DEV, PM hoặc HR và có thể đồng thời là nhân viên của tổ chức.
+**Given:** DEV đăng nhập bằng tài khoản liên kết duy nhất với một Employee đã xác minh.
 
-**When:** Hệ thống cần liên kết danh tính người dùng với dữ liệu Employee.
+**When:** DEV yêu cầu xem hồ sơ hoặc kỹ năng của mình.
 
-**Then:** TBD — nhóm cần xác định quan hệ User Account ↔ Employee và quyền xem chi tiết; không mặc định hai khái niệm là một hoặc thiết kế schema trong Acceptance Criteria.
+**Then:** Backend lấy Employee từ danh tính đăng nhập và chỉ trả dữ liệu của Employee đã liên kết. ID do client cung cấp không thay đổi đối tượng đọc. Khi chưa có dữ liệu giao việc thật, workspace hiển thị trạng thái thiếu ngữ cảnh theo AC-US-06-03.
 
 ## Kiểm chứng What-if đầu tiên — PROPOSED DEMO
 

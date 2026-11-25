@@ -1,3 +1,4 @@
+import { apiFetch } from '../auth/session.ts'
 import { useEffect, useRef, useState } from 'react'
 
 type RiskAssessment = {
@@ -31,7 +32,7 @@ export function ProjectRiskAssessment({ projectId }: { readonly projectId: strin
     setShowPanel(true)
 
     try {
-      const response = await fetch(`/api/projects/${projectId}/risk-assessments`, {
+      const response = await apiFetch(`/api/projects/${projectId}/risk-assessments`, {
         method: 'POST',
         signal: request.signal,
       })

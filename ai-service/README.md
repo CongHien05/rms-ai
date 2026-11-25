@@ -7,13 +7,12 @@ nằm ngoài mục tiêu này. Hạn trong dữ liệu giả lập được gán
 nguyên. Lịch sử chuyển trạng thái tới D được dùng dựng snapshot; phần sau D
 được dùng để xác định nhãn.
 
-Chạy trong `ai-service/` bằng Python 3.12:
+Chạy model đã lưu trong `ai-service/` bằng môi trường Python 3.12 hiện có.
+Cấp `RISK_SERVICE_TOKEN` từ cấu hình ngoài Git cho cả FastAPI và NestJS.
 
 ```powershell
-python -m pip install -r requirements.txt
-python train.py
-python -m unittest discover -v
-python -m uvicorn main:app --host 127.0.0.1 --port 8001
+& .venv/Scripts/python.exe -m unittest discover -v
+& .venv/Scripts/python.exe -m uvicorn main:app --host 127.0.0.1 --port 8001
 ```
 
 Training dùng seed 42. Bốn ngày đánh giá trên mỗi dự án được lấy cách nhau
@@ -29,11 +28,15 @@ Khởi động lại dịch vụ sau khi thay model để nạp artifact mới.
 
 ## Gọi inference
 
-Gửi toàn bộ snapshot Task biết tại D. `status` và `dueDate` là giá trị tại D.
+Trong môi trường ngoài loopback, giữ endpoint trong mạng nội bộ với HTTPS.
+Frontend dùng endpoint Risk của NestJS. Để kiểm tra tích hợp từ một terminal
+nội bộ đã có token, gửi toàn bộ snapshot Task biết tại D. `status` và
+`dueDate` là giá trị tại D.
 
 ```powershell
 $body = '{"projectId":"demo","assessmentDate":"2026-11-18","tasks":[{"status":"BLOCKED","dueDate":"2026-11-25"}]}'
-Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8001/risk/predict -ContentType application/json -Body $body
+$headers = @{ 'X-Risk-Service-Token' = $env:RISK_SERVICE_TOKEN }
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8001/risk/predict -ContentType application/json -Headers $headers -Body $body
 ```
 
 ```json
@@ -44,6 +47,8 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8001/risk/predict -ContentT
 - `no_tasks_due_in_window` khi mọi Task mở có hạn nhưng không Task nào thuộc
   cửa sổ, kể cả snapshot không còn Task mở. Kết quả không có xác suất mô hình.
 - Payload sai schema trả HTTP 422. Ca có thể chấm điểm nhưng thiếu artifact trả 503.
+- Header dịch vụ thiếu, sai hoặc lặp trả 401. Cấu hình khóa chưa khả dụng
+  trả 503. Health check chỉ trả trạng thái dịch vụ.
 
 Phạm vi demo là sự kiện trễ hạn Task. Độ tin cậy trên dữ liệu thật, quy tắc với
 deadline được sửa theo thời gian và kết nối vào luồng dự báo của PM còn chờ xác minh.

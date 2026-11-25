@@ -1,3 +1,4 @@
+import { apiFetch } from '../auth/session.ts'
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import './project-detail.css'
 import { formatCalendarDate } from '../layout/formatCalendarDate'
@@ -79,7 +80,7 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
     setLoading(true)
     setLoadError('')
     try {
-      const res = await fetch(`/api/sprints/${sprint.id}/tasks`, { signal: ctrl.signal })
+      const res = await apiFetch(`/api/sprints/${sprint.id}/tasks`, { signal: ctrl.signal })
       if (!res.ok) throw new Error('load')
       const data: Task[] = await res.json()
       if (
@@ -126,7 +127,7 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
     setSaving(true)
     setFormError('')
     try {
-      const res = await fetch(`/api/sprints/${sprint.id}/tasks`, {
+      const res = await apiFetch(`/api/sprints/${sprint.id}/tasks`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: title.trim(), ...planning }),
@@ -178,7 +179,7 @@ function SelectedSprintWorkspace({ sprint }: SprintWorkspaceProps) {
     })
 
     try {
-      const res = await fetch(`/api/sprints/${sprint.id}/tasks/${taskId}`, {
+      const res = await apiFetch(`/api/sprints/${sprint.id}/tasks/${taskId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -723,8 +724,8 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
     setProjectError('')
     try {
       const [projRes, sprintRes] = await Promise.all([
-        fetch(`/api/projects/${projectId}`, { signal: ctrl.signal }),
-        fetch(`/api/projects/${projectId}/sprints`, { signal: ctrl.signal }),
+        apiFetch(`/api/projects/${projectId}`, { signal: ctrl.signal }),
+        apiFetch(`/api/projects/${projectId}/sprints`, { signal: ctrl.signal }),
       ])
       if (!projRes.ok) {
         if (projRes.status === 404) {
@@ -768,7 +769,7 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
     setSavingSprint(true)
     setSprintFormError('')
     try {
-      const res = await fetch(`/api/projects/${projectId}/sprints`, {
+      const res = await apiFetch(`/api/projects/${projectId}/sprints`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: sprintName.trim() }),

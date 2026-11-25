@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
+import { AuthModule } from './auth/auth.module.js';
 import { AppService } from './app.service.js';
 import { createTypeOrmModuleOptions } from './database/database.config.js';
 import { EmployeeSkillsModule } from './employee-skills/employee-skills.module.js';
@@ -13,6 +14,7 @@ import { TasksModule } from './tasks/tasks.module.js';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({ useFactory: createTypeOrmModuleOptions }),
+    AuthModule,
     ProjectsModule,
     SprintsModule,
     TasksModule,

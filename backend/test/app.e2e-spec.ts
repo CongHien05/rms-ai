@@ -1,9 +1,11 @@
 import { randomUUID } from 'node:crypto';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
-import request from 'supertest';
 import { App } from 'supertest/types';
+import { configureApp } from '../src/app-config.js';
+import { AuthSession } from '../src/auth/auth-session.entity.js';
+import { baselineRequest, configureAuthTestEnv, createAuthFixture, pmId } from './auth-test-fixtures.js';
 import { AppModule } from './../src/app.module.js';
 import { EmployeeSkill } from './../src/employee-skills/employee-skill.entity.js';
 import { getAvailabilityWeek } from './../src/employees/availability-week.js';
@@ -31,6 +33,8 @@ describe('Backend foundations (e2e)', () => {
   let resourceWrites: ReturnType<typeof vi.fn>[];
 
   beforeEach(async () => {
+    configureAuthTestEnv();
+    const auth = createAuthFixture();
     process.env.DB_HOST = 'test-host';
     process.env.DB_PORT = '3306';
     process.env.DB_USERNAME = 'test-user';
@@ -54,7 +58,8 @@ describe('Backend foundations (e2e)', () => {
         projects.set(project.id, project);
         return project;
       }),
-      find: vi.fn(async () => [...projects.values()]),
+      findBy: vi.fn(async ({ pmAccountId }: { pmAccountId: string }) =>
+        [...projects.values()].filter((project) => project.pmAccountId === pmAccountId)),
       findOneBy: vi.fn(
         async ({ id }: { id: string }) => projects.get(id) ?? null,
       ),
@@ -209,6 +214,8 @@ describe('Backend foundations (e2e)', () => {
     })
       .overrideProvider(getDataSourceToken())
       .useValue({ manager: {}, isInitialized: false })
+      .overrideProvider(getRepositoryToken(AuthSession))
+      .useValue(auth.sessionsRepository)
       .overrideProvider(getRepositoryToken(Project))
       .useValue(projectRepository)
       .overrideProvider(getRepositoryToken(Sprint))
@@ -224,31 +231,25 @@ describe('Backend foundations (e2e)', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(
-      new ValidationPipe({
-        transform: true,
-        whitelist: true,
-        forbidNonWhitelisted: true,
-      }),
-    );
+    configureApp(app);
     await app.init();
   });
 
   it('/health (GET)', () => {
-    return request(app.getHttpServer())
+    return baselineRequest(app)
       .get('/health')
       .expect(200)
       .expect({ status: 'ok' });
   });
 
   it('creates and lists the Project -> Sprint -> Task foundation', async () => {
-    const projectResponse = await request(app.getHttpServer())
+    const projectResponse = await baselineRequest(app)
       .post('/projects')
       .send({ name: '  Project Alpha  ' })
       .expect(201);
     expect(projectResponse.body).toMatchObject({ name: 'Project Alpha' });
 
-    const sprintResponse = await request(app.getHttpServer())
+    const sprintResponse = await baselineRequest(app)
       .post(`/projects/${projectResponse.body.id}/sprints`)
       .send({ name: '  Sprint 1  ' })
       .expect(201);
@@ -257,7 +258,7 @@ describe('Backend foundations (e2e)', () => {
       name: 'Sprint 1',
     });
 
-    const taskResponse = await request(app.getHttpServer())
+    const taskResponse = await baselineRequest(app)
       .post(`/sprints/${sprintResponse.body.id}/tasks`)
       .send({
         title: '  Task 1  ',
@@ -273,7 +274,7 @@ describe('Backend foundations (e2e)', () => {
       estimatedHours: 3.5,
     });
 
-    const updatedTask = await request(app.getHttpServer())
+    const updatedTask = await baselineRequest(app)
       .patch(`/sprints/${sprintResponse.body.id}/tasks/${taskResponse.body.id}`)
       .send({ status: 'IN_PROGRESS' })
       .expect(200);
@@ -286,7 +287,7 @@ describe('Backend foundations (e2e)', () => {
       estimatedHours: 3.5,
     });
 
-    const clearedEstimate = await request(app.getHttpServer())
+    const clearedEstimate = await baselineRequest(app)
       .patch(`/sprints/${sprintResponse.body.id}/tasks/${taskResponse.body.id}`)
       .send({ estimatedHours: null })
       .expect(200);
@@ -296,7 +297,7 @@ describe('Backend foundations (e2e)', () => {
       estimatedHours: null,
     });
 
-    const clearedDueDate = await request(app.getHttpServer())
+    const clearedDueDate = await baselineRequest(app)
       .patch(`/sprints/${sprintResponse.body.id}/tasks/${taskResponse.body.id}`)
       .send({ dueDate: null })
       .expect(200);
@@ -306,15 +307,15 @@ describe('Backend foundations (e2e)', () => {
       estimatedHours: null,
     });
 
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .get('/projects')
       .expect(200)
       .expect([{ id: projectResponse.body.id, name: 'Project Alpha' }]);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .get(`/projects/${projectResponse.body.id}`)
       .expect(200)
       .expect({ id: projectResponse.body.id, name: 'Project Alpha' });
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .get(`/projects/${projectResponse.body.id}/sprints`)
       .expect(200)
       .expect([
@@ -324,7 +325,7 @@ describe('Backend foundations (e2e)', () => {
           name: 'Sprint 1',
         },
       ]);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .get(`/sprints/${sprintResponse.body.id}/tasks`)
       .expect(200)
       .expect([
@@ -340,55 +341,55 @@ describe('Backend foundations (e2e)', () => {
   });
 
   it('rejects invalid input and unknown parents', async () => {
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post('/projects')
       .send({ name: '   ' })
       .expect(400);
-    await request(app.getHttpServer()).get('/projects/not-a-uuid').expect(400);
-    await request(app.getHttpServer())
+    await baselineRequest(app).get('/projects/not-a-uuid').expect(400);
+    await baselineRequest(app)
       .get(`/projects/${randomUUID()}`)
       .expect(404);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post(`/projects/${randomUUID()}/sprints`)
       .send({ name: 'Sprint 1' })
       .expect(404);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post(`/sprints/${randomUUID()}/tasks`)
       .send({ title: 'Task 1' })
       .expect(404);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post(`/sprints/${randomUUID()}/tasks`)
       .send({ title: 'Task 1', dueDate: '2026-02-30' })
       .expect(400);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post(`/sprints/${randomUUID()}/tasks`)
       .send({ title: 'Task 1', dueDate: '30-12-2026' })
       .expect(400);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post(`/sprints/${randomUUID()}/tasks`)
       .send({ title: 'Task 1', estimatedHours: 0 })
       .expect(400);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post(`/sprints/${randomUUID()}/tasks`)
       .send({ title: 'Task 1', estimatedHours: '3.5' })
       .expect(400);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .patch(`/sprints/${randomUUID()}/tasks/${randomUUID()}`)
       .send({ status: 'INVALID_STATUS' })
       .expect(400);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .patch(`/sprints/${randomUUID()}/tasks/not-a-uuid`)
       .send({ status: 'DONE' })
       .expect(400);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .patch(`/sprints/${randomUUID()}/tasks/${randomUUID()}`)
       .send({ status: 'DONE' })
       .expect(404);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .patch(`/sprints/${randomUUID()}/tasks/${randomUUID()}`)
       .send({ status: null })
       .expect(400);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .patch(`/sprints/${randomUUID()}/tasks/${randomUUID()}`)
       .set('Content-Type', 'application/json')
       .send('{"estimatedHours":1e309}')
@@ -396,22 +397,22 @@ describe('Backend foundations (e2e)', () => {
   });
 
   it('rejects updating task with a different sprint ID and preserves original task data', async () => {
-    const projectResponse = await request(app.getHttpServer())
+    const projectResponse = await baselineRequest(app)
       .post('/projects')
       .send({ name: 'Project Beta' })
       .expect(201);
 
-    const sprint1 = await request(app.getHttpServer())
+    const sprint1 = await baselineRequest(app)
       .post(`/projects/${projectResponse.body.id}/sprints`)
       .send({ name: 'Sprint 1' })
       .expect(201);
 
-    const sprint2 = await request(app.getHttpServer())
+    const sprint2 = await baselineRequest(app)
       .post(`/projects/${projectResponse.body.id}/sprints`)
       .send({ name: 'Sprint 2' })
       .expect(201);
 
-    const task1 = await request(app.getHttpServer())
+    const task1 = await baselineRequest(app)
       .post(`/sprints/${sprint1.body.id}/tasks`)
       .send({ title: 'Task in Sprint 1' })
       .expect(201);
@@ -422,30 +423,30 @@ describe('Backend foundations (e2e)', () => {
     });
 
     // Attempt to update task1 using sprint2 ID
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .patch(`/sprints/${sprint2.body.id}/tasks/${task1.body.id}`)
       .send({ status: 'DONE' })
       .expect(404);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .patch(`/sprints/${sprint2.body.id}/tasks/${task1.body.id}`)
       .send({ dueDate: '2026-12-20', estimatedHours: 8.25 })
       .expect(404);
 
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .patch(`/sprints/${sprint1.body.id}/tasks/${task1.body.id}/status`)
       .send({ status: 'DONE' })
       .expect(404);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .patch(`/tasks/${task1.body.id}`)
       .send({ status: 'DONE' })
       .expect(404);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .patch(`/tasks/${task1.body.id}/status`)
       .send({ status: 'DONE' })
       .expect(404);
 
     // Verify task1 in sprint1 remains unchanged with status 'TODO'
-    const sprint1Tasks = await request(app.getHttpServer())
+    const sprint1Tasks = await baselineRequest(app)
       .get(`/sprints/${sprint1.body.id}/tasks`)
       .expect(200);
     expect(sprint1Tasks.body).toHaveLength(1);
@@ -459,7 +460,7 @@ describe('Backend foundations (e2e)', () => {
     });
 
     // Verify sprint2 still has no tasks
-    const sprint2Tasks = await request(app.getHttpServer())
+    const sprint2Tasks = await baselineRequest(app)
       .get(`/sprints/${sprint2.body.id}/tasks`)
       .expect(200);
     expect(sprint2Tasks.body).toHaveLength(0);
@@ -468,8 +469,8 @@ describe('Backend foundations (e2e)', () => {
   it('assesses only tasks in the project and supplies the current Vietnam date', async () => {
     const projectA = randomUUID();
     const projectB = randomUUID();
-    projects.set(projectA, { id: projectA, name: 'A' } as Project);
-    projects.set(projectB, { id: projectB, name: 'B' } as Project);
+    projects.set(projectA, { id: projectA, name: 'A', pmAccountId: pmId } as Project);
+    projects.set(projectB, { id: projectB, name: 'B', pmAccountId: pmId } as Project);
     const sprintA = randomUUID();
     const anotherSprintA = randomUUID();
     const sprintB = randomUUID();
@@ -503,7 +504,7 @@ describe('Backend foundations (e2e)', () => {
       .mockResolvedValueOnce(Response.json(prediction));
     try {
       const dateBefore = assessmentDateInVietnam(new Date());
-      const result = await request(app.getHttpServer())
+      const result = await baselineRequest(app)
         .post(`/projects/${projectA}/risk-assessments`)
         .send({ assessmentDate: '2020-01-01' })
         .expect(200);
@@ -520,7 +521,7 @@ describe('Backend foundations (e2e)', () => {
         assessmentDate: result.body.assessmentDate,
         tasks: ownTasks.map(({ status, dueDate }) => ({ status, dueDate })),
       });
-      await request(app.getHttpServer())
+      await baselineRequest(app)
         .post(`/projects/${randomUUID()}/risk-assessments`)
         .expect(404);
       expect(predict).toHaveBeenCalledOnce();
@@ -559,7 +560,7 @@ describe('Backend foundations (e2e)', () => {
       } as EmployeeSkill);
     }
 
-    const result = await request(app.getHttpServer())
+    const result = await baselineRequest(app)
       .get('/employees/availability')
       .expect(200);
     expect(result.body).toEqual({
@@ -581,7 +582,7 @@ describe('Backend foundations (e2e)', () => {
   });
 
   it('returns the applicable week even when the HR directory is empty', async () => {
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .get('/employees/availability')
       .expect(200)
       .expect({ ...getAvailabilityWeek(), employees: [] });
@@ -592,7 +593,7 @@ describe('Backend foundations (e2e)', () => {
     const skillId = randomUUID();
     const otherSkillId = randomUUID();
     const weekStart = '2026-11-16';
-    projects.set(projectId, { id: projectId, name: 'Demo project' });
+    projects.set(projectId, { id: projectId, name: 'Demo project', pmAccountId: pmId });
     skills.set(skillId, { id: skillId, name: 'TypeScript' });
     skills.set(otherSkillId, { id: otherSkillId, name: 'MySQL' });
     const roster = [
@@ -619,12 +620,12 @@ describe('Backend foundations (e2e)', () => {
       } as EmployeeSkill);
       return id;
     });
-    const before = await request(app.getHttpServer())
+    const before = await baselineRequest(app)
       .get('/employees/availability')
       .expect(200);
     const path = `/projects/${projectId}/resource-recommendations`;
     const requiredHours = 8;
-    const result = await request(app.getHttpServer())
+    const result = await baselineRequest(app)
       .post(path)
       .send({ skillId, weekStart, requiredHours })
       .expect(200);
@@ -642,13 +643,13 @@ describe('Backend foundations (e2e)', () => {
       })),
     });
 
-    const empty = await request(app.getHttpServer())
+    const empty = await baselineRequest(app)
       .post(path)
       .send({ skillId, weekStart: '2026-11-23', requiredHours })
       .expect(200);
     expect(empty.body.candidates).toEqual([]);
     expect(empty.body.outcome).toBe('unavailable');
-    const after = await request(app.getHttpServer())
+    const after = await baselineRequest(app)
       .get('/employees/availability')
       .expect(200);
     expect(after.body.employees).toEqual(before.body.employees);
@@ -657,7 +658,7 @@ describe('Backend foundations (e2e)', () => {
   it('rejects invalid recommendation criteria and missing projects or skills', async () => {
     const projectId = randomUUID();
     const skillId = randomUUID();
-    projects.set(projectId, { id: projectId, name: 'Demo project' });
+    projects.set(projectId, { id: projectId, name: 'Demo project', pmAccountId: pmId });
     skills.set(skillId, { id: skillId, name: 'TypeScript' });
     const path = `/projects/${projectId}/resource-recommendations`;
     const criteria = { skillId, weekStart: '2026-11-16', requiredHours: 8 };
@@ -672,23 +673,23 @@ describe('Backend foundations (e2e)', () => {
       { requiredHours: null },
       { requiredHours: '8' },
     ]) {
-      await request(app.getHttpServer())
+      await baselineRequest(app)
         .post(path)
         .send({ ...criteria, ...invalid })
         .expect(400);
     }
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post(path)
       .set('Content-Type', 'application/json')
       .send(
         `{"skillId":"${skillId}","weekStart":"2026-11-16","requiredHours":1e309}`,
       )
       .expect(400);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post(path)
       .send({ ...criteria, skillId: randomUUID() })
       .expect(404);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post(`/projects/${randomUUID()}/resource-recommendations`)
       .send(criteria)
       .expect(404);
@@ -703,7 +704,7 @@ describe('Backend foundations (e2e)', () => {
     const employee = {
       id: employeeId, displayName: 'What-if candidate', availableHours: 12.5, availabilityWeekStart: weekStart,
     } as Employee;
-    projects.set(projectId, { id: projectId, name: 'What-if project' });
+    projects.set(projectId, { id: projectId, name: 'What-if project', pmAccountId: pmId });
     skills.set(skillId, { id: skillId, name: 'TypeScript' });
     employees.set(employeeId, employee);
     employeeSkills.set(employeeSkillKey(employeeId, skillId), { employeeId, skillId } as EmployeeSkill);
@@ -715,7 +716,7 @@ describe('Backend foundations (e2e)', () => {
 
   async function simulationRequest(fixture: ReturnType<typeof simulationFixture>) {
     const { route, skillId, weekStart, requiredHours, employeeId } = fixture;
-    const result = await request(app.getHttpServer()).post(`${route}/resource-recommendations`)
+    const result = await baselineRequest(app).post(`${route}/resource-recommendations`)
       .send({ skillId, weekStart, requiredHours }).expect(200);
     const { recommendationContext, ...candidate } = result.body.candidates[0];
     expect(result.body.outcome).toBe('candidates_available');
@@ -744,7 +745,7 @@ describe('Backend foundations (e2e)', () => {
       [8, 0, 4.5], [4, 4, 8.5], [9, 0, 3.5], [0.1, 7.9, 12.4],
     ]) {
       const runId = randomUUID();
-      const result = await request(app.getHttpServer()).post(`${fixture.route}/simulations`)
+      const result = await baselineRequest(app).post(`${fixture.route}/simulations`)
         .send({ runId, scenario: { ...body.scenario, supportHours } }).expect(200);
       expect(result.body).toEqual({
         outcome: 'available', scenarioReference: expect.stringMatching(/^[a-f0-9]{64}$/), runId,
@@ -770,15 +771,15 @@ describe('Backend foundations (e2e)', () => {
       { availableHours: 1000 }, { expectedImpact: { remainingRequiredHours: 0 } },
       { requiredHours: 9 }, { recommendationContext: 'v1.' + 'A'.repeat(43) },
     ]) {
-      await request(app.getHttpServer()).post(url).send({ ...body, scenario: { ...body.scenario, ...change } }).expect(400);
+      await baselineRequest(app).post(url).send({ ...body, scenario: { ...body.scenario, ...change } }).expect(400);
     }
     for (const invalid of [null, [body.scenario], undefined]) {
-      await request(app.getHttpServer()).post(url).send({ ...body, scenario: invalid }).expect(400);
+      await baselineRequest(app).post(url).send({ ...body, scenario: invalid }).expect(400);
     }
-    await request(app.getHttpServer()).post(url).set('Content-Type', 'application/json')
+    await baselineRequest(app).post(url).set('Content-Type', 'application/json')
       .send(JSON.stringify(body).replace('"supportHours":8', '"supportHours":1e309')).expect(400);
-    await request(app.getHttpServer()).post(`/projects/${randomUUID()}/simulations`).send(body).expect(400);
-    await request(app.getHttpServer()).post('/projects/invalid/simulations').send(body).expect(400);
+    await baselineRequest(app).post(`/projects/${randomUUID()}/simulations`).send(body).expect(400);
+    await baselineRequest(app).post('/projects/invalid/simulations').send(body).expect(400);
     expect(employeeRead).not.toHaveBeenCalled();
     expectUnchanged(before);
   });
@@ -796,7 +797,7 @@ describe('Backend foundations (e2e)', () => {
       fixture.employee.availableHours = hours;
       fixture.employee.availabilityWeekStart = week;
       const before = resourceSnapshot();
-      const response = await request(app.getHttpServer()).post(`${fixture.route}/simulations`).send(body).expect(status);
+      const response = await baselineRequest(app).post(`${fixture.route}/simulations`).send(body).expect(status);
       expect(response.body.code).toBe(code);
       expect(response.body.expectedImpact).toBeUndefined();
       expectUnchanged(before);
@@ -804,7 +805,7 @@ describe('Backend foundations (e2e)', () => {
     fixture.employee.availableHours = 4;
     fixture.employee.availabilityWeekStart = fixture.weekStart;
     const before = resourceSnapshot();
-    const result = await request(app.getHttpServer()).post(`${fixture.route}/simulations`)
+    const result = await baselineRequest(app).post(`${fixture.route}/simulations`)
       .send({ runId: randomUUID(), scenario: { ...body.scenario, supportHours: 4 } }).expect(200);
     expect(result.body.snapshot.availableHours).toBe(4);
     expect(result.body.expectedImpact).toEqual({
@@ -819,12 +820,12 @@ describe('Backend foundations (e2e)', () => {
     vi.stubEnv('WHAT_IF_CONTEXT_SECRET', undefined);
     const before = resourceSnapshot();
     const { skillId, weekStart, requiredHours } = fixture;
-    const propose = () => request(app.getHttpServer()).post(`${fixture.route}/resource-recommendations`)
+    const propose = () => baselineRequest(app).post(`${fixture.route}/resource-recommendations`)
       .send({ skillId, weekStart, requiredHours });
     const result = await propose().expect(200);
     expect(result.body.outcome).toBe('candidates_available');
     expect(result.body.candidates[0].recommendationContext).toBeUndefined();
-    const error = await request(app.getHttpServer()).post(`${fixture.route}/simulations`).send(body).expect(503);
+    const error = await baselineRequest(app).post(`${fixture.route}/simulations`).send(body).expect(503);
     expect(error.body.code).toBe('SIMULATION_UNAVAILABLE');
     expectUnchanged(before);
     fixture.employee.availableHours = null;
@@ -839,23 +840,23 @@ describe('Backend foundations (e2e)', () => {
     const before = resourceSnapshot();
     employeeRead.mockRejectedValueOnce(new Error('DB internals'));
     const url = `${fixture.route}/simulations`;
-    const failure = await request(app.getHttpServer()).post(url).send(body).expect(503);
+    const failure = await baselineRequest(app).post(url).send(body).expect(503);
     expect(failure.body).toEqual({ statusCode: 503, code: 'SIMULATION_UNAVAILABLE', message: 'Chưa thể mô phỏng. Vui lòng thử lại.' });
     const runId = randomUUID();
-    const success = await request(app.getHttpServer()).post(url).send({ ...body, runId }).expect(200);
+    const success = await baselineRequest(app).post(url).send({ ...body, runId }).expect(200);
     expect(success.body.runId).toBe(runId);
     expect(employeeRead).toHaveBeenCalledTimes(2);
     expectUnchanged(before);
     employeeSkills.delete(employeeSkillKey(fixture.employeeId, fixture.skillId));
-    const invalid = await request(app.getHttpServer()).post(url).send(body).expect(400);
+    const invalid = await baselineRequest(app).post(url).send(body).expect(400);
     expect(invalid.body.code).toBe('INVALID_SCENARIO');
     projects.delete(fixture.projectId);
-    const deleted = await request(app.getHttpServer()).post(url).send(body).expect(404);
+    const deleted = await baselineRequest(app).post(url).send(body).expect(404);
     expect(deleted.body.code).toBe('INVALID_SCENARIO');
   });
 
   it('creates Employee and Skill, assigns the relation, and lists it', async () => {
-    const employeeResponse = await request(app.getHttpServer())
+    const employeeResponse = await baselineRequest(app)
       .post('/employees')
       .send({ displayName: '  Nguyen Van An  ' })
       .expect(201);
@@ -863,13 +864,13 @@ describe('Backend foundations (e2e)', () => {
       displayName: 'Nguyen Van An',
     });
 
-    const skillResponse = await request(app.getHttpServer())
+    const skillResponse = await baselineRequest(app)
       .post('/skills')
       .send({ name: '  TypeScript  ' })
       .expect(201);
     expect(skillResponse.body).toMatchObject({ name: 'TypeScript' });
 
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post(`/employees/${employeeResponse.body.id}/skills`)
       .send({ skillId: skillResponse.body.id })
       .expect(201)
@@ -878,7 +879,7 @@ describe('Backend foundations (e2e)', () => {
         skillId: skillResponse.body.id,
       });
 
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .get('/employees')
       .expect(200)
       .expect([
@@ -887,70 +888,70 @@ describe('Backend foundations (e2e)', () => {
           displayName: 'Nguyen Van An',
         },
       ]);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .get(`/employees/${employeeResponse.body.id}`)
       .expect(200)
       .expect({
         id: employeeResponse.body.id,
         displayName: 'Nguyen Van An',
       });
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .get('/skills')
       .expect(200)
       .expect([{ id: skillResponse.body.id, name: 'TypeScript' }]);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .get(`/skills/${skillResponse.body.id}`)
       .expect(200)
       .expect({ id: skillResponse.body.id, name: 'TypeScript' });
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .get(`/employees/${employeeResponse.body.id}/skills`)
       .expect(200)
       .expect([{ id: skillResponse.body.id, name: 'TypeScript' }]);
   });
 
   it('rejects invalid or missing EmployeeSkill relations and duplicates', async () => {
-    const employeeResponse = await request(app.getHttpServer())
+    const employeeResponse = await baselineRequest(app)
       .post('/employees')
       .send({ displayName: 'Nguyen Van An' })
       .expect(201);
-    const skillResponse = await request(app.getHttpServer())
+    const skillResponse = await baselineRequest(app)
       .post('/skills')
       .send({ name: 'TypeScript' })
       .expect(201);
 
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post('/employees/not-a-uuid/skills')
       .send({ skillId: skillResponse.body.id })
       .expect(400);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post(`/employees/${employeeResponse.body.id}/skills`)
       .send({ skillId: 'not-a-uuid' })
       .expect(400);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post(`/employees/${randomUUID()}/skills`)
       .send({ skillId: skillResponse.body.id })
       .expect(404);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post(`/employees/${employeeResponse.body.id}/skills`)
       .send({ skillId: randomUUID() })
       .expect(404);
 
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post(`/employees/${employeeResponse.body.id}/skills`)
       .send({ skillId: skillResponse.body.id })
       .expect(201);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post(`/employees/${employeeResponse.body.id}/skills`)
       .send({ skillId: skillResponse.body.id })
       .expect(409);
-    await request(app.getHttpServer())
+    await baselineRequest(app)
       .post(`/employees/${employeeResponse.body.id}/skills`)
       .send({ skillId: skillResponse.body.id, level: 'senior' })
       .expect(400);
   });
 
   afterEach(async () => {
-    await app.close();
+    await app?.close();
     vi.unstubAllEnvs();
   });
 });

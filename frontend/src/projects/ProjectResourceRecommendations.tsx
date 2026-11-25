@@ -1,3 +1,4 @@
+import { apiFetch } from '../auth/session.ts'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useHrData } from '../hr-workspace/useHrData'
 import { formatCalendarDate } from '../layout/formatCalendarDate'
@@ -100,7 +101,7 @@ export function ProjectResourceRecommendations({ projectId }: { projectId: strin
     setPage(1)
     setResult({ status: 'loading' })
     try {
-      const response = await fetch(`/api/projects/${projectId}/resource-recommendations`, {
+      const response = await apiFetch(`/api/projects/${projectId}/resource-recommendations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ skillId, weekStart, requiredHours }),

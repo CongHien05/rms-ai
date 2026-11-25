@@ -204,9 +204,9 @@ giữ quyền quyết định cuối cùng theo AC-US-06-05 và AC-US-07-02.
 
 **Trạng thái yêu cầu:** ĐÃ XÁC NHẬN
 
-Bao phủ N-07. Story xác nhận kết quả ở mức sản phẩm sau khi danh tính/role được
-xác định; không chọn công nghệ xác thực, RBAC, lược đồ User hoặc cách ánh xạ
-User Account ↔ Employee.
+Bao phủ N-07. Quy tắc danh tính, role và liên kết Employee của Milestone 002
+được chốt trong [quyết định Authentication & RBAC](#quyết-định-authentication--rbac-cho-milestone-002-2026-11-26).
+Cơ chế xác thực và lược đồ dữ liệu thuộc thiết kế kỹ thuật của milestone.
 
 ### Giới hạn phạm vi
 
@@ -241,7 +241,7 @@ Không có story Nên có trong bộ này. Không suy ra ngưỡng rủi ro, gi�
 | TBD-08 | Xử lý dữ liệu hoặc phương án thay đổi sau mô phỏng, quyết định gửi lặp | US-03, US-04 | PRD chưa mô tả các tình huống này |
 | TBD-09 | Hành vi khi PM không tiếp tục phương án ngoài việc không được tự áp dụng | US-03, US-04 | Không tự thêm hủy, lưu nháp hoặc hết hạn |
 | TBD-10 | Nhãn huấn luyện rủi ro, chỉ số đánh giá, cách tính điểm/mô hình ghép nối, quy mô demo, dữ liệu thật/kết hợp trong tương lai | Đánh giá chất lượng và dữ liệu | Giữ nguyên các TBD tương ứng của PRD; không quyết định trong tài liệu này |
-| TBD-11 | Quan hệ User Account ↔ Employee, cơ chế xác thực, kiểm tra role, phân quyền kỹ thuật và quyền xem dữ liệu chi tiết | US-05, US-06, US-07 | PRD chỉ xác nhận kết quả truy cập ở mức sản phẩm |
+| TBD-11 | Cơ chế xác thực, kiểm tra role và thực thi quyền chi tiết thuộc thiết kế kỹ thuật | US-05, US-06, US-07 | D1–D3 chốt nguồn tài khoản, role, quyền Project và dữ liệu DEV cho Milestone 002 |
 | TBD-12 | Các capability chưa được xác định của DEV: sửa Skill, gửi tiến độ, thay đổi allocation, tự nhận task và chạy simulation | US-06 | Không có căn cứ xác nhận trong quyết định sản phẩm hiện tại |
 
 Các khoảng trống không làm thay đổi bốn kết quả cốt lõi, nhưng giới hạn mức độ
@@ -270,6 +270,17 @@ PM Decision và Apply Allocation nằm ngoài milestone. Bằng chứng trước
 dữ liệu hiện có chỉ nghiệm thu hành vi chỉ đọc của demo. Nghiệm thu đầy đủ trên
 `ProjectAllocation` cần mô hình phân bổ vận hành được phê duyệt.
 Xem [tiêu chí kiểm chứng của demo](acceptance-criteria.md#kiểm-chứng-what-if-đầu-tiên--proposed-demo).
+
+### Quyết định Authentication & RBAC cho Milestone 002 (2026-11-26)
+
+Người phụ trách phê duyệt trong yêu cầu **Resolve Decisions & Technical Planning**.
+Các quyết định áp dụng trong Milestone 002.
+
+| Mã | Trạng thái | Quyết định | Truy vết |
+| --- | --- | --- | --- |
+| D1 | APPROVED | Người vận hành cấp và thu hồi tài khoản nội bộ, cấp lại thông tin đăng nhập qua quy trình nội bộ. Mỗi tài khoản có đúng một role PM, HR hoặc DEV. Tự đăng ký, tự chọn role và quản trị tài khoản nâng cao nằm ngoài mốc. | US-07 · AC-US-07-01 |
+| D2 | APPROVED | Mỗi Project có một PM phụ trách, một PM có thể phụ trách nhiều Project. Backend gán PM tạo Project làm người phụ trách. Project cũ được ánh xạ theo danh sách đã duyệt; trong lúc chưa có ánh xạ, hệ thống từ chối truy cập theo mặc định. Kiểm tra quyền Project qua route trực tiếp và tài nguyên con. | US-01/02/03/07 · AC-US-07-01 |
+| D3 | APPROVED | Mỗi tài khoản DEV liên kết duy nhất với một Employee đã xác minh; Backend suy ra liên kết từ danh tính đăng nhập. DEV chỉ đọc hồ sơ, kỹ năng của mình và ngữ cảnh công việc đã được cấp. Khi chưa có nguồn giao việc thật, hiển thị thiếu ngữ cảnh. Recommendation và What-if không cấp quyền dự án; giao việc thật và ProjectAllocation nằm ngoài mốc. | US-06/07 · AC-US-06-01/02/03, AC-US-07-03 |
 
 ## 5. Ma trận truy vết
 

@@ -10,6 +10,9 @@ export class Project {
   @Column({ type: 'text' })
   name: string;
 
+  @Column({ type: 'varchar', length: 36, charset: 'ascii', collation: 'ascii_bin', nullable: true })
+  pmAccountId?: string | null;
+
   @OneToMany(() => Sprint, (sprint) => sprint.project)
   sprints: Relation<Sprint[]>;
 }

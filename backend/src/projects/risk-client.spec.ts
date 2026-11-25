@@ -18,22 +18,25 @@ const scored = {
 
 describe('RiskClient', () => {
   const client = new RiskClient();
+  const fixtureToken = Buffer.alloc(32, 17).toString('base64url');
+  beforeEach(() => vi.stubEnv('RISK_SERVICE_TOKEN', fixtureToken));
   afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllEnvs();
   });
 
   it('posts to the configured service with timeout and preserves the prediction', async () => {
-    vi.stubEnv('AI_SERVICE_URL', 'http://ai.local:8100/');
+    vi.stubEnv('AI_SERVICE_URL', 'https://ai.local:8100/');
     const fetch = vi
       .spyOn(globalThis, 'fetch')
       .mockResolvedValue(Response.json(scored));
     const timeout = vi.spyOn(AbortSignal, 'timeout');
     await expect(client.predict(request)).resolves.toEqual(scored);
     expect(timeout).toHaveBeenCalledWith(4000);
-    expect(fetch).toHaveBeenCalledWith('http://ai.local:8100/risk/predict', {
+    expect(fetch).toHaveBeenCalledWith('https://ai.local:8100/risk/predict', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-Risk-Service-Token': fixtureToken },
+      redirect: 'manual',
       body: JSON.stringify(request),
       signal: expect.any(AbortSignal),
     });
@@ -95,6 +98,26 @@ describe('RiskClient', () => {
     await expect(client.predict(request)).rejects.toMatchObject({
       status: 504,
     });
+  });
+
+  it('fails closed with a missing key or an HTTP remote endpoint', async () => {
+    const fetch = vi.spyOn(globalThis, 'fetch');
+    vi.stubEnv('AI_SERVICE_URL', 'http://risk.internal');
+    await expect(client.predict(request)).rejects.toMatchObject({ status: 503 });
+    vi.stubEnv('AI_SERVICE_URL', 'http://127.0.0.1:8001');
+    vi.stubEnv('RISK_SERVICE_TOKEN', undefined);
+    await expect(client.predict(request)).rejects.toMatchObject({ status: 503 });
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('does not follow an upstream redirect', async () => {
+    vi.stubEnv('AI_SERVICE_URL', 'http://127.0.0.1:8001');
+    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, {
+      status: 302, headers: { Location: 'https://another.invalid' },
+    }));
+    await expect(client.predict(request)).rejects.toMatchObject({ status: 502 });
+    expect(fetch).toHaveBeenCalledOnce();
+    expect(fetch).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ redirect: 'manual' }));
   });
 
   it('computes D from the Vietnam calendar at midnight', () => {

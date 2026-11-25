@@ -263,3 +263,59 @@ treo, body treo và retry sau timeout. Minh chứng trình duyệt/MariaDB ở t
   và 3 Skill, sắp xếp theo khóa. SHA-256 trước và sau trùng nhau
   (`3610d8f77c9fcdbf8f263ec5970a35ad81d3988960c6e7ac710ca13003bb6f29`).
   Không chạy migration, seed hoặc chỉnh dữ liệu dev.
+
+### Kiểm chứng Authentication & RBAC 002 (2026-11-26)
+
+Baseline `75404caf` chạy trước triển khai: 83 Backend unit, 16 HTTP E2E
+với test double, 27 Frontend unit. Sau deploy thử 002 theo thiết kế Gate 2
+đã duyệt, AI đối chiếu lại cùng các ca và chạy thêm nhóm Auth. Cách chạy và
+truy vết FR/AC/AT/SC nằm trong [quickstart](../specs/002-auth-rbac/quickstart.md)
+và [ma trận kiểm thử](../specs/002-auth-rbac/plan.md#ma-trận-kiểm-thử).
+
+| Lớp | Kết quả thực tế |
+| --- | --- |
+| Backend unit | `npm test` **96/96**, gồm 83 baseline. Dùng KDF thật trong unit hash, clock/test double cho limiter và điều phối race. |
+| Backend HTTP E2E | `npm run test:e2e` **27/27**, gồm 16 baseline. NestJS chạy guard và ValidationPipe thật với repository/DataSource double. |
+| Frontend unit | `npm test` **34/34**, gồm 27 baseline. What-if giữ timeout/abort, retry và trạng thái phản hồi cũ. |
+| FastAPI unit | `.venv/Scripts/python.exe -m unittest discover -v` **10/10**, gồm 9 baseline. Dùng model đã lưu, kiểm khóa thiếu/sai/lặp, không huấn luyện. |
+| Build và lint | `npm run build`, `npm run lint` đạt ở Backend và Frontend. |
+| HTTP runtime | Vite `:5192` → NestJS `:3192` → MariaDB `:33306`, Risk qua FastAPI `:8009`. **73 lượt**, đủ **25/25** route NestJS với ca được phép và ca âm theo phạm vi. Hai PM, HR, hai DEV và các tài khoản vận hành là fixture riêng. |
+| Chrome runtime | Chrome 158, desktop 1280×900 và viewport 390×844. PM reload deep link rồi chạy Risk → Recommendation → What-if. HR đọc Employee/Skill thật trên clone. Hai DEV thấy đúng hồ sơ của mình và trạng thái thiếu ngữ cảnh. Logout về Login, lỗi mạng che workspace và retry thành công. Phiên thử hết hạn trong DB bị từ chối khi reload. Không cuộn ngang ở các viewport đã đo. |
+
+| AT, tương ứng AC cùng số | Bằng chứng |
+| --- | --- |
+| AT-01 | HTTP và Chrome đăng nhập/reload cả ba role, danh tính lấy từ Backend. |
+| AT-02 | Unit và HTTP kiểm sai thông tin, email chưa có/Account disable cùng 401. Runtime kiểm hoa/thường chung quota và 429 có `Retry-After`. Unit kiểm quota địa chỉ, trần KDF và cửa sổ thời gian. |
+| AT-03 | HTTP test double kiểm cookie thiếu, trùng, hết hạn và kho phiên lỗi 503. Runtime HTTP và Chrome xác nhận phiên thử hết hạn trước khi reload. Frontend unit kiểm phản hồi phiên cũ. |
+| AT-04 | HTTP kiểm logout chỉ thu hồi một phiên và cookie `Max-Age=0`. Chrome kiểm logout, mất mạng, workspace ẩn và thử lại. |
+| AT-05 | Runtime hai PM thấy Project được cấp. PM tạo Project được gán quyền, tạo/đọc Sprint và tạo/đọc/sửa Task trên Project của mình. |
+| AT-06 | Runtime Risk trả `scored`. Recommendation và What-if trả giờ hỗ trợ/thiếu/trống **4/4/8,5** với fixture 8 giờ. HTTP baseline giữ lỗi `404 INVALID_SCENARIO` đúng contract. |
+| AT-07 | HTTP runtime từ chối Project/Sprint/Task của PM B và Project chưa gán khi PM A truy cập. Proof thật cấp cho B vẫn bị từ chối với A. HTTP test double kiểm không đọc/ghi Task sau khi từ chối. |
+| AT-08 | Chrome xác thực trước khi mount, reload đúng workspace và deep link PM. 403 giữ phiên. HR/DEV mở hash PM vẫn vào workspace của mình. |
+| AT-09 | HR đọc danh bạ, kỹ năng và availability trên clone. Các API tạo Employee/Skill và gán hoạt động. HTTP baseline giữ 0 giờ, thiếu dữ liệu và khác tuần. |
+| AT-10 | HTTP role khác bị từ chối ở dữ liệu HR ngoài quyền, HR bị từ chối nghiệp vụ PM. Danh mục Skill của PM vẫn tải được. |
+| AT-11 | Hai DEV có hai hồ sơ/Skills riêng. Chrome hiển thị thiếu Công việc vì chưa có nguồn giao việc. |
+| AT-12 | Runtime từ chối ID Employee khác, query tự khai và yêu cầu Project từ DEV. Header role/Employee tự khai không thay đổi danh tính. |
+| AT-13 | FastAPI trực tiếp thiếu khóa trả 401, Risk qua Backend thành công. Backend unit kiểm không theo redirect và giữ phân loại lỗi upstream. |
+| AT-14 | Unit kiểm cạnh tranh login/reset và login/disable. MariaDB clone xác nhận cả hai race khi tạm dừng login sau KDF, hai phiên trước reset bị thu hồi, Account disable không tạo phiên mới. Clone từ chối trùng Employee. |
+| AT-15 | Diễn tập backup/restore, DDL cộng thêm, gián đoạn và retry, mapping đúng/lặp/xung đột, đối chiếu sáu bảng và bảo toàn 126 hồi quy. |
+| AT-16 | Runtime Origin sai/thiếu không tạo phiên, không logout và không ghi Project. HTTP E2E kiểm serialize cookie HTTPS `Secure`, host-only và `HttpOnly`. Chrome runtime dùng mode loopback. |
+
+**Migration.** MariaDB 10.4.32 chạy trên instance cô lập `127.0.0.1:33306`.
+Restore cùng backup từ bản sao của schema dev vào `rms_ai_auth002_clone`
+và `rms_ai_auth002_recovery`. `SELECT DATABASE()` trước từng lượt. FK
+được đối chiếu với ID `varchar(36)`, `utf8mb4_general_ci`, InnoDB.
+Migration `1791240000000` chạy sau `1791230000000` với `--transaction each`.
+Ca phục hồi ngắt sau DDL `user_accounts` rồi chạy lại, xác minh index/FK và
+không có Project tự gán. Snapshot các cột cũ khớp 6/6 trên cả hai clone
+với số hàng Project/Sprint/Task/Employee/Skill/EmployeeSkill lần lượt
+**8/8/10/5/3/7**. SHA-256 tổng hợp
+`6eaf410580b8ea021c78712d7f8af99f3085f22147d13ceeef4e2e7d593c6783`.
+Snapshot Employee/Skill/EmployeeSkill trước/sau What-if đều là
+`d70306e41a01c57e0679dfb1ade1dbd20452bf1a230790d9f7332a331036e5c6`.
+Database dev gốc không khởi động, không migrate và không seed.
+
+**Chi phí scrypt.** Node v24.14.1 trên máy Windows hiện tại, lấy RSS mỗi
+5 ms, dùng `N=2^17,r=8,p=1`. Một lượt **587 ms**, RSS tăng khoảng **128 MiB**.
+Hai lượt đồng thời **619 ms**, RSS tăng khoảng **256 MiB**. Đây là số đo
+cục bộ, chưa phải benchmark dung lượng triển khai.

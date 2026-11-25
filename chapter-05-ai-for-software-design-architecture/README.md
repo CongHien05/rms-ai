@@ -66,3 +66,23 @@ cách xử lý dữ liệu hiện có, proof không lưu và snapshot theo lư�
 Chapter 5 B1 tiếp tục **chờ duyệt**.
 [Hợp đồng HTTP](../specs/001-what-if-simulation/contracts/what-if-api.md)
 · [Bằng chứng Chapter 8](../chapter-08-ai-software-testing/README.md).
+
+### Gate 2 Authentication & RBAC 002 (2026-11-26)
+
+Người phụ trách chốt D1–D3 cho tài khoản nội bộ, quyền Project và dữ liệu
+DEV. AI đối chiếu baseline `75404caf`, lập thiết kế phiên opaque và di trú
+MariaDB cộng thêm, cùng ma trận quyền cho 21 route cũ và 4 route mới.
+Minh chứng Gate 2 dựa trên mã nguồn baseline, truy vết giữa artifact và kiểm
+tra diff/liên kết. Nghiệm thu migration, browser và hồi quy 126 ca thuộc lượt
+triển khai riêng. Trạng thái B1 tiếp tục chờ review.
+[Plan](../specs/002-auth-rbac/plan.md) · [Tasks](../specs/002-auth-rbac/tasks.md).
+
+### Gate 3 Authentication & RBAC 002 (2026-11-26)
+
+Đã hiện thực phiên opaque trong MariaDB, kiểm role tường minh trên mỗi
+handler và kiểm PM phụ trách qua quan hệ Project → Sprint → Task.
+FastAPI yêu cầu khóa nội bộ trước inference. AI đối chiếu thay đổi với
+thiết kế D1–D3 đã duyệt và kiểm migration trên schema clone. So sánh sáu
+bảng nghiệp vụ trước/sau khớp, kể cả khi chạy lại sau gián đoạn DDL.
+Đánh giá trên clone không thay trạng thái **B1 chờ review**.
+[Minh chứng](../chapter-08-ai-software-testing/README.md#kiểm-chứng-authentication--rbac-002-2026-11-26).

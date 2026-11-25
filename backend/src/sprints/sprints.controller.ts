@@ -6,6 +6,7 @@ import {
   ParseUUIDPipe,
   Post,
 } from '@nestjs/common';
+import { CurrentAccount, Roles, type Principal } from '../auth/auth-policy.js';
 import { CreateSprintDto } from './dto/create-sprint.dto.js';
 import { SprintsService, type SprintResponse } from './sprints.service.js';
 
@@ -13,18 +14,22 @@ import { SprintsService, type SprintResponse } from './sprints.service.js';
 export class SprintsController {
   constructor(private readonly sprintsService: SprintsService) {}
 
+  @Roles('PM')
   @Post()
   create(
+    @CurrentAccount() account: Principal,
     @Param('projectId', ParseUUIDPipe) projectId: string,
     @Body() body: CreateSprintDto,
   ): Promise<SprintResponse> {
-    return this.sprintsService.create(projectId, body.name);
+    return this.sprintsService.create(projectId, body.name, account.accountId);
   }
 
+  @Roles('PM')
   @Get()
   findAll(
+    @CurrentAccount() account: Principal,
     @Param('projectId', ParseUUIDPipe) projectId: string,
   ): Promise<SprintResponse[]> {
-    return this.sprintsService.findAllByProject(projectId);
+    return this.sprintsService.findAllByProject(projectId, account.accountId);
   }
 }

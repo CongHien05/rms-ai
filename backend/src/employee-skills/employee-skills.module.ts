@@ -14,5 +14,6 @@ import { EmployeeSkillsService } from './employee-skills.service.js';
   ],
   controllers: [EmployeeSkillsController],
   providers: [EmployeeSkillsService],
+  exports: [EmployeeSkillsService],
 })
 export class EmployeeSkillsModule {}

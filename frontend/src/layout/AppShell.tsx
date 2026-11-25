@@ -17,7 +17,7 @@ type AppShellProps<Section extends string> = {
   contextualStep: DecisionFlowStep | null
   children: ReactNode
   onNavigate: (section: Section) => void
-  onExitRolePreview: () => void
+  onLogout: () => void
 }
 
 const decisionFlow = [
@@ -36,7 +36,7 @@ export function AppShell<Section extends string>({
   contextualStep,
   children,
   onNavigate,
-  onExitRolePreview,
+  onLogout,
 }: AppShellProps<Section>) {
   const homeSection = navigationItems[0]?.section
 
@@ -70,8 +70,8 @@ export function AppShell<Section extends string>({
 
           <div className="workspace-identity">
             <span className="role-code" title={workspaceTitle}>{role}</span>
-            <button className="button button--secondary button--sm" type="button" onClick={onExitRolePreview}>
-              Đổi vai trò
+            <button className="button button--secondary button--sm" type="button" onClick={onLogout}>
+              Đăng xuất
             </button>
           </div>
         </div>

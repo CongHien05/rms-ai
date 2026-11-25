@@ -1,17 +1,14 @@
-import { useEffect, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
+import { useEffect, useState, useSyncExternalStore, type Dispatch, type ReactNode, type SetStateAction } from 'react'
 import './App.css'
-import {
-  DevOverview,
-  DevSkillsView,
-  DevWorkView,
-} from './dev-workspace/DevWorkspaceViews'
+import { AuthLayout, LoginView } from './auth/LoginView'
+import { requestedProjectView, session, type Role } from './auth/session'
+import { DevWorkspaceView } from './dev-workspace/DevWorkspaceViews'
 import { EmployeesView } from './employees/EmployeesView'
 import { HrOverview, HrSkillsView } from './hr-workspace/HrWorkspaceViews'
 import {
   AppShell,
   type DecisionFlowStep,
   type NavigationItem,
-  type PrototypeRole,
 } from './layout/AppShell'
 import { OperationsOverview } from './operations-overview/OperationsOverview'
 import { mockProjectRisks } from './project-risk/mockProjectRisks'
@@ -22,7 +19,6 @@ import { ProjectsView } from './projects/ProjectsView'
 import { mockResourceRecommendations } from './resource-recommendation/mockResourceRecommendations'
 import { ResourceRecommendationView } from './resource-recommendation/ResourceRecommendationView'
 import { WhatIfSimulationView } from './resource-recommendation/WhatIfSimulationView'
-import { RolePreview } from './role-preview/RolePreview'
 
 type PmView =
   | { readonly name: 'operations-overview' }
@@ -43,7 +39,6 @@ type HrSection = 'hr-overview' | 'employees' | 'skills'
 type DevSection = 'dev-overview' | 'dev-skills' | 'dev-work'
 
 type AppState =
-  | { readonly mode: 'role-preview' }
   | { readonly mode: 'workspace'; readonly role: 'PM'; readonly view: PmView }
   | { readonly mode: 'workspace'; readonly role: 'HR'; readonly view: HrSection }
   | { readonly mode: 'workspace'; readonly role: 'DEV'; readonly view: DevSection }
@@ -93,29 +88,55 @@ function getContextualStep(view: PmView): DecisionFlowStep | null {
 }
 
 function App() {
+  const auth = useSyncExternalStore(session.subscribe, session.getState)
+
+  useEffect(() => { void session.restore() }, [])
+
+  if (auth.status === 'active') {
+    return (
+      <>
+        {auth.forbidden && (
+          <div role="alert" className="feedback-panel auth-notice">
+            <span>Bạn không có quyền truy cập nội dung hoặc thực hiện thao tác này.</span>
+            <button type="button" className="button button--secondary button--sm" onClick={session.dismissForbidden}>Đóng</button>
+          </div>
+        )}
+        <Workspace key={auth.account.accountId} role={auth.account.role} />
+      </>
+    )
+  }
+  if (auth.status === 'anonymous' || auth.status === 'signing-in') {
+    return <LoginView pending={auth.status === 'signing-in'} message={auth.message} onLogin={session.login} />
+  }
+  if (auth.status === 'unavailable' || auth.status === 'logout-error') {
+    const logoutError = auth.status === 'logout-error'
+    return (
+      <AuthLayout>
+        <div role="alert" className="feedback-panel feedback-panel--error auth-panel">
+          <p>{logoutError ? 'Chưa xác nhận được đăng xuất. Không gian làm việc đã được ẩn.' : 'Chưa thể kết nối với dịch vụ xác thực.'}</p>
+          <button type="button" className="button button--secondary" onClick={logoutError ? session.logout : session.restore}>
+            {logoutError ? 'Thử đăng xuất lại' : 'Thử lại'}
+          </button>
+        </div>
+      </AuthLayout>
+    )
+  }
+  return <AuthLayout><p role="status">{auth.status === 'signing-out' ? 'Đang đăng xuất…' : 'Đang xác minh phiên…'}</p></AuthLayout>
+}
+
+function Workspace({ role }: { role: Role }) {
   const [appState, setAppState] = useState<AppState>(() => {
-    const hash = window.location.hash
-    if (hash === '#projects') {
-      return { mode: 'workspace', role: 'PM', view: { name: 'projects' } }
-    }
-    const projectMatch = /^#project\/([0-9a-fA-F-]{36})$/.exec(hash)
-    if (projectMatch) {
-      return { mode: 'workspace', role: 'PM', view: { name: 'project-detail', projectId: projectMatch[1].toLowerCase() } }
-    }
-    return { mode: 'role-preview' }
+    if (role === 'PM') return { mode: 'workspace', role, view: requestedProjectView(window.location.hash) ?? { name: 'operations-overview' } }
+    return role === 'HR'
+      ? { mode: 'workspace', role, view: 'hr-overview' }
+      : { mode: 'workspace', role, view: 'dev-overview' }
   })
 
   useEffect(() => {
+    if (role !== 'PM') return
     function handleHash() {
-      const hash = window.location.hash
-      if (hash === '#projects') {
-        setAppState({ mode: 'workspace', role: 'PM', view: { name: 'projects' } })
-      } else {
-        const projectMatch = /^#project\/([0-9a-fA-F-]{36})$/.exec(hash)
-        if (projectMatch) {
-          setAppState({ mode: 'workspace', role: 'PM', view: { name: 'project-detail', projectId: projectMatch[1].toLowerCase() } })
-        }
-      }
+      const view = requestedProjectView(window.location.hash)
+      if (view) setAppState({ mode: 'workspace', role: 'PM', view })
     }
     window.addEventListener('hashchange', handleHash)
     window.addEventListener('popstate', handleHash)
@@ -123,37 +144,15 @@ function App() {
       window.removeEventListener('hashchange', handleHash)
       window.removeEventListener('popstate', handleHash)
     }
-  }, [])
+  }, [role])
 
-  function openRole(role: PrototypeRole) {
-    if (role === 'PM') {
-      setAppState({
-        mode: 'workspace',
-        role: 'PM',
-        view: { name: 'operations-overview' },
-      })
-      return
-    }
-
-    if (role === 'HR') {
-      setAppState({ mode: 'workspace', role: 'HR', view: 'hr-overview' })
-      return
-    }
-
-    setAppState({ mode: 'workspace', role: 'DEV', view: 'dev-overview' })
-  }
-
-  function exitRolePreview() {
+  function onLogout() {
     window.history.replaceState(null, '', window.location.pathname)
-    setAppState({ mode: 'role-preview' })
-  }
-
-  if (appState.mode === 'role-preview') {
-    return <RolePreview onSelectRole={openRole} />
+    void session.logout()
   }
 
   if (appState.role === 'PM') {
-    return renderPmWorkspace(appState.view, setAppState, exitRolePreview)
+    return renderPmWorkspace(appState.view, setAppState, onLogout)
   }
 
   if (appState.role === 'HR') {
@@ -172,7 +171,7 @@ function App() {
         activeSection={appState.view}
         contextualStep={null}
         onNavigate={openHrView}
-        onExitRolePreview={exitRolePreview}
+        onLogout={onLogout}
       >
         {hrViews[appState.view]}
       </AppShell>
@@ -180,12 +179,6 @@ function App() {
   }
 
   const openDevView = (view: DevSection) => setAppState({ mode: 'workspace', role: 'DEV', view })
-  const devViews: Record<DevSection, ReactNode> = {
-    'dev-overview': <DevOverview />,
-    'dev-skills': <DevSkillsView />,
-    'dev-work': <DevWorkView />,
-  }
-
   return (
     <AppShell
       workspaceTitle="Không gian cá nhân"
@@ -194,9 +187,9 @@ function App() {
       activeSection={appState.view}
       contextualStep={null}
       onNavigate={openDevView}
-      onExitRolePreview={exitRolePreview}
+      onLogout={onLogout}
     >
-      {devViews[appState.view]}
+      <DevWorkspaceView view={appState.view} />
     </AppShell>
   )
 }
@@ -206,7 +199,7 @@ type SetAppState = Dispatch<SetStateAction<AppState>>
 function renderPmWorkspace(
   view: PmView,
   setAppState: SetAppState,
-  onExitRolePreview: () => void,
+  onLogout: () => void,
 ) {
   function setPmView(nextView: PmView) {
     let hash = window.location.pathname
@@ -360,8 +353,11 @@ function renderPmWorkspace(
       activeSection={activePmSectionByView[view.name]}
       contextualStep={getContextualStep(view)}
       onNavigate={handleGlobalNavigation}
-      onExitRolePreview={onExitRolePreview}
+      onLogout={onLogout}
     >
+      {view.name !== 'projects' && view.name !== 'project-detail' && (
+        <p className="scope-note">Dữ liệu minh họa · Tách biệt với dự án thật</p>
+      )}
       {content}
     </AppShell>
   )

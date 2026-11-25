@@ -49,7 +49,7 @@ Trong PRD v0.1, rủi ro tiến độ bàn giao dự án là khả năng một d
 
 Sau khi danh tính và role của người dùng được xác định, sản phẩm phải cung cấp workspace, điều hướng và capability phù hợp với role DEV, PM hoặc HR. Đây là yêu cầu sản phẩm; cơ chế xác thực và phân quyền kỹ thuật vẫn là TBD.
 
-User Account và Employee là hai khái niệm khác nhau. DEV đại diện cho một nhân sự sử dụng hệ thống; PM và HR có thể đồng thời là nhân viên của tổ chức, nhưng quan hệ định danh chính xác giữa tài khoản người dùng và bản ghi Employee vẫn là TBD. PRD không định nghĩa lược đồ dữ liệu cho quan hệ này.
+User Account và Employee là hai khái niệm khác nhau. Với Milestone 002, mỗi tài khoản DEV liên kết duy nhất với một Employee đã xác minh. PM và HR sử dụng quyền theo User Account. Quy tắc cấp tài khoản, phạm vi Project của PM và quyền xem dữ liệu DEV được ghi tại [quyết định D1–D3](user-stories.md#quyết-định-authentication--rbac-cho-milestone-002-2026-11-26).
 
 ## Phạm vi sản phẩm
 
@@ -98,7 +98,7 @@ Các nội dung sau chưa được quyết định trong PRD v0.1. Chúng có th
 - Lựa chọn thuật toán ML cuối cùng, bao gồm việc xem XGBoost hoặc Random Forest là quyết định đã chốt.
 - Công thức tối ưu hóa hoặc trọng số ghép nối cuối cùng.
 - Thiết kế chi tiết về xác thực và phân quyền, bao gồm ma trận RBAC.
-- Cơ chế xác thực cụ thể, lược đồ User Account hoặc cách ánh xạ User Account ↔ Employee.
+- Cơ chế xác thực cụ thể, lược đồ User Account và cách lưu ánh xạ User Account ↔ Employee. Các yếu tố này thuộc thiết kế kỹ thuật Milestone 002.
 - Docker, CI/CD, kiến trúc triển khai, nhà cung cấp đám mây hoặc hạ tầng vận hành thực tế.
 - Triển khai mô hình AI/ML, quy trình huấn luyện hoặc mã chức năng nghiệp vụ.
 
@@ -110,7 +110,6 @@ Các nội dung sau chưa được quyết định trong PRD v0.1. Chúng có th
 - Các trường dữ liệu hỗ trợ tối thiểu cần thiết cho đầu vào AI và việc PM xem xét quyết định.
 - Ngữ nghĩa mức độ sẵn sàng, mức sử dụng, khối lượng công việc và trạng thái chờ phân bổ.
 - Thang mức kỹ năng và ý nghĩa của từng mức.
-- Quan hệ định danh chính xác giữa User Account và Employee đối với DEV, PM và HR.
 - Cơ chế xác thực, kiểm tra role và phân quyền kỹ thuật.
 - Đơn vị/lượng phân bổ, điều kiện và thời điểm áp dụng; rollback, thử lại và phục hồi khi áp dụng thất bại.
 - Chính sách độ mới và dữ liệu lỗi thời cho đánh giá, đề xuất, mô phỏng và quyết định.

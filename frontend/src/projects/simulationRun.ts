@@ -1,3 +1,4 @@
+import { apiFetch } from '../auth/session.ts'
 export type SimulationInput = {
   projectId: string
   employeeId: string
@@ -25,7 +26,7 @@ type SendSimulation = (input: SimulationInput, runId: string, signal: AbortSigna
 
 function sendSimulation(input: SimulationInput, runId: string, signal: AbortSignal) {
   const { projectId, ...scenario } = input
-  return fetch(`/api/projects/${projectId}/simulations`, {
+  return apiFetch(`/api/projects/${projectId}/simulations`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ runId, scenario }),
