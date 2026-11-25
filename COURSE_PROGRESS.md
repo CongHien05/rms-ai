@@ -117,6 +117,16 @@ chứng đã ghi nhận.
   chỉ đọc trên dữ liệu hiện có. Chapter 5 B1 tiếp tục chờ duyệt.
   [Bằng chứng và giới hạn](chapter-08-ai-software-testing/README.md#kiểm-chứng-what-if-001-2026-11-25).
 
+## Tiến độ ngày 2026-11-26
+
+- Milestone 002 hoàn thành hồ sơ Gate 2 cho Authentication & RBAC.
+  D1–D3 đã được người phụ trách phê duyệt; đặc tả, thiết kế và danh sách tác vụ
+  phục vụ lượt triển khai riêng. [Theo dõi Chapter 5](chapter-05-ai-for-software-design-architecture/README.md#gate-2-authentication--rbac-002-2026-11-26).
+- Milestone 002 đã triển khai và đạt kiểm chứng Gate 3 trên MariaDB clone.
+  Baseline 126 ca được bảo toàn. HTTP runtime bao phủ 25 route, có Chrome
+  cho PM/HR/DEV và snapshot trước/sau migration. Hồ sơ chờ người phụ trách
+  review. [Bàn giao Gate 3](chapter-09-ai-technical-documentation/README.md#bàn-giao-gate-3-authentication--rbac-002-2026-11-26).
+
 ## Mốc trước tích hợp PM (lịch sử)
 
 - Cơ sở phân tích yêu cầu và sản phẩm đã có PRD, User Stories, Acceptance

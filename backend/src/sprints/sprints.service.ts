@@ -22,15 +22,14 @@ export class SprintsService {
     private readonly projectsService: ProjectsService,
   ) {}
 
-  async create(projectId: string, name: string): Promise<SprintResponse> {
+  async create(projectId: string, name: string, pmAccountId: string): Promise<SprintResponse> {
     const normalizedName = name.trim();
 
     if (!normalizedName) {
       throw new BadRequestException('Tên Sprint không được để trống.');
     }
 
-    await this.projectsService.findOne(projectId);
-
+    await this.projectsService.requireOwned(projectId, pmAccountId);
     const sprint = this.sprintsRepository.create({
       projectId,
       name: normalizedName,
@@ -38,19 +37,20 @@ export class SprintsService {
     return this.toResponse(await this.sprintsRepository.save(sprint));
   }
 
-  async findAllByProject(projectId: string): Promise<SprintResponse[]> {
-    await this.projectsService.findOne(projectId);
+  async findAllByProject(projectId: string, pmAccountId: string): Promise<SprintResponse[]> {
+    await this.projectsService.requireOwned(projectId, pmAccountId);
     const sprints = await this.sprintsRepository.findBy({ projectId });
     return sprints.map((sprint) => this.toResponse(sprint));
   }
 
-  async findOne(sprintId: string): Promise<SprintResponse> {
+  async requireOwned(sprintId: string, pmAccountId: string): Promise<SprintResponse> {
     const sprint = await this.sprintsRepository.findOneBy({ id: sprintId });
 
     if (!sprint) {
       throw new NotFoundException('Không tìm thấy Sprint.');
     }
 
+    await this.projectsService.requireOwned(sprint.projectId, pmAccountId);
     return this.toResponse(sprint);
   }
 

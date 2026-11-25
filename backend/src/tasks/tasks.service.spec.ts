@@ -6,6 +6,7 @@ import { Task } from './task.entity.js';
 import { TasksService } from './tasks.service.js';
 
 describe('TasksService', () => {
+  const owner = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
   const projectId = '11111111-1111-4111-8111-111111111111';
   const sprintId = '22222222-2222-4222-8222-222222222222';
   const otherSprintId = '99999999-9999-4999-8999-999999999999';
@@ -16,7 +17,7 @@ describe('TasksService', () => {
     findBy: ReturnType<typeof vi.fn>;
     findOneBy: ReturnType<typeof vi.fn>;
   };
-  let sprintsService: { findOne: ReturnType<typeof vi.fn> };
+  let sprintsService: { requireOwned: ReturnType<typeof vi.fn> };
   let service: TasksService;
 
   beforeEach(() => {
@@ -26,7 +27,7 @@ describe('TasksService', () => {
       findBy: vi.fn(),
       findOneBy: vi.fn(),
     };
-    sprintsService = { findOne: vi.fn() };
+    sprintsService = { requireOwned: vi.fn() };
     service = new TasksService(
       repository as unknown as Repository<Task>,
       sprintsService as unknown as SprintsService,
@@ -34,7 +35,7 @@ describe('TasksService', () => {
   });
 
   it('creates a task under an existing sprint', async () => {
-    sprintsService.findOne.mockResolvedValue({
+    sprintsService.requireOwned.mockResolvedValue({
       id: sprintId,
       projectId,
       name: 'Sprint 1',
@@ -55,7 +56,7 @@ describe('TasksService', () => {
         title: '  Task 1  ',
         dueDate: '2026-12-01',
         estimatedHours: 3.5,
-      }),
+      }, owner),
     ).resolves.toEqual({
       id: taskId,
       sprintId,
@@ -74,25 +75,25 @@ describe('TasksService', () => {
   });
 
   it('rejects creation when the sprint does not exist', async () => {
-    sprintsService.findOne.mockRejectedValue(
+    sprintsService.requireOwned.mockRejectedValue(
       new NotFoundException('Không tìm thấy Sprint.'),
     );
 
     await expect(
-      service.create(sprintId, { title: 'Task 1' }),
+      service.create(sprintId, { title: 'Task 1' }, owner),
     ).rejects.toBeInstanceOf(NotFoundException);
     expect(repository.save).not.toHaveBeenCalled();
   });
 
   it('rejects an empty task title', async () => {
     await expect(
-      service.create(sprintId, { title: '   ' }),
+      service.create(sprintId, { title: '   ' }, owner),
     ).rejects.toBeInstanceOf(BadRequestException);
-    expect(sprintsService.findOne).not.toHaveBeenCalled();
+    expect(sprintsService.requireOwned).not.toHaveBeenCalled();
   });
 
   it('lists only tasks for the requested sprint', async () => {
-    sprintsService.findOne.mockResolvedValue({
+    sprintsService.requireOwned.mockResolvedValue({
       id: sprintId,
       projectId,
       name: 'Sprint 1',
@@ -108,7 +109,7 @@ describe('TasksService', () => {
       } as Task,
     ]);
 
-    await expect(service.findAllBySprint(sprintId)).resolves.toEqual([
+    await expect(service.findAllBySprint(sprintId, owner)).resolves.toEqual([
       {
         id: taskId,
         sprintId,
@@ -122,7 +123,7 @@ describe('TasksService', () => {
   });
 
   it('updates task status without losing planning fields', async () => {
-    sprintsService.findOne.mockResolvedValue({
+    sprintsService.requireOwned.mockResolvedValue({
       id: sprintId,
       projectId,
       name: 'Sprint 1',
@@ -139,7 +140,7 @@ describe('TasksService', () => {
     repository.save.mockImplementation(async (item: Task) => item);
 
     await expect(
-      service.update(sprintId, taskId, { status: TaskStatus.IN_PROGRESS }),
+      service.update(sprintId, taskId, { status: TaskStatus.IN_PROGRESS }, owner),
     ).resolves.toEqual({
       id: taskId,
       sprintId,
@@ -155,18 +156,18 @@ describe('TasksService', () => {
   });
 
   it('rejects status update when sprint does not exist', async () => {
-    sprintsService.findOne.mockRejectedValue(
+    sprintsService.requireOwned.mockRejectedValue(
       new NotFoundException('Không tìm thấy Sprint.'),
     );
 
     await expect(
-      service.update(sprintId, taskId, { status: TaskStatus.DONE }),
+      service.update(sprintId, taskId, { status: TaskStatus.DONE }, owner),
     ).rejects.toBeInstanceOf(NotFoundException);
     expect(repository.findOneBy).not.toHaveBeenCalled();
   });
 
   it('rejects status update when task does not exist in sprint', async () => {
-    sprintsService.findOne.mockResolvedValue({
+    sprintsService.requireOwned.mockResolvedValue({
       id: sprintId,
       projectId,
       name: 'Sprint 1',
@@ -174,12 +175,12 @@ describe('TasksService', () => {
     repository.findOneBy.mockResolvedValue(null);
 
     await expect(
-      service.update(sprintId, taskId, { status: TaskStatus.DONE }),
+      service.update(sprintId, taskId, { status: TaskStatus.DONE }, owner),
     ).rejects.toThrow('Không tìm thấy Task.');
   });
 
   it('rejects status update when task belongs to a different sprint and keeps data unchanged', async () => {
-    sprintsService.findOne.mockResolvedValue({
+    sprintsService.requireOwned.mockResolvedValue({
       id: otherSprintId,
       projectId,
       name: 'Sprint 2',
@@ -188,7 +189,7 @@ describe('TasksService', () => {
     repository.findOneBy.mockResolvedValue(null);
 
     await expect(
-      service.update(otherSprintId, taskId, { status: TaskStatus.DONE }),
+      service.update(otherSprintId, taskId, { status: TaskStatus.DONE }, owner),
     ).rejects.toThrow('Không tìm thấy Task.');
 
     expect(repository.findOneBy).toHaveBeenCalledWith({
@@ -199,7 +200,7 @@ describe('TasksService', () => {
   });
 
   it('updates one planning field and preserves every omitted field', async () => {
-    sprintsService.findOne.mockResolvedValue({
+    sprintsService.requireOwned.mockResolvedValue({
       id: sprintId,
       projectId,
       name: 'Sprint 1',
@@ -216,7 +217,7 @@ describe('TasksService', () => {
     repository.save.mockImplementation(async (item: Task) => item);
 
     await expect(
-      service.update(sprintId, taskId, { dueDate: '2026-12-15' }),
+      service.update(sprintId, taskId, { dueDate: '2026-12-15' }, owner),
     ).resolves.toEqual({
       id: taskId,
       sprintId,
@@ -228,7 +229,7 @@ describe('TasksService', () => {
   });
 
   it('clears nullable planning fields when PATCH explicitly sends null', async () => {
-    sprintsService.findOne.mockResolvedValue({
+    sprintsService.requireOwned.mockResolvedValue({
       id: sprintId,
       projectId,
       name: 'Sprint 1',
@@ -248,7 +249,7 @@ describe('TasksService', () => {
       service.update(sprintId, taskId, {
         dueDate: null,
         estimatedHours: null,
-      }),
+      }, owner),
     ).resolves.toEqual({
       id: taskId,
       sprintId,

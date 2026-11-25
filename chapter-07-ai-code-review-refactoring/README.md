@@ -71,3 +71,22 @@ What-if có thể giữ trạng thái chờ nếu request hoặc body không tr�
 Đặt giới hạn 10 giây cho từng lượt, hủy request khi hết hạn và giữ guard
 cho phản hồi đến muộn. Hai regression mới bao phủ cả request treo trước
 header và body treo sau header, cùng khả năng thử lại với run ID mới.
+### Review Authentication & RBAC 002 (2026-11-26)
+
+AI rà soát diff theo D1–D3, Constitution 1.0.0 và contract Gate 2 do người
+phụ trách phê duyệt. Đã kiểm session, thu hồi, CSRF, rate limit, quyền
+Project, CLI, migration recovery, FastAPI, phản hồi Frontend đến muộn và
+phạm vi Git.
+
+- Quyền đặt trên từng handler. Ca Supertest xác nhận handler mới thiếu
+  policy trả 401 khi thiếu phiên và 403 khi đã xác thực.
+- What-if giữ 400 cho proof sai và 404 `INVALID_SCENARIO` khi Project mất
+  sau khi tạo proof. Project tồn tại ngoài quyền trả 403 trước khi kiểm
+  proof hoặc đọc nguồn lực. Các assertion cũ vẫn chạy với guard thật.
+- Logout trả cookie hết hạn, thu hồi cụ thể một phiên. Reset/disable khóa
+  Account và thu hồi mọi phiên. Hai ca race đã được tái hiện trên clone.
+  Metadata index và FK được xác minh khi chạy lại DDL trên clone phục hồi.
+
+Không còn finding CRITICAL/HIGH trong phạm vi diff. Kết quả này dùng cho
+Gate 3 review và không thay thế kiểm chứng ở môi trường triển khai.
+[Minh chứng](../chapter-08-ai-software-testing/README.md#kiểm-chứng-authentication--rbac-002-2026-11-26).

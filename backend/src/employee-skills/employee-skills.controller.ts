@@ -6,6 +6,7 @@ import {
   ParseUUIDPipe,
   Post,
 } from '@nestjs/common';
+import { Roles } from '../auth/auth-policy.js';
 import { AssignEmployeeSkillDto } from './dto/assign-employee-skill.dto.js';
 import {
   EmployeeSkillsService,
@@ -17,6 +18,7 @@ import type { SkillResponse } from '../skills/skills.service.js';
 export class EmployeeSkillsController {
   constructor(private readonly employeeSkillsService: EmployeeSkillsService) {}
 
+  @Roles('HR')
   @Post()
   assign(
     @Param('employeeId', ParseUUIDPipe) employeeId: string,
@@ -25,6 +27,7 @@ export class EmployeeSkillsController {
     return this.employeeSkillsService.assign(employeeId, body.skillId);
   }
 
+  @Roles('HR')
   @Get()
   findByEmployee(
     @Param('employeeId', ParseUUIDPipe) employeeId: string,

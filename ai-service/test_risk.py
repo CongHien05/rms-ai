@@ -6,7 +6,7 @@ from unittest.mock import patch
 from fastapi import HTTPException
 from pydantic import ValidationError
 
-from main import predict_risk
+from main import predict_risk, verify_risk_service
 from risk import (
     ARTIFACT_DIR, FEATURE_NAMES, MODEL_VERSION, Assessment, TaskSnapshot,
     features_for, predict,
@@ -65,6 +65,20 @@ class RiskTest(unittest.TestCase):
             with self.assertRaises(HTTPException) as error:
                 predict_risk(assessment(TaskSnapshot(status="TODO", dueDate=D + timedelta(days=1))))
         self.assertEqual(error.exception.status_code, 503)
+
+    def test_service_key_fails_closed_and_rejects_missing_invalid_or_duplicate_header(self):
+        key = 'A' * 43
+        with patch.dict('os.environ', {'RISK_SERVICE_TOKEN': ''}):
+            with self.assertRaises(HTTPException) as unavailable:
+                verify_risk_service([key])
+            self.assertEqual(unavailable.exception.status_code, 503)
+        with patch.dict('os.environ', {'RISK_SERVICE_TOKEN': key}):
+            for supplied in (None, ['B' + key[1:]], [key, key], ['⚠']):
+                with self.subTest(supplied=supplied):
+                    with self.assertRaises(HTTPException) as denied:
+                        verify_risk_service(supplied)
+                    self.assertEqual(denied.exception.status_code, 401)
+            self.assertIsNone(verify_risk_service([key]))
 
     def test_snapshot_rejects_future_outcome_fields(self):
         with self.assertRaises(ValidationError):

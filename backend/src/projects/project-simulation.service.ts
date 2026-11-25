@@ -35,6 +35,54 @@ export class ProjectSimulationService {
     projectId: string,
     input: ResourceSimulationDto,
   ): Promise<ResourceSimulationResponseDto> {
+    const { context, supportHours } = this.verifyScenario(projectId, input);
+    const { requiredHours, weekStart } = context;
+    const availability = await this.readAvailability(context);
+    if (!availability.matchesSkill) {
+      throw new BadRequestException({
+        statusCode: 400,
+        code: 'INVALID_SCENARIO',
+        message: 'Ứng viên không còn kỹ năng yêu cầu.',
+      });
+    }
+    const { availableHours } = availability;
+    if (availableHours === null || availability.weekStart !== weekStart) {
+      throw new UnprocessableEntityException({
+        statusCode: 422,
+        code: 'MISSING_AVAILABILITY',
+        message: 'Chưa có dữ liệu giờ trống cho tuần đã chọn.',
+      });
+    }
+    if (!Number.isFinite(availableHours) || availableHours < 0) {
+      throw new InternalServerErrorException('Dữ liệu giờ trống không hợp lệ.');
+    }
+    const expectedImpact = calculateSimulationImpact(requiredHours, supportHours, availableHours);
+    if (!expectedImpact) {
+      throw new BadRequestException({
+        statusCode: 400,
+        code: 'INVALID_SCENARIO',
+        message: 'Số giờ hỗ trợ vượt giờ trống hiện có.',
+      });
+    }
+    return {
+      outcome: 'available',
+      scenarioReference: simulationReference(context, supportHours),
+      runId: input.runId,
+      snapshot: { ...context, supportHours, availableHours },
+      expectedImpact,
+    };
+  }
+
+  rejectMissingProject(projectId: string, input: ResourceSimulationDto): never {
+    this.verifyScenario(projectId, input);
+    throw new NotFoundException({
+      statusCode: 404,
+      code: 'INVALID_SCENARIO',
+      message: 'Dự án, ứng viên hoặc kỹ năng không còn khả dụng.',
+    });
+  }
+
+  private verifyScenario(projectId: string, input: ResourceSimulationDto) {
     const {
       employeeId,
       skillId,
@@ -74,44 +122,7 @@ export class ProjectSimulationService {
       });
     }
 
-    const availability = await this.readAvailability(context);
-    if (!availability.matchesSkill) {
-      throw new BadRequestException({
-        statusCode: 400,
-        code: 'INVALID_SCENARIO',
-        message: 'Ứng viên không còn kỹ năng yêu cầu.',
-      });
-    }
-    const { availableHours } = availability;
-    if (availableHours === null || availability.weekStart !== weekStart) {
-      throw new UnprocessableEntityException({
-        statusCode: 422,
-        code: 'MISSING_AVAILABILITY',
-        message: 'Chưa có dữ liệu giờ trống cho tuần đã chọn.',
-      });
-    }
-    if (!Number.isFinite(availableHours) || availableHours < 0) {
-      throw new InternalServerErrorException('Dữ liệu giờ trống không hợp lệ.');
-    }
-    const expectedImpact = calculateSimulationImpact(
-      requiredHours,
-      supportHours,
-      availableHours,
-    );
-    if (!expectedImpact) {
-      throw new BadRequestException({
-        statusCode: 400,
-        code: 'INVALID_SCENARIO',
-        message: 'Số giờ hỗ trợ vượt giờ trống hiện có.',
-      });
-    }
-    return {
-      outcome: 'available',
-      scenarioReference: simulationReference(context, supportHours),
-      runId: input.runId,
-      snapshot: { ...context, supportHours, availableHours },
-      expectedImpact,
-    };
+    return { context, supportHours };
   }
 
   private async readAvailability(context: {

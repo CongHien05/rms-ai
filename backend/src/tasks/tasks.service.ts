@@ -41,6 +41,7 @@ export class TasksService {
   async create(
     sprintId: string,
     input: CreateTaskInput,
+    pmAccountId: string,
   ): Promise<TaskResponse> {
     const normalizedTitle = input.title.trim();
 
@@ -48,8 +49,7 @@ export class TasksService {
       throw new BadRequestException('Tiêu đề Task không được để trống.');
     }
 
-    await this.sprintsService.findOne(sprintId);
-
+    await this.sprintsService.requireOwned(sprintId, pmAccountId);
     const task = this.tasksRepository.create({
       sprintId,
       title: normalizedTitle,
@@ -60,8 +60,8 @@ export class TasksService {
     return this.toResponse(await this.tasksRepository.save(task));
   }
 
-  async findAllBySprint(sprintId: string): Promise<TaskResponse[]> {
-    await this.sprintsService.findOne(sprintId);
+  async findAllBySprint(sprintId: string, pmAccountId: string): Promise<TaskResponse[]> {
+    await this.sprintsService.requireOwned(sprintId, pmAccountId);
     const tasks = await this.tasksRepository.findBy({ sprintId });
     return tasks.map((task) => this.toResponse(task));
   }
@@ -70,8 +70,9 @@ export class TasksService {
     sprintId: string,
     taskId: string,
     input: UpdateTaskInput,
+    pmAccountId: string,
   ): Promise<TaskResponse> {
-    await this.sprintsService.findOne(sprintId);
+    await this.sprintsService.requireOwned(sprintId, pmAccountId);
 
     const task = await this.tasksRepository.findOneBy({ id: taskId, sprintId });
     if (!task) {

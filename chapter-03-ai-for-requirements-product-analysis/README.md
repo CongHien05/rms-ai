@@ -40,3 +40,12 @@ cáo riêng cho chapter này.
 
 Duy trì truy vết từ thiết kế và phần triển khai về cơ sở yêu cầu này; chỉ chuyển
 các mục `TBD` thành yêu cầu đã xác nhận khi có quyết định của nhóm.
+
+### Đặc tả Milestone 002 — Authentication & RBAC (2026-11-26)
+
+AI đối chiếu US-05/06/07, thiết kế workspace và controller tại baseline
+`75404caf` để lập [đặc tả và ma trận quyền](../specs/002-auth-rbac/spec.md).
+Người phụ trách đã duyệt [D1–D3](docs/user-stories.md#quyết-định-authentication--rbac-cho-milestone-002-2026-11-26)
+về tài khoản, quyền quản lý Project và quan hệ DEV với Employee/ngữ cảnh công
+việc. Checklist đặc tả đạt 16/16. Tài liệu thiết kế và kiểm tra truy vết Gate 2
+nằm tại [Chapter 5](../chapter-05-ai-for-software-design-architecture/README.md#gate-2-authentication--rbac-002-2026-11-26).

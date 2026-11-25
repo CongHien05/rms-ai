@@ -81,6 +81,50 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Authentication, phiên và vận hành tài khoản
+
+Tài khoản nội bộ có một role `PM`, `HR` hoặc `DEV`. Người vận hành đã
+được cấp quyền DB dùng CLI, với mật khẩu nhập qua prompt TTY ẩn:
+
+```powershell
+npm run build
+npm run auth:admin:local -- issue
+npm run auth:admin:local -- reset-password
+npm run auth:admin:local -- disable
+npm run auth:admin:local -- map-projects --file <danh-sach-json-da-duyet>
+npm run auth:admin:local -- prune-expired
+```
+
+Cấp DEV cần UUID của Employee đã xác minh. Mapping nhận một mảng JSON với
+hai trường `projectId` và `pmAccountId` ở mỗi dòng. Project chưa ánh xạ
+tiếp tục bị từ chối. Lặp cùng danh sách là no-op. Sai tham chiếu hoặc khác
+người phụ trách hủy cả lô. Disable/cấp lại mật khẩu hủy toàn bộ phiên của
+tài khoản trong cùng transaction. `prune-expired` dọn một lô tối đa 1.000
+phiên đã hết hạn; kiểm quyền vẫn từ chối phiên hết hạn trước khi dọn.
+
+Đặt `AUTH_MODE=local` và `AUTH_FRONTEND_ORIGIN` là origin loopback Vite
+chính xác để chạy dev. Backend bind loopback trong mode này. Môi trường
+HTTPS dùng `AUTH_MODE=https`, cùng origin cho giao diện và `/api`, cookie
+host-only `Secure`, `HttpOnly`, `SameSite=Lax`. Với proxy tin cậy, chỉ
+khai báo IP chính xác trong `AUTH_TRUSTED_PROXY_IPS` và cấu hình proxy ghi
+đè header forwarded do caller gửi. Mặc định dùng địa chỉ socket. POST/PATCH
+và các phương thức ghi khác cần Origin phù hợp, kể cả login/logout. Cookie
+phiên có hạn tuyệt đối 8 giờ. Backend kiểm trạng thái phiên trong DB mỗi
+lần yêu cầu được bảo vệ.
+
+Giữ một tiến trình Backend cho hạn mức login trong bộ nhớ. Hạn là 5 lần/email
+và 30 lần/địa chỉ nguồn mỗi 15 phút, tối đa hai lượt scrypt đồng thời. Khi
+nhận `429`, xử lý theo `Retry-After`. `503 AUTH_UNAVAILABLE` cần kiểm khả
+năng kết nối kho phiên và cấu hình, không in header/cookie hay thông tin
+đăng nhập để chẩn đoán. Đặt secret DB, `WHAT_IF_CONTEXT_SECRET` và
+`RISK_SERVICE_TOKEN` ngoài Git. `RISK_SERVICE_TOKEN` dùng riêng với FastAPI.
+
+Trước migration, xác nhận `SELECT DATABASE()`, backup và bản sao được phép.
+Chạy `npm run migration:local -- --transaction each` cho migration cộng thêm.
+DDL tự commit theo bước. Nếu lỗi, giữ ingress đóng, xác minh schema và chạy
+tiếp theo [kế hoạch phục hồi](../specs/002-auth-rbac/plan.md#di-trú-và-chuyển-tiếp).
+Hợp đồng route và lỗi tại [ma trận 002](../specs/002-auth-rbac/contracts/auth-rbac-api.md).
+
 ## Triển khai
 
 Khi sẵn sàng triển khai ứng dụng NestJS lên môi trường production, cần thực hiện
