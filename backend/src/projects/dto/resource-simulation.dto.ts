@@ -9,6 +9,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { ResourceRecommendationDto } from './resource-recommendation.dto.js';
+import type { DecisionEvidence } from '../decision-context.js';
 import {
   recommendationProofPattern,
   type RecommendationContext,
@@ -52,4 +53,5 @@ export interface ResourceSimulationResponseDto {
     availableHours: number;
   };
   expectedImpact: SimulationImpact;
+  decisionEvidence?: DecisionEvidence;
 }

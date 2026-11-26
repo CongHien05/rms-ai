@@ -24,6 +24,8 @@ Các đường dẫn trong ma trận là NestJS. Trình duyệt gọi cùng orig
 
 ## Ma trận endpoint
 
+Ma trận hiện hành gồm 27 endpoint NestJS, trong đó có hai route PM Decision 003.
+
 PM-own nghĩa là PM đã xác thực và `Project.pmAccountId` bằng Account của họ.
 Tài nguyên con kế thừa phạm vi qua Project. Dấu — là `403` khi phiên hợp lệ.
 Trừ Login và health, thiếu phiên hợp lệ là `401`. Policy toàn cục từ chối
@@ -38,6 +40,8 @@ theo mặc định khi có route mới thiếu khai báo.
 | `POST /projects/:projectId/risk-assessments` | Đánh giá Risk | PM-own | — | — |
 | `POST /projects/:projectId/resource-recommendations` | Xem Recommendation | PM-own | — | — |
 | `POST /projects/:projectId/simulations` | What-if chỉ đọc, chứng minh quyền trước HMAC | PM-own | — | — |
+| `POST /projects/:projectId/decisions` | Ghi ACCEPT hoặc REJECT sau What-if đủ điều kiện. Bằng chứng phải thuộc PM đang gọi. | PM-own | — | — |
+| `GET /projects/:projectId/decisions` | Đọc lịch sử của Project kể cả quyết định của PM trước | PM-own | — | — |
 | `POST /projects/:projectId/sprints` | Tạo Sprint | PM-own | — | — |
 | `GET /projects/:projectId/sprints` | Đọc Sprint của Project | PM-own | — | — |
 | `POST /sprints/:sprintId/tasks` | Tạo Task trong Sprint của Project | PM-own | — | — |
@@ -64,7 +68,7 @@ Sau khi kiểm Sprint đã được cấp, Task thiếu hoặc sai cặp Task–
 
 ## Hợp đồng nội bộ FastAPI
 
-`POST /risk/predict` nằm ngoài 25 route NestJS. Không proxy trực tiếp cho Frontend.
+`POST /risk/predict` nằm ngoài 27 route NestJS. Không proxy trực tiếp cho Frontend.
 RiskClient gửi header `X-Risk-Service-Token` lấy từ `RISK_SERVICE_TOKEN`; bí mật
 32 byte base64url được cấp riêng cho đúng hai service. FastAPI so sánh constant-time
 trước inference. Header thiếu/sai nhận `401`, cấu hình service thiếu/sai nhận

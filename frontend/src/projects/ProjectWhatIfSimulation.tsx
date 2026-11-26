@@ -2,6 +2,7 @@ import { useEffect, useId, useState, type FormEvent } from 'react'
 import { formatCalendarDate } from '../layout/formatCalendarDate'
 import { WhatIfSimulationPanels } from '../resource-recommendation/WhatIfSimulationPanels'
 import { SimulationRun, type SimulationInput, type SimulationState } from './simulationRun'
+import { ProjectDecisionControls } from './ProjectDecisionControls'
 
 type Props = {
   scenario: Omit<SimulationInput, 'supportHours'>
@@ -9,11 +10,15 @@ type Props = {
   employeeName: string
   skillName: string
   initiallyStale: boolean
+  onDecisionSaved: () => void
+  onShowHistory: () => void
 }
 
 const hours = new Intl.NumberFormat('vi-VN', { maximumSignificantDigits: 17 })
 
-export function ProjectWhatIfSimulation({ scenario, suggestedHours, employeeName, skillName, initiallyStale }: Props) {
+export function ProjectWhatIfSimulation({
+  scenario, suggestedHours, employeeName, skillName, initiallyStale, onDecisionSaved, onShowHistory,
+}: Props) {
   const heading = useId()
   const [run] = useState(() => new SimulationRun())
   const [input, setInput] = useState(String(suggestedHours))
@@ -68,6 +73,10 @@ export function ProjectWhatIfSimulation({ scenario, suggestedHours, employeeName
         {(state.status === 'invalid' || state.status === 'missing' || state.status === 'error') &&
           <p className="field-error" role="alert">{state.message}</p>}
         {impact}
+        {state.status === 'success' && (state.evidence
+          ? <ProjectDecisionControls key={state.evidence.simulationId} projectId={scenario.projectId}
+              evidence={state.evidence} onDecisionSaved={onDecisionSaved} onShowHistory={onShowHistory} />
+          : <p className="empty-copy" role="status">Chưa thể ghi quyết định cho lượt này. Bạn có thể mô phỏng lại.</p>)}
       </>} />
     </section>
   )

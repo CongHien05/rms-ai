@@ -260,33 +260,33 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 **Then:** Phương án không được áp dụng vào phân bổ thật. Không suy diễn sự im lặng hoặc kết quả AI thành sự chấp nhận. Hành vi lưu/hủy/hết hạn phương án thuộc TBD-09, không phải chức năng bắt buộc ở đây.
 
-### AC-US-04-04 — Dữ liệu thật thay đổi sau mô phỏng — TBD
+### AC-US-04-04 — Dữ liệu thật thay đổi sau mô phỏng
 
 **Liên quan:** US-04
 
-**Trạng thái:** TBD
+**Trạng thái:** Đã xác nhận cho bước ghi quyết định trong 003.
 
-**Nguồn khoảng trống:** TBD-06, TBD-08.
+**Nguồn:** [D1 của 003](user-stories.md#quyết-định-pm-decision-workflow-cho-milestone-003-2026-11-26). Điều kiện áp dụng theo TBD-06 thuộc mốc riêng.
 
-**Given:** Dữ liệu phân bổ thật đã thay đổi sau khi phương án được mô phỏng.
+**Given:** PM có một lượt What-if thành công chưa có quyết định.
 
-**When:** PM chấp nhận phương án dựa trên kết quả trước đó.
+**When:** PM gửi ACCEPT hoặc REJECT cho lượt đó.
 
-**Then:** TBD — nhóm xác định điều kiện còn hiệu lực, cách kiểm tra lại và hành vi tiếp tục. Chưa tự yêu cầu chặn, mô phỏng lại hoặc phê duyệt bổ sung.
+**Then:** Backend kiểm quyền Project và đối chiếu availability đúng tuần và liên kết Skill. Dữ liệu khác hoặc không đủ điều kiện thì không ghi và yêu cầu mô phỏng lại. Giữ nguyên snapshot ban đầu.
 
-### AC-US-04-05 — Quyết định gửi lặp — TBD
+### AC-US-04-05 — Quyết định gửi lặp
 
 **Liên quan:** US-04
 
-**Trạng thái:** TBD
+**Trạng thái:** Đã xác nhận trong 003.
 
-**Nguồn khoảng trống:** TBD-08.
+**Nguồn:** [D2 của 003](user-stories.md#quyết-định-pm-decision-workflow-cho-milestone-003-2026-11-26).
 
 **Given:** Một quyết định của PM đối với phương án đã được gửi.
 
 **When:** Cùng quyết định được gửi lại.
 
-**Then:** TBD — nhóm xác định cách nhận diện và phản hồi quyết định lặp. AC-US-04-01 vẫn ràng buộc thay đổi thành công phải tương ứng phương án đã chấp nhận; chưa chỉ định cơ chế xử lý.
+**Then:** Sau xác thực và kiểm quyền, trả bản ghi đã lưu khi lựa chọn trùng, kể cả khi availability đã đổi. Lựa chọn đối nghịch báo xung đột. Cùng một lượt có tối đa một bản ghi kể cả khi gửi đồng thời.
 
 ### AC-US-04-06 — Áp dụng thất bại — TBD
 

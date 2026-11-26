@@ -93,6 +93,6 @@ export class ProjectsController {
       if (!(error instanceof NotFoundException)) throw error;
       return this.projectSimulationService.rejectMissingProject(projectId, body);
     }
-    return this.projectSimulationService.simulate(projectId, body);
+    return this.projectSimulationService.simulate(projectId, body, account.accountId);
   }
 }

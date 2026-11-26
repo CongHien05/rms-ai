@@ -784,6 +784,31 @@ describe('Backend foundations (e2e)', () => {
     expectUnchanged(before);
   });
 
+  it('adds decision evidence only to successful authorized What-if and preserves all baseline result fields', async () => {
+    const fixture = simulationFixture();
+    const body = await simulationRequest(fixture);
+    const url = `${fixture.route}/simulations`;
+    const before = resourceSnapshot();
+    vi.stubEnv('WHAT_IF_DECISION_SIGNING_KEY', undefined);
+    const baseline = await baselineRequest(app).post(url).send(body).expect(200);
+    try {
+      vi.stubEnv('WHAT_IF_DECISION_SIGNING_KEY', Buffer.alloc(32, 121).toString('base64url'));
+      const first = await baselineRequest(app).post(url).send(body).expect(200);
+      const second = await baselineRequest(app).post(url).send(body).expect(200);
+      const { decisionEvidence, ...result } = first.body;
+      expect(result).toEqual(baseline.body);
+      expect(decisionEvidence.simulationToken).toMatch(/^v1\./);
+      expect(decisionEvidence.simulationId).not.toBe(body.runId);
+      expect(second.body.decisionEvidence.simulationId).not.toBe(decisionEvidence.simulationId);
+      const invalid = await baselineRequest(app).post(url)
+        .send({ ...body, scenario: { ...body.scenario, supportHours: 99 } }).expect(400);
+      expect(invalid.body).not.toHaveProperty('decisionEvidence');
+      expectUnchanged(before);
+    } finally {
+      vi.stubEnv('WHAT_IF_DECISION_SIGNING_KEY', undefined);
+    }
+  });
+
   it('re-reads availability and distinguishes missing or wrong-week hours from zero', async () => {
     const fixture = simulationFixture();
     const body = await simulationRequest(fixture);

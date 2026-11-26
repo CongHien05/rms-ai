@@ -22,7 +22,7 @@ class UnclassifiedController {
   read() { return { denied: false }; }
 }
 
-export async function openAuthApp(https = false) {
+export async function openAuthApp(https = false, decisionRepository?: (entity: unknown) => unknown) {
   configureAuthTestEnv();
   if (https) {
     vi.stubEnv('AUTH_MODE', 'https');
@@ -49,12 +49,35 @@ export async function openAuthApp(https = false) {
         },
       };
     },
+    findOne: async ({ where }: { where: { id: string } }) => fixture.accounts.get(where.id) ?? null,
   };
   const manager = {
     getRepository: (entity: unknown) => entity === UserAccount ? accountsRepository : fixture.sessionsRepository,
   };
+  const decisionManager = {
+    async query(sql: string, [id]: [string]) {
+      if (sql.includes('FROM user_accounts')) return [fixture.accounts.get(id)].filter(Boolean);
+      if (sql.includes('FROM projects')) return [projects.get(id)].filter(Boolean);
+      throw new Error('Unexpected decision fixture query.');
+    },
+    getRepository: (entity: unknown) => {
+      if (entity === UserAccount) return accountsRepository;
+      if (entity === Project) return { findOne: async ({ where }: { where: { id: string } }) => projects.get(where.id) ?? null };
+      return decisionRepository?.(entity);
+    },
+  };
+  let transactionQueue = Promise.resolve();
+  function transaction(
+    isolationOrCallback: string | ((value: typeof manager) => unknown),
+    work?: (value: typeof decisionManager) => unknown,
+  ) {
+    if (typeof isolationOrCallback === 'function') return isolationOrCallback(manager);
+    const operation = transactionQueue.then(() => work!(decisionManager));
+    transactionQueue = operation.then(() => undefined, () => undefined);
+    return operation;
+  }
   const dataSource = {
-    manager, isInitialized: false, transaction: async (callback: (value: typeof manager) => unknown) => callback(manager),
+    manager, isInitialized: false, transaction,
     getRepository: manager.getRepository,
   };
   const testing = Test.createTestingModule({ imports: [AppModule], controllers: [UnclassifiedController] })

@@ -282,6 +282,21 @@ Các quyết định áp dụng trong Milestone 002.
 | D2 | APPROVED | Mỗi Project có một PM phụ trách, một PM có thể phụ trách nhiều Project. Backend gán PM tạo Project làm người phụ trách. Project cũ được ánh xạ theo danh sách đã duyệt; trong lúc chưa có ánh xạ, hệ thống từ chối truy cập theo mặc định. Kiểm tra quyền Project qua route trực tiếp và tài nguyên con. | US-01/02/03/07 · AC-US-07-01 |
 | D3 | APPROVED | Mỗi tài khoản DEV liên kết duy nhất với một Employee đã xác minh; Backend suy ra liên kết từ danh tính đăng nhập. DEV chỉ đọc hồ sơ, kỹ năng của mình và ngữ cảnh công việc đã được cấp. Khi chưa có nguồn giao việc thật, hiển thị thiếu ngữ cảnh. Recommendation và What-if không cấp quyền dự án; giao việc thật và ProjectAllocation nằm ngoài mốc. | US-06/07 · AC-US-06-01/02/03, AC-US-07-03 |
 
+### Quyết định PM Decision Workflow cho Milestone 003 (2026-11-26)
+
+Người phụ trách phê duyệt trong yêu cầu **Resolve Decisions & Planning**.
+Các quy tắc sau áp dụng cho US-04 trong Milestone 003, sau What-if thành công.
+
+| Mã | Trạng thái | Quyết định |
+| --- | --- | --- |
+| D1 | APPROVED | Kiểm quyền Project hiện tại. Trước khi ghi quyết định mới, Backend đọc lại availability đúng tuần và liên kết Skill. Dữ liệu khác snapshot hoặc không đủ điều kiện thì từ chối và yêu cầu mô phỏng lại. So sánh giá trị hiện hành, không theo dõi các cập nhật trung gian. Giữ nguyên snapshot PM đã xem. |
+| D2 | APPROVED | Mỗi lượt đủ điều kiện có tối đa một quyết định bất biến `ACCEPT` hoặc `REJECT`. Sau xác thực và kiểm quyền, xét bản ghi đã tồn tại trước bước kiểm độ mới. Gửi lại cùng lựa chọn trả bản ghi cũ kể cả khi availability thay đổi, lựa chọn đối nghịch báo xung đột. Gửi đồng thời không tạo hai bản ghi. 003 không sửa, xóa, đảo ngược hay thay thế quyết định. |
+| D3 | APPROVED | PM hiện phụ trách xem lịch sử của Project, giữ cả quyết định của PM trước và danh tính người quyết định ban đầu. HR, DEV và PM ngoài phạm vi không được xem. |
+| Lý do | APPROVED | 003 không thu thập lý do cho ACCEPT hoặc REJECT. AC-US-04-02 tiếp tục là căn cứ cho Reject. |
+
+Cả ACCEPT và REJECT chỉ lưu lựa chọn. Availability và phân bổ thật giữ
+nguyên. TBD-06 và TBD-07 về Apply Allocation tiếp tục thuộc mốc riêng.
+
 ## 5. Ma trận truy vết
 
 | User Story | Nhu cầu người dùng | Bước MVP | Nguồn PRD | Mức ưu tiên | Trạng thái yêu cầu |

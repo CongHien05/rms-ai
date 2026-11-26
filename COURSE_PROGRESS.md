@@ -126,6 +126,12 @@ chứng đã ghi nhận.
   Baseline 126 ca được bảo toàn. HTTP runtime bao phủ 25 route, có Chrome
   cho PM/HR/DEV và snapshot trước/sau migration. Hồ sơ chờ người phụ trách
   review. [Bàn giao Gate 3](chapter-09-ai-technical-documentation/README.md#bàn-giao-gate-3-authentication--rbac-002-2026-11-26).
+- Milestone 003 hoàn thành hồ sơ thiết kế Gate 2 cho PM Decision Workflow
+  theo D1–D3 đã duyệt. Nghiệm thu test và MariaDB clone thuộc lượt triển khai.
+  [Theo dõi Chapter 5](chapter-05-ai-for-software-design-architecture/README.md#gate-2-pm-decision-workflow-003-2026-11-26).
+- Milestone 003 có luồng ACCEPT/REJECT và lịch sử theo Project. Kết quả
+  kiểm thử và trạng thái review Gate 3 được ghi riêng tại
+  [Chapter 9](chapter-09-ai-technical-documentation/README.md#bàn-giao-gate-3-pm-decision-workflow-003-2026-11-26).
 
 ## Mốc trước tích hợp PM (lịch sử)
 

@@ -185,3 +185,14 @@ specs/002-auth-rbac/research.md
 specs/002-auth-rbac/spec.md
 specs/002-auth-rbac/tasks.md
 ```
+
+### Bàn giao Gate 3 PM Decision Workflow 003 (2026-11-26)
+
+Gate 2 do người phụ trách phê duyệt. AI triển khai và đối chiếu yêu cầu
+Accept/Reject, độ mới, retry, lịch sử và quyền Project. Hồ sơ Gate 3 chờ
+người phụ trách review. Database dev gốc giữ nguyên.
+
+[Spec](../specs/003-pm-decision-workflow/spec.md) ·
+[Tasks](../specs/003-pm-decision-workflow/tasks.md) ·
+[Ma trận 27 endpoint](../specs/002-auth-rbac/contracts/auth-rbac-api.md#ma-trận-endpoint) ·
+[Kiểm chứng](../chapter-08-ai-software-testing/README.md#kiểm-chứng-pm-decision-workflow-003-2026-11-26).

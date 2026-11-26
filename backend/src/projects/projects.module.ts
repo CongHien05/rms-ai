@@ -10,6 +10,8 @@ import { ProjectsController } from './projects.controller.js';
 import { ProjectsService } from './projects.service.js';
 import { ProjectSimulationService } from './project-simulation.service.js';
 import { RiskClient } from './risk-client.js';
+import { ProjectDecisionsController } from './decisions/project-decisions.controller.js';
+import { ProjectDecisionsService } from './decisions/project-decisions.service.js';
 
 @Module({
   imports: [
@@ -17,12 +19,13 @@ import { RiskClient } from './risk-client.js';
     EmployeesModule,
     SkillsModule,
   ],
-  controllers: [ProjectsController],
+  controllers: [ProjectsController, ProjectDecisionsController],
   providers: [
     ProjectsService,
     ProjectRiskService,
     ProjectResourceRecommendationService,
     ProjectSimulationService,
+    ProjectDecisionsService,
     RiskClient,
   ],
   exports: [ProjectsService],
