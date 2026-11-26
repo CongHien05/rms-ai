@@ -15,6 +15,7 @@ import type {
   ResourceSimulationResponseDto,
 } from './dto/resource-simulation.dto.js';
 import { calculateSimulationImpact } from './project-hours.js';
+import { decisionKey, issueDecisionEvidence } from './decision-context.js';
 import { ProjectsService } from './projects.service.js';
 import {
   normalizeRecommendationContext,
@@ -34,6 +35,7 @@ export class ProjectSimulationService {
   async simulate(
     projectId: string,
     input: ResourceSimulationDto,
+    pmAccountId?: string,
   ): Promise<ResourceSimulationResponseDto> {
     const { context, supportHours } = this.verifyScenario(projectId, input);
     const { requiredHours, weekStart } = context;
@@ -64,12 +66,15 @@ export class ProjectSimulationService {
         message: 'Số giờ hỗ trợ vượt giờ trống hiện có.',
       });
     }
+    const snapshot = { ...context, supportHours, availableHours };
+    const key = pmAccountId ? decisionKey() : null;
     return {
       outcome: 'available',
       scenarioReference: simulationReference(context, supportHours),
       runId: input.runId,
-      snapshot: { ...context, supportHours, availableHours },
+      snapshot,
       expectedImpact,
+      ...(key && pmAccountId ? { decisionEvidence: issueDecisionEvidence(key, pmAccountId, { snapshot, expectedImpact }) } : {}),
     };
   }
 

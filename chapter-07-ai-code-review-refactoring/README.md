@@ -90,3 +90,14 @@ phạm vi Git.
 Không còn finding CRITICAL/HIGH trong phạm vi diff. Kết quả này dùng cho
 Gate 3 review và không thay thế kiểm chứng ở môi trường triển khai.
 [Minh chứng](../chapter-08-ai-software-testing/README.md#kiểm-chứng-authentication--rbac-002-2026-11-26).
+
+### Review PM Decision Workflow 003 (2026-11-26)
+
+AI đối chiếu diff và các điểm rủi ro của D1–D3. Quyền Project được kiểm
+trước replay và freshness. Chữ ký dùng khóa riêng cho kết quả mô phỏng.
+Unique constraint, khóa hàng và kiểm commit có bằng chứng trên MariaDB
+clone. Thử nghiệm lỗi dùng proxy và trigger của clone, ngoài API vận hành.
+Hai truy vấn khóa chia sẻ đã được sửa để dùng cú pháp MariaDB trên driver
+baseline. Các bằng chứng và phần review của người phụ trách ghi tại
+[Chapter 8](../chapter-08-ai-software-testing/README.md#kiểm-chứng-pm-decision-workflow-003-2026-11-26)
+và [Chapter 9](../chapter-09-ai-technical-documentation/README.md#bàn-giao-gate-3-pm-decision-workflow-003-2026-11-26).

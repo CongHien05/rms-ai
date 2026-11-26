@@ -15,11 +15,13 @@ export type Impact = {
   remainingAvailableHours: number
 }
 
+export type DecisionEvidence = { simulationId: string; simulationToken: string }
+
 type Failure = { status: 'invalid' | 'missing' | 'error'; message: string }
 
 export type SimulationState =
   | { status: 'idle' | 'loading' | 'stale' }
-  | { status: 'success'; impact: Impact }
+  | { status: 'success'; impact: Impact; evidence?: DecisionEvidence }
   | Failure
 
 type SendSimulation = (input: SimulationInput, runId: string, signal: AbortSignal) => Promise<Response>
@@ -40,6 +42,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isNonNegativeHour(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0
+}
+
+function readEvidence(body: unknown): DecisionEvidence | undefined {
+  if (!isRecord(body) || !isRecord(body.decisionEvidence)) return undefined
+  const { simulationId, simulationToken } = body.decisionEvidence
+  if (typeof simulationId !== 'string' || !/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(simulationId) ||
+    typeof simulationToken !== 'string' || simulationToken.length > 4096 ||
+    !/^v1\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]{43}$/.test(simulationToken)) return undefined
+  return { simulationId, simulationToken }
 }
 
 function readImpact(body: unknown, input: SimulationInput, runId: string): Impact | null {
@@ -119,7 +130,8 @@ export class SimulationRun {
         return
       }
       const impact = readImpact(body, input, attempt.runId)
-      publish(impact ? { status: 'success', impact } : unavailable)
+      const evidence = impact ? readEvidence(body) : undefined
+      publish(impact ? { status: 'success', impact, ...(evidence ? { evidence } : {}) } : unavailable)
     } catch {
       if (isCurrent()) publish(unavailable)
     } finally {

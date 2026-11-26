@@ -189,3 +189,14 @@ cùng cộng đồng hỗ trợ. Xem [thông tin hỗ trợ NestJS](https://docs
 ## Giấy phép
 
 Nest sử dụng [giấy phép MIT](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+## PM Decision 003
+
+Đặt `WHAT_IF_DECISION_SIGNING_KEY` ngoài Git thành 32 byte ngẫu nhiên
+mã hóa base64url, độc lập với `WHAT_IF_CONTEXT_SECRET`. Giữ khóa qua
+restart. Đổi khóa yêu cầu mô phỏng lại các lượt chưa ghi dùng khóa cũ.
+Khi thiếu khóa, What-if vẫn hoạt động và không cấp bằng chứng quyết định.
+Không log khóa, token hoặc digest. Chỉ chạy migration 003 trên MariaDB
+clone đã xác minh. [API PM Decision](../specs/003-pm-decision-workflow/contracts/pm-decision-api.md) ·
+[Ma trận 27 endpoint](../specs/002-auth-rbac/contracts/auth-rbac-api.md#ma-trận-endpoint) ·
+[Nghiệm thu clone](../specs/003-pm-decision-workflow/quickstart.md).

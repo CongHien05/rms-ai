@@ -220,3 +220,12 @@ Bằng chứng gồm 126 ca hồi quy được bảo toàn, thử HTTP đủ 25 
 trên MariaDB clone. Tiến độ và phần review Gate 3 nằm tại
 [Chapter 8](../chapter-08-ai-software-testing/README.md#kiểm-chứng-authentication--rbac-002-2026-11-26)
 và [Chapter 9](../chapter-09-ai-technical-documentation/README.md#bàn-giao-gate-3-authentication--rbac-002-2026-11-26).
+
+### PM Decision Workflow 003 (2026-11-26)
+
+Theo phê duyệt Gate 2 và D1–D3, AI nối hai lựa chọn vào What-if thành công,
+phát chứng từ ở Backend, ghi quyết định bất biến trong MariaDB và đọc
+lịch sử theo PM hiện phụ trách. Frontend giữ lựa chọn khi retry và bỏ
+phản hồi đã mất ngữ cảnh. Phân bổ nguồn lực giữ nguyên.
+[Tasks](../specs/003-pm-decision-workflow/tasks.md) ·
+[Minh chứng](../chapter-08-ai-software-testing/README.md#kiểm-chứng-pm-decision-workflow-003-2026-11-26).

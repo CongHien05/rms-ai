@@ -6,6 +6,7 @@ import { Pagination } from '../layout/Pagination'
 import { usePagination } from '../layout/usePagination'
 import { TaskLoadGuard } from './taskLoadGuard'
 import { ProjectResourceRecommendations, resourceRecommendationsPanelId } from './ProjectResourceRecommendations'
+import { ProjectDecisionHistory } from './ProjectDecisionHistory'
 import { ProjectRiskAssessment } from './ProjectRiskAssessment'
 import {
   applyConfirmedTaskUpdate,
@@ -700,6 +701,8 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
   const [project, setProject] = useState<Project | null>(null)
   const [projectError, setProjectError] = useState('')
   const [showRecommendations, setShowRecommendations] = useState(false)
+  const [historyProject, setHistoryProject] = useState<string | null>(null)
+  const [historyRevision, setHistoryRevision] = useState(0)
   const [sprints, setSprints] = useState<Sprint[]>([])
   const [selectedSprintId, setSelectedSprintId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -833,8 +836,20 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
       </header>
 
       {showRecommendations && project?.id === projectId && (
-        <ProjectResourceRecommendations key={projectId} projectId={projectId} />
+        <ProjectResourceRecommendations key={projectId} projectId={projectId}
+          onDecisionSaved={() => setHistoryRevision(value => value + 1)}
+          onShowHistory={() => {
+            setHistoryProject(projectId)
+            setHistoryRevision(value => value + 1)
+          }} />
       )}
+      {project?.id === projectId && <>
+        <button type="button" className="button button--secondary" aria-expanded={historyProject === projectId}
+          onClick={() => setHistoryProject(value => value === projectId ? null : projectId)}>
+          {historyProject === projectId ? 'Ẩn lịch sử quyết định' : 'Xem lịch sử quyết định'}
+        </button>
+        {historyProject === projectId && <ProjectDecisionHistory key={`${projectId}:${historyRevision}`} projectId={projectId} />}
+      </>}
       {sprintNotice && <p role="status" className="feedback-panel feedback-panel--success">{sprintNotice}</p>}
       {loading && <p role="status" className="feedback-panel">Đang tải dữ liệu dự án…</p>}
       {!loading && loadError && (

@@ -5,6 +5,7 @@ import type { SkillsService } from '../skills/skills.service.js';
 import type { ProjectsService } from './projects.service.js';
 import { calculateSimulationImpact } from './project-hours.js';
 import { ProjectSimulationService } from './project-simulation.service.js';
+import { verifyDecisionEvidence } from './decision-context.js';
 import {
   issueRecommendationProof,
   verifyRecommendationProof,
@@ -83,6 +84,18 @@ describe('ProjectSimulationService', () => {
     employees.findSimulationAvailability.mockResolvedValue(source);
   });
   afterEach(() => vi.unstubAllEnvs());
+
+  it('binds the signed result to the principal and keeps the original impact', async () => {
+    const decisionKey = Buffer.alloc(32, 23);
+    vi.stubEnv('WHAT_IF_DECISION_SIGNING_KEY', decisionKey.toString('base64url'));
+    const pmAccountId = randomUUID();
+    const result = await service.simulate(context.projectId, input, pmAccountId);
+    const evidence = result.decisionEvidence!;
+    expect(verifyDecisionEvidence(decisionKey, evidence.simulationToken)).toEqual({
+      projectId: context.projectId, pmAccountId, simulationId: evidence.simulationId,
+      snapshot: result.snapshot, expectedImpact: result.expectedImpact,
+    });
+  });
 
   it('canonicalizes UUIDs and checks the version, signature length and every field', () => {
     const proof = input.scenario.recommendationContext;

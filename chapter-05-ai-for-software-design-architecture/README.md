@@ -86,3 +86,24 @@ thiết kế D1–D3 đã duyệt và kiểm migration trên schema clone. So s�
 bảng nghiệp vụ trước/sau khớp, kể cả khi chạy lại sau gián đoạn DDL.
 Đánh giá trên clone không thay trạng thái **B1 chờ review**.
 [Minh chứng](../chapter-08-ai-software-testing/README.md#kiểm-chứng-authentication--rbac-002-2026-11-26).
+
+### Gate 2 PM Decision Workflow 003 (2026-11-26)
+
+Người phụ trách duyệt kiểm freshness theo dữ liệu hiện hành, quyết định bất
+biến với retry theo lượt và quyền xem lịch sử của PM hiện phụ trách. AI đối
+chiếu baseline, thiết kế bằng chứng ký cho What-if thành công và bảng quyết
+định với unique constraint. Minh chứng Gate 2 là truy vết tài liệu và kiểm
+diff, liên kết. Test và migration trên clone thuộc lượt triển khai. B1 vẫn
+chờ review. [Đặc tả](../specs/003-pm-decision-workflow/spec.md) ·
+[Thiết kế](../specs/003-pm-decision-workflow/plan.md).
+
+### Gate 3 PM Decision Workflow 003 (2026-11-26)
+
+Backend ký bằng chứng riêng sau What-if thành công. TypeORM dùng một
+transaction `READ COMMITTED` để giữ thứ tự Account → Project → Employee
+→ EmployeeSkill. Trên MariaDB 10.4, hai truy vấn khóa chia sẻ dùng
+`LOCK IN SHARE MODE` tường minh vì driver baseline khai báo `mysql`.
+Một bảng `pm_decisions` có unique theo lượt và lịch sử theo Project.
+Hai lần nghiệm thu di trú cộng thêm và phục hồi DDL giữ nguyên 8 bảng cũ.
+[Data Model](../specs/003-pm-decision-workflow/data-model.md) ·
+[API contract](../specs/003-pm-decision-workflow/contracts/pm-decision-api.md).

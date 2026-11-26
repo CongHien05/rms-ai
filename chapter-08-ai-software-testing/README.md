@@ -319,3 +319,29 @@ Database dev gốc không khởi động, không migrate và không seed.
 5 ms, dùng `N=2^17,r=8,p=1`. Một lượt **587 ms**, RSS tăng khoảng **128 MiB**.
 Hai lượt đồng thời **619 ms**, RSS tăng khoảng **256 MiB**. Đây là số đo
 cục bộ, chưa phải benchmark dung lượng triển khai.
+
+### Kiểm chứng PM Decision Workflow 003 (2026-11-26)
+
+Baseline `cd9d810`. Trên Windows và Node 24.14.1, **188 test đạt**
+gồm 100 Backend unit, 39 HTTP E2E dùng test double, 39 Frontend unit và
+10 FastAPI unit. Bảo toàn toàn bộ 167 test baseline. Backend và Frontend
+đạt build và lint. Các lần chạy sau chỉ chọn nhóm có thay đổi.
+[Quickstart](../specs/003-pm-decision-workflow/quickstart.md).
+
+| Tiêu chí | Bằng chứng đã chạy |
+| --- | --- |
+| AT-01–03, AT-12 | HTTP và MariaDB lưu hai lựa chọn, đúng PM và snapshot thập phân. Chrome xác nhận cả hai quyết định còn trong lịch sử sau reload. Sáu bảng nghiệp vụ giữ nguyên sau ghi. |
+| AT-04, AT-11, AT-13 | Chrome giữ phản hồi sau commit để kiểm pending, timeout, retry và báo thành công sau xác nhận. Phản hồi đến muộn sau đổi Project hoặc logout bị bỏ. Hết phiên khi gửi quyết định trở về Login. Kịch bản kiểm lịch sử rỗng, lỗi và thử lại. HTTP E2E còn kiểm phân trang và thứ tự ổn định. |
+| AT-05, AT-07, AT-08 | Unit và HTTP kiểm revision/runId, proof ứng viên, tham chiếu giả, UUID và snapshot/impact client. Chrome kiểm đổi số giờ làm mất nút quyết định cũ. |
+| AT-06, AT-09, AT-14 | HTTP trên clone kiểm phiên hết hạn, role, ownership, Project chưa gán, Origin, giờ/tuần/Skill và lịch sử sau đổi PM. |
+| AT-10, AT-15, AT-16 | HTTP trên clone kiểm hai request cùng lựa chọn (201/200) và đối nghịch (201/409). Unique MariaDB trả 1062 cho INSERT lặp. Trigger chỉ dùng trên clone tạo lỗi trước commit, rollback và retry đạt. Proxy cắt phản hồi sau commit. Sau restart và thay đổi availability, gửi lại vẫn nhận đúng ID. Đã kiểm cả khóa ký thiếu và khóa thay. |
+
+**HTTP runtime** đạt 53 lượt trên NestJS và MariaDB 10.4.32 riêng cổng
+33307. Hai clone khôi phục từ bản sao lưu dev có sẵn, nâng tới baseline 002
+và thêm fixture Account/Session trước khi chụp dữ liệu. Di trú bình thường
+và chạy lại khi DDL đã hoàn thành trước lúc ghi lịch sử di trú đều giữ
+nguyên 8/8 bảng. Database dev gốc không được dùng trong lượt chạy này.
+
+**AT-01–16 và SC-001–004 đạt** theo các lớp kiểm chứng trên. Chrome 158 chạy
+qua Vite và Backend trên clone ở chế độ Auth local. Kịch bản mô phỏng mất
+phản hồi và lỗi lịch sử ở lớp test. Backend vận hành dùng nguyên handler.

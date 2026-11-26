@@ -47,7 +47,9 @@ function currentWeekStart() {
 
 export const resourceRecommendationsPanelId = 'project-resource-recommendations'
 
-export function ProjectResourceRecommendations({ projectId }: { projectId: string }) {
+export function ProjectResourceRecommendations({ projectId, onDecisionSaved, onShowHistory }: {
+  projectId: string; onDecisionSaved: () => void; onShowHistory: () => void;
+}) {
   const { state: skills, retry: retrySkills } = useHrData<Skill[]>('/api/skills')
   const [criteria, setCriteria] = useState<Criteria>(() => ({
     skillId: '',
@@ -231,7 +233,8 @@ export function ProjectResourceRecommendations({ projectId }: { projectId: strin
             recommendationContext: activeSelection.proof,
           }}
           suggestedHours={activeSelection.candidate.supportHours} employeeName={activeSelection.candidate.displayName}
-          skillName={activeSelection.data.skill.name} initiallyStale={activeSelection.replaced} />
+          skillName={activeSelection.data.skill.name} initiallyStale={activeSelection.replaced}
+          onDecisionSaved={onDecisionSaved} onShowHistory={onShowHistory} />
       )}
     </section>
   )

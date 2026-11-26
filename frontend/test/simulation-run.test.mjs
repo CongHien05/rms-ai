@@ -44,6 +44,24 @@ test('classifies empty and missing recommendation separately and handles old res
   assert.equal(recommendationPresentation(undefined, 1), 'candidates')
 })
 
+test('publishes decision evidence only for a matching successful simulation with a valid evidence shape', async () => {
+  const run = new SimulationRun()
+  const states = []
+  const decisionEvidence = { simulationId: crypto.randomUUID(), simulationToken: `v1.eA.${'b'.repeat(43)}` }
+  for (const [evidence, matching, expected] of [
+    [decisionEvidence, true, decisionEvidence],
+    [{ ...decisionEvidence, simulationToken: 'candidate-proof' }, true, undefined],
+    [decisionEvidence, false, undefined],
+  ]) {
+    await run.execute(scenario, state => states.push(state), async (input, id) => {
+      const body = await success(input, matching ? id : 'wrong-run').json()
+      return Response.json({ ...body, decisionEvidence: evidence })
+    })
+    assert.equal(states.at(-1).status, matching ? 'success' : 'error')
+    assert.deepEqual(states.at(-1).evidence, expected)
+  }
+})
+
 test('classifies HTTP errors and retries with the same draft and a fresh runId', async () => {
   const run = new SimulationRun()
   const { send, calls } = controlledRequests()
