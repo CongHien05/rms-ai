@@ -9,6 +9,9 @@ import { baselineRequest, configureAuthTestEnv, createAuthFixture, pmId } from '
 import { AppModule } from './../src/app.module.js';
 import { EmployeeSkill } from './../src/employee-skills/employee-skill.entity.js';
 import { getAvailabilityWeek } from './../src/employees/availability-week.js';
+import { decimalFromNumber, decimalText } from '../src/employees/decimal-hours.js';
+
+const exact = (n: number) => decimalText(decimalFromNumber(n));
 import { Employee } from './../src/employees/employee.entity.js';
 import { assessmentDateInVietnam } from './../src/projects/project-risk.service.js';
 import { Project } from './../src/projects/project.entity.js';
@@ -213,7 +216,15 @@ describe('Backend foundations (e2e)', () => {
       imports: [AppModule],
     })
       .overrideProvider(getDataSourceToken())
-      .useValue({ manager: {}, isInitialized: false })
+      .useValue({
+        manager: {
+          query: async (_sql: string, [_week, ids]: [string, readonly string[]]) => ids.flatMap(id => {
+            const row = employees.get(id);
+            return row ? [{ id, declaredWeek: row.availabilityWeekStart, declaredHours: row.availableHours, hours: null }] : [];
+          }),
+        },
+        isInitialized: false,
+      })
       .overrideProvider(getRepositoryToken(AuthSession))
       .useValue(auth.sessionsRepository)
       .overrideProvider(getRepositoryToken(Project))
@@ -570,6 +581,11 @@ describe('Backend foundations (e2e)', () => {
         id: person.id,
         displayName: person.displayName,
         skills: [{ id: skillId, name: 'TypeScript' }],
+        capacity: {
+          weekStart, declaredHoursExact: person.availabilityWeekStart === weekStart ? '0' : null,
+          allocatedHoursExact: '0', remainingHoursExact: person.availabilityWeekStart === weekStart ? '0' : null,
+          status: person.availabilityWeekStart === weekStart ? 'EXHAUSTED' : 'MISSING',
+        },
         availability:
           person.availableHours === null
             ? null
@@ -640,6 +656,8 @@ describe('Backend foundations (e2e)', () => {
         displayName: roster[index].name,
         availableHours: roster[index].hours,
         supportHours: index === 0 ? 4 : 8,
+        availableHoursExact: exact(roster[index].hours!),
+        supportHoursExact: index === 0 ? '4e0' : '8e0',
       })),
     });
 
@@ -724,6 +742,8 @@ describe('Backend foundations (e2e)', () => {
     expect(candidate).toEqual({
       employeeId, displayName: fixture.employee.displayName,
       availableHours: fixture.employee.availableHours, supportHours: Math.min(fixture.employee.availableHours!, requiredHours),
+      availableHoursExact: exact(fixture.employee.availableHours!),
+      supportHoursExact: exact(Math.min(fixture.employee.availableHours!, requiredHours)),
     });
     return { runId: randomUUID(), scenario: { skillId, weekStart, requiredHours, employeeId, recommendationContext, supportHours: 8 } };
   }
@@ -754,6 +774,9 @@ describe('Backend foundations (e2e)', () => {
           weekStart: fixture.weekStart, requiredHours: 8, supportHours, availableHours: 12.5,
         },
         expectedImpact: { hypotheticalSupportHours: supportHours, remainingRequiredHours, remainingAvailableHours },
+        snapshotExact: { availableHoursExact: '125e-1', supportHoursExact: exact(supportHours) },
+        expectedImpactExact: { hypotheticalSupportHours: exact(supportHours),
+          remainingRequiredHours: exact(remainingRequiredHours), remainingAvailableHours: exact(remainingAvailableHours) },
       });
     }
     expectUnchanged(before);
@@ -797,7 +820,7 @@ describe('Backend foundations (e2e)', () => {
       const second = await baselineRequest(app).post(url).send(body).expect(200);
       const { decisionEvidence, ...result } = first.body;
       expect(result).toEqual(baseline.body);
-      expect(decisionEvidence.simulationToken).toMatch(/^v1\./);
+      expect(decisionEvidence.simulationToken).toMatch(/^v2\./);
       expect(decisionEvidence.simulationId).not.toBe(body.runId);
       expect(second.body.decisionEvidence.simulationId).not.toBe(decisionEvidence.simulationId);
       const invalid = await baselineRequest(app).post(url)

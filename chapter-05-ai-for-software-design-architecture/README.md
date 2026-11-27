@@ -107,3 +107,20 @@ Một bảng `pm_decisions` có unique theo lượt và lịch sử theo Project
 Hai lần nghiệm thu di trú cộng thêm và phục hồi DDL giữ nguyên 8 bảng cũ.
 [Data Model](../specs/003-pm-decision-workflow/data-model.md) ·
 [API contract](../specs/003-pm-decision-workflow/contracts/pm-decision-api.md).
+
+### Gate 2 Apply Allocation 006 (2026-11-26)
+
+Người phụ trách duyệt D1–D4 về quỹ giờ, điều kiện Apply, phục hồi và
+quyền xem. AI đối chiếu 001–003 và lập thiết kế quỹ giờ dùng chung, khóa
+Employee giữa Project và provenance cho snapshot 006. Kế hoạch chỉ bổ
+sung ba bảng. Kiểm tĩnh truy vết và diff ở Gate 2. Thử khóa và di trú
+MariaDB clone thuộc lượt triển khai. [Plan](../specs/006-apply-allocation/plan.md) ·
+[Data Model](../specs/006-apply-allocation/data-model.md).
+
+### Apply Allocation 006 — Gate 3 (2026-11-27)
+
+Theo D1–D4, quỹ giờ còn lại dùng chung theo Employee/tuần. Apply và
+PM Decision khóa cùng hàng Employee sau Account và Project. Evidence v2
+và provenance tách snapshot mới khỏi lịch sử 003. Ba bảng thêm vào giữ
+nguyên chín bảng baseline. B1 tiếp tục chờ duyệt.
+[Nghiệm thu](../chapter-08-ai-software-testing/README.md#kiểm-chứng-apply-allocation-006-2026-11-27).

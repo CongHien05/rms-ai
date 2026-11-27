@@ -2,6 +2,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import type { Repository } from 'typeorm';
 import { Employee } from './employee.entity.js';
 import { EmployeesService } from './employees.service.js';
+import type { RemainingAvailabilityService } from './remaining-availability.service.js';
 
 describe('EmployeesService', () => {
   const employeeId = '44444444-4444-4444-8444-444444444444';
@@ -24,6 +25,7 @@ describe('EmployeesService', () => {
     };
     service = new EmployeesService(
       repository as unknown as Repository<Employee>,
+      {} as RemainingAvailabilityService,
     );
   });
 

@@ -4,6 +4,7 @@ import { formatCalendarDate } from '../layout/formatCalendarDate'
 import { PageHeading } from '../layout/PageHeading'
 import { Pagination } from '../layout/Pagination'
 import { usePagination } from '../layout/usePagination'
+import { displayExactHours } from '../layout/exactHours'
 import './employees.css'
 
 type EmployeeDirectory = {
@@ -14,6 +15,10 @@ type EmployeeDirectory = {
     displayName: string
     skills: { id: string; name: string }[]
     availability: { weekStart: string; hours: number } | null
+    capacity: {
+      declaredHoursExact: string | null; allocatedHoursExact: string; remainingHoursExact: string | null
+      status: 'MISSING' | 'AVAILABLE' | 'EXHAUSTED' | 'OVER_ALLOCATED'
+    }
   }[]
 }
 
@@ -30,7 +35,7 @@ export function EmployeesView() {
   return (
     <section aria-labelledby="employees-view-title">
       <PageHeading id="employees-view-title" title="Nhân sự"
-        description="Kỹ năng và số giờ còn có thể nhận thêm của từng người." label="Dữ liệu minh họa" />
+        description="Kỹ năng, giờ khai báo và giờ còn lại của từng người." />
 
       {state.status === 'loading' && <HrReadStatus status="loading" message="Đang tải nhân sự…" />}
       {state.status === 'error' && (
@@ -56,7 +61,7 @@ export function EmployeesView() {
                   </tr>
                 </thead>
                 <tbody role="rowgroup">
-                  {items.map(({ id, displayName, skills, availability }) => (
+                  {items.map(({ id, displayName, skills, availability, capacity }) => (
                     <tr key={id} role="row">
                       <th scope="row" role="rowheader">{displayName}</th>
                       <td role="cell">
@@ -69,7 +74,14 @@ export function EmployeesView() {
                       </td>
                       <td role="cell">
                         <span className="employee-cell-label" aria-hidden="true">Giờ trống</span>
-                        {availability === null ? (
+                        {capacity ? <div style={{ overflowWrap: 'anywhere' }}>
+                          <div>Khai báo {capacity.declaredHoursExact === null ? '—' : displayExactHours(capacity.declaredHoursExact)} giờ</div>
+                          <div>Đã phân bổ {displayExactHours(capacity.allocatedHoursExact)} giờ</div>
+                          <div>Còn lại {capacity.remainingHoursExact === null ? '—' : displayExactHours(capacity.remainingHoursExact)} giờ</div>
+                          {capacity.status === 'MISSING' && <span className="status-badge">Thiếu khai báo đúng tuần</span>}
+                          {capacity.status === 'EXHAUSTED' && <span className="status-badge">Hết giờ</span>}
+                          {capacity.status === 'OVER_ALLOCATED' && <span className="status-badge status-badge--warning">Vượt quỹ giờ</span>}
+                        </div> : availability === null ? (
                           <span className="status-badge">Chưa khai báo</span>
                         ) : availability.weekStart !== directory.weekStart ? (
                           <span className="status-badge status-badge--warning">Dữ liệu khác tuần</span>

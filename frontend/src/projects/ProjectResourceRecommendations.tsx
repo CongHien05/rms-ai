@@ -6,6 +6,7 @@ import { Pagination } from '../layout/Pagination'
 import { usePagination } from '../layout/usePagination'
 import { ProjectWhatIfSimulation } from './ProjectWhatIfSimulation'
 import { recommendationPresentation } from './simulationRun'
+import { displayExactHours } from '../layout/exactHours'
 
 type Skill = { id: string; name: string }
 type Criteria = { skillId: string; weekStart: string; hours: string }
@@ -14,6 +15,8 @@ type Candidate = {
   displayName: string
   availableHours: number
   supportHours: number
+  availableHoursExact?: string
+  supportHoursExact?: string
   recommendationContext?: string
 }
 type Recommendation = {
@@ -198,8 +201,8 @@ export function ProjectResourceRecommendations({ projectId, onDecisionSaved, onS
                 <li key={candidate.employeeId}>
                   <strong>{candidate.displayName}</strong>
                   <p className="muted">
-                    {data.skill.name} · còn {hoursFormat.format(candidate.availableHours)} giờ
-                    {' · đáp ứng '}{hoursFormat.format(candidate.supportHours)}/{hoursFormat.format(data.requiredHours)} giờ
+                    {data.skill.name} · còn <span style={{ overflowWrap: 'anywhere' }}>{candidate.availableHoursExact ? displayExactHours(candidate.availableHoursExact) : hoursFormat.format(candidate.availableHours)}</span> giờ
+                    {' · đáp ứng '}<span style={{ overflowWrap: 'anywhere' }}>{candidate.supportHoursExact ? displayExactHours(candidate.supportHoursExact) : hoursFormat.format(candidate.supportHours)}</span>/{hoursFormat.format(data.requiredHours)} giờ
                   </p>
                   <button type="button" className="button button--secondary button--sm"
                     disabled={!candidate.recommendationContext}
@@ -233,6 +236,7 @@ export function ProjectResourceRecommendations({ projectId, onDecisionSaved, onS
             recommendationContext: activeSelection.proof,
           }}
           suggestedHours={activeSelection.candidate.supportHours} employeeName={activeSelection.candidate.displayName}
+          suggestedHoursExact={activeSelection.candidate.supportHoursExact}
           skillName={activeSelection.data.skill.name} initiallyStale={activeSelection.replaced}
           onDecisionSaved={onDecisionSaved} onShowHistory={onShowHistory} />
       )}

@@ -101,3 +101,12 @@ Hai truy vấn khóa chia sẻ đã được sửa để dùng cú pháp MariaDB
 baseline. Các bằng chứng và phần review của người phụ trách ghi tại
 [Chapter 8](../chapter-08-ai-software-testing/README.md#kiểm-chứng-pm-decision-workflow-003-2026-11-26)
 và [Chapter 9](../chapter-09-ai-technical-documentation/README.md#bàn-giao-gate-3-pm-decision-workflow-003-2026-11-26).
+
+### Review Apply Allocation 006 (2026-11-27)
+
+AI đối chiếu D1–D4 với khóa liên Project, giao dịch, exact hours,
+provenance, quyền và trạng thái UI. GET đối chiếu bị từ chối giữ trạng
+thái chưa xác nhận. Kịch bản gây lỗi chạy trong bộ nghiệm thu clone.
+Writer khai báo giờ hiện có chỉ chèn Employee mới. Cập nhật quỹ của
+Employee đã tồn tại về sau phải dùng cùng hàng khóa.
+[Nghiệm thu](../chapter-08-ai-software-testing/README.md#kiểm-chứng-apply-allocation-006-2026-11-27).

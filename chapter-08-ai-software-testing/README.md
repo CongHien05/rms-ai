@@ -345,3 +345,26 @@ nguyên 8/8 bảng. Database dev gốc không được dùng trong lượt chạ
 **AT-01–16 và SC-001–004 đạt** theo các lớp kiểm chứng trên. Chrome 158 chạy
 qua Vite và Backend trên clone ở chế độ Auth local. Kịch bản mô phỏng mất
 phản hồi và lỗi lịch sử ở lớp test. Backend vận hành dùng nguyên handler.
+
+### Kiểm chứng Apply Allocation 006 (2026-11-27)
+
+Baseline `b5c5dde`, Node 24.14.1 và Windows. Unit kiểm thập phân,
+phiên bản chứng từ và trạng thái UI. HTTP E2E chạy guard/DTO thật với DB
+test double. Bằng chứng khóa, DDL và giao dịch đến từ MariaDB thật.
+[Quickstart](../specs/006-apply-allocation/quickstart.md).
+
+**201/201 automated test đạt** gồm 103 Backend unit, 44 HTTP E2E,
+44 Frontend và 10 FastAPI. Backend/Frontend build và lint đạt.
+
+| Tiêu chí | Bằng chứng nghiệm thu |
+| --- | --- |
+| AT-01–03, AT-11–12 | HTTP và clone kiểm ACCEPT, REJECT, sai quyền, Skill mất, khai báo khác tuần, legacy kể cả v1 trình muộn, v2 bị chỉnh phiên bản, PM nhận lại Project và lỗi ghi provenance. Quyết định 003 đã lưu vẫn retry sau khi giờ thay đổi. |
+| AT-04–05 | Hai PM trên hai Project cạnh tranh cùng Employee/tuần trả 201/409. Cùng decisionId trả 201/200 và cùng ID. Kiểm UNIQUE bằng DB. |
+| AT-06–08 | Clone tái hiện rollback giữa hai INSERT, mất kết nối tại lệnh commit, mất phản hồi sau commit, restart, đối chiếu, replay và lịch sử. HTTP test double kiểm nhánh commit đã thành công dù không nhận được xác nhận. |
+| AT-09–10 | HR thấy giờ khai báo, tổng và giờ còn lại. DEV giữ Auth 002. Recommendation và What-if khớp quỹ, Decision từ chối snapshot stale và Apply cập nhật đúng quỹ. Unit kiểm phần thập phân, số mũ, biên projection và dấu. |
+| AT-13 | Chrome 1280 px và 390 px kiểm Apply, pending, chưa xác nhận, GET đối chiếu, reload, đổi Project và logout. Unit kiểm hủy phản hồi cũ theo scope và trường hợp GET bị từ chối. |
+| AT-14–15 | Migration và chạy lại sau gián đoạn DDL trên hai MariaDB 10.4.32 clone giữ fingerprint 9/9 bảng đã có dữ liệu. Kiểm UNIQUE, FK, CHECK và exact round-trip. Baseline 188 test được bảo toàn. |
+
+Runtime HTTP trên clone đạt **70 lượt**. Kịch bản dùng trigger, lỗi kết
+nối và proxy chỉ trong bộ test. Database dev gốc chưa migration.
+Các lớp trên bao phủ AT-01–15 và SC-001–004.

@@ -9,7 +9,8 @@ it('returns empty history, stable pagination and an explicit retryable failure',
   await fixture.read().expect(200, { items: [], hasMore: false });
   const first = (await fixture.send(fixture.decide()).expect(201)).body;
   const second = (await fixture.send(fixture.decide('REJECT')).expect(201)).body;
-  const items = [first, second].sort((a, b) => b.decidedAt.localeCompare(a.decidedAt) || b.id.localeCompare(a.id));
+  const items = [first, second].sort((a, b) => b.decidedAt.localeCompare(a.decidedAt) || b.id.localeCompare(a.id))
+    .map(item => ({ ...item, allocationState: 'UNAVAILABLE' }));
   await fixture.read(pmId, fixture.projectId, '?limit=1').expect(200, { items: items.slice(0, 1), hasMore: true });
   await fixture.read(pmId, fixture.projectId, '?limit=1&offset=1').expect(200, { items: items.slice(1), hasMore: false });
   for (const query of ['?limit=0', '?limit=101', '?offset=-1', '?offset=1.5', '?limit=1&limit=2', '?id=unknown']) {
@@ -31,6 +32,6 @@ it('follows current Project ownership, preserving the original PM and denying al
   await fixture.read(pmId, fixture.otherProject).expect(403);
   fixture.projects.get(fixture.projectId)!.pmAccountId = secondPmId;
   await fixture.read().expect(403);
-  await fixture.read(secondPmId).expect(200, { items: [saved], hasMore: false });
+  await fixture.read(secondPmId).expect(200, { items: [{ ...saved, allocationState: 'UNAVAILABLE' }], hasMore: false });
   await fixture.send(input, secondPmId).expect(403);
 });

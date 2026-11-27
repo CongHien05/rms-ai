@@ -288,19 +288,19 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 **Then:** Sau xác thực và kiểm quyền, trả bản ghi đã lưu khi lựa chọn trùng, kể cả khi availability đã đổi. Lựa chọn đối nghịch báo xung đột. Cùng một lượt có tối đa một bản ghi kể cả khi gửi đồng thời.
 
-### AC-US-04-06 — Áp dụng thất bại — TBD
+### AC-US-04-06 — Áp dụng thất bại — ĐÃ XÁC NHẬN
 
 **Liên quan:** US-04
 
-**Trạng thái:** TBD
+**Trạng thái:** ĐÃ XÁC NHẬN cho 006.
 
-**Nguồn khoảng trống:** TBD-07.
+**Nguồn:** [D2–D3 của 006](user-stories.md#quyết-định-apply-allocation-cho-milestone-006-2026-11-26), xử lý TBD-07 trong phạm vi Apply.
 
 **Given:** PM đã chấp nhận phương án nhưng việc áp dụng thất bại hoặc không hoàn tất đầy đủ.
 
 **When:** Hệ thống xử lý kết quả áp dụng.
 
-**Then:** TBD — nhóm xác định trạng thái phân bổ, thông tin kết quả cho PM và cách phục hồi/thử lại. Không tự cam kết khôi phục toàn bộ hoặc yêu cầu PM chấp nhận lại.
+**Then:** Giao dịch thất bại rollback toàn bộ. PM thấy thất bại đã xác nhận hoặc kết quả chưa xác nhận. Lưu lỗi nghiệp vụ xác nhận khi DB khả dụng. Nếu phản hồi bị mất, retry sau kiểm quyền trả đúng phân bổ đã commit. Dữ liệu nguồn thay đổi cần What-if và ACCEPT mới.
 
 ### AC-US-04-07 — Không báo thành công khi áp dụng thất bại — ĐÃ XÁC NHẬN
 
@@ -314,7 +314,7 @@ Thứ hạng hỗ trợ cân nhắc, không chứng minh ứng viên đầu tiê
 
 **When:** Hệ thống cung cấp thông tin kết quả áp dụng cho PM.
 
-**Then:** Hệ thống không báo phương án đã được áp dụng thành công. Trạng thái phân bổ và cách phục hồi/thử lại vẫn TBD-07; không tự quy định rollback hoặc transaction.
+**Then:** Hệ thống không báo phương án đã được áp dụng thành công và không ghi lỗi giả khi chưa xác nhận được kết quả. Quy tắc phục hồi theo AC-US-04-06.
 
 ## AC-US-05 — HR duy trì dữ liệu nguồn lực cho RMS-AI
 

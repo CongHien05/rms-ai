@@ -3,13 +3,16 @@ import {
   IsDefined,
   IsNumber,
   IsObject,
-  IsPositive,
+  IsString,
+  MaxLength,
   IsUUID,
   Matches,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { ResourceRecommendationDto } from './resource-recommendation.dto.js';
 import type { DecisionEvidence } from '../decision-context.js';
+import { exactHoursMaxLength } from '../../employees/decimal-hours.js';
 import {
   recommendationProofPattern,
   type RecommendationContext,
@@ -20,8 +23,12 @@ class ScenarioDto extends ResourceRecommendationDto {
   employeeId: string;
 
   @IsNumber()
-  @IsPositive()
   supportHours: number;
+
+  @ValidateIf((_object, value: unknown) => value !== undefined)
+  @IsString()
+  @MaxLength(exactHoursMaxLength)
+  supportHoursExact?: string;
 
   @Matches(recommendationProofPattern)
   recommendationContext: string;
@@ -44,6 +51,8 @@ export interface SimulationImpact {
   remainingAvailableHours: number;
 }
 
+export type SimulationSnapshotExact = { availableHoursExact: string; supportHoursExact: string };
+
 export interface ResourceSimulationResponseDto {
   outcome: 'available';
   scenarioReference: string;
@@ -54,4 +63,6 @@ export interface ResourceSimulationResponseDto {
   };
   expectedImpact: SimulationImpact;
   decisionEvidence?: DecisionEvidence;
+  snapshotExact: SimulationSnapshotExact;
+  expectedImpactExact: Record<keyof SimulationImpact, string>;
 }

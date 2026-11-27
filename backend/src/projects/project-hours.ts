@@ -1,11 +1,24 @@
 import type { SimulationImpact } from './dto/resource-simulation.dto.js';
+import {
+  decimalFromNumber, decimalText, projectHoursNumber, subtractHours, type DecimalHours,
+} from '../employees/decimal-hours.js';
 
-function decimalParts(value: number) {
-  const [mantissa, exponent = '0'] = value.toString().split('e');
-  const [whole, fraction = ''] = mantissa.split('.');
+export function calculateExactImpact(required: DecimalHours, support: DecimalHours, available: DecimalHours) {
+  const remaining = subtractHours(available, support);
+  if (remaining.coefficient < 0n) return null;
+  const shortfall = subtractHours(required, support);
+  const missing = shortfall.coefficient > 0n ? shortfall : decimalFromNumber(0);
   return {
-    coefficient: BigInt(whole + fraction),
-    scale: fraction.length - Number(exponent),
+    numeric: {
+      hypotheticalSupportHours: projectHoursNumber(support, true),
+      remainingRequiredHours: projectHoursNumber(missing, true),
+      remainingAvailableHours: projectHoursNumber(remaining, true),
+    },
+    exact: {
+      hypotheticalSupportHours: decimalText(support),
+      remainingRequiredHours: decimalText(missing),
+      remainingAvailableHours: decimalText(remaining),
+    },
   };
 }
 
@@ -14,23 +27,7 @@ export function calculateSimulationImpact(
   supportHours: number,
   availableHours: number,
 ): SimulationImpact | null {
-  const [required, support, available] = [
-    requiredHours,
-    supportHours,
-    availableHours,
-  ].map(decimalParts);
-  const scale = Math.max(required.scale, support.scale, available.scale);
-  const align = (value: ReturnType<typeof decimalParts>) =>
-    value.coefficient * 10n ** BigInt(scale - value.scale);
-  const offered = align(support);
-  const remaining = align(available) - offered;
-  if (remaining < 0n) return null;
-
-  const shortfall = align(required) - offered;
-  const serialize = (value: bigint) => Number(`${value}e${-scale}`);
-  return {
-    hypotheticalSupportHours: supportHours,
-    remainingRequiredHours: serialize(shortfall > 0n ? shortfall : 0n),
-    remainingAvailableHours: serialize(remaining),
-  };
+  return calculateExactImpact(
+    decimalFromNumber(requiredHours), decimalFromNumber(supportHours), decimalFromNumber(availableHours),
+  )?.numeric ?? null;
 }

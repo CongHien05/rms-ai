@@ -15,6 +15,12 @@ it('protects the HR directory and allows only its shared Skill list to PM', asyn
       await client.post(path).set('Origin', testOrigin).set('Cookie', fixtureCookie(devId)).send({}).expect(403);
     }
     await client.get(`/employees/${firstEmployeeId}`).set('Cookie', fixtureCookie(hrId)).expect(200);
+    const { body } = await client.get('/employees/availability').set('Cookie', fixtureCookie(hrId)).expect(200);
+    expect(body.employees.find((row: { id: string }) => row.id === firstEmployeeId).capacity).toEqual({
+      weekStart: body.weekStart, declaredHoursExact: '3e-1', allocatedHoursExact: '1e-1',
+      remainingHoursExact: '2e-1', status: 'AVAILABLE',
+    });
+    expect(JSON.stringify(body)).not.toMatch(/projectId|decisionId/);
   } finally {
     await app.close();
     vi.unstubAllEnvs();
