@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '../auth/session'
 import { formatCalendarDate } from '../layout/formatCalendarDate'
 import { isDecisionRecord, type DecisionRecord } from './decisionRequest'
+import { displayExactHours } from '../layout/exactHours'
+import { ProjectAllocationControls } from './ProjectAllocationControls'
 
 const pageSize = 20
 const dateTime = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short' })
@@ -11,7 +13,7 @@ type State = { status: 'loading' | 'error' } | {
   status: 'ready'; items: DecisionRecord[]; hasMore: boolean;
 }
 
-export function ProjectDecisionHistory({ projectId }: { projectId: string }) {
+export function ProjectDecisionHistory({ projectId, onApplied }: { projectId: string; onApplied: () => void }) {
   const [page, setPage] = useState(0)
   const [attempt, setAttempt] = useState(0)
   const [state, setState] = useState<State>({ status: 'loading' })
@@ -75,11 +77,15 @@ export function ProjectDecisionHistory({ projectId }: { projectId: string }) {
               <dt>Kỹ năng</dt><dd>{item.snapshot.skillId}</dd>
               <dt>Tuần</dt><dd>{formatCalendarDate(item.snapshot.weekStart)}</dd>
               <dt>Giờ cần và giờ trống tại thời điểm mô phỏng</dt>
-              <dd>{hours.format(item.snapshot.requiredHours)} giờ cần · {hours.format(item.snapshot.availableHours)} giờ trống</dd>
-              <dt>Giờ hỗ trợ giả định</dt><dd>{hours.format(item.expectedImpact.hypotheticalSupportHours)} giờ</dd>
-              <dt>Giờ cần còn thiếu</dt><dd>{hours.format(item.expectedImpact.remainingRequiredHours)} giờ</dd>
-              <dt>Giờ trống giả định còn lại</dt><dd>{hours.format(item.expectedImpact.remainingAvailableHours)} giờ</dd>
+              <dd>{hours.format(item.snapshot.requiredHours)} giờ cần · {item.snapshotExact ? displayExactHours(item.snapshotExact.availableHoursExact) : hours.format(item.snapshot.availableHours)} giờ trống</dd>
+              <dt>Giờ hỗ trợ giả định</dt><dd>{item.snapshotExact ? displayExactHours(item.snapshotExact.supportHoursExact) : hours.format(item.expectedImpact.hypotheticalSupportHours)} giờ</dd>
+              <dt>Giờ cần còn thiếu</dt><dd>{item.expectedImpactExact ? displayExactHours(item.expectedImpactExact.remainingRequiredHours) : hours.format(item.expectedImpact.remainingRequiredHours)} giờ</dd>
+              <dt>Giờ trống giả định còn lại</dt><dd>{item.expectedImpactExact ? displayExactHours(item.expectedImpactExact.remainingAvailableHours) : hours.format(item.expectedImpact.remainingAvailableHours)} giờ</dd>
             </dl>
+            {item.decision === 'ACCEPT' && (item.allocationState === 'ACCEPTED' || item.allocationState === 'APPLIED'
+              ? <ProjectAllocationControls projectId={projectId} decisionId={item.id}
+                  applied={item.allocationState === 'APPLIED'} onApplied={onApplied} />
+              : <p>Hãy mô phỏng và chấp nhận lượt mới để áp dụng.</p>)}
           </details>
         </li>)}</ul>}
       {(page > 0 || state.hasMore) && <div className="row-actions">

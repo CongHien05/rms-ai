@@ -3,16 +3,21 @@ import {
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource, QueryFailedError, type EntityManager } from 'typeorm';
+import { DataSource, In, QueryFailedError, type EntityManager } from 'typeorm';
 import { forbidden, unauthenticated } from '../../auth/auth-policy.js';
 import type { UserAccount } from '../../auth/user-account.entity.js';
 import { EmployeeSkill } from '../../employee-skills/employee-skill.entity.js';
 import { Employee } from '../../employees/employee.entity.js';
+import { decimalFromNumber, decimalText, parseDecimalHours, parsePositiveSupport } from '../../employees/decimal-hours.js';
+import { RemainingAvailabilityService } from '../../employees/remaining-availability.service.js';
+import { ProjectAllocation } from '../allocations/project-allocation.entity.js';
+import { calculateExactImpact } from '../project-hours.js';
 import { decisionKey, decisionReferenceDigest, matchesDecisionReference, verifyDecisionEvidence } from '../decision-context.js';
 import { ProjectsService } from '../projects.service.js';
 import type { ProjectDecisionHistoryDto } from './dto/project-decision-history.dto.js';
 import type { ProjectDecisionDto } from './dto/project-decision.dto.js';
 import { PMDecision, type DecisionResponse, type DecisionSnapshot } from './pm-decision.entity.js';
+import { DecisionAvailabilityEvidence, remainingSemantics } from './decision-availability-evidence.entity.js';
 
 function invalidEvidence() {
   return new BadRequestException({
@@ -41,6 +46,7 @@ export class ProjectDecisionsService {
   constructor(
     @InjectDataSource() private readonly database: DataSource,
     private readonly projects: ProjectsService,
+    private readonly availability: RemainingAvailabilityService,
   ) {}
 
   async record(projectId: string, pmAccountId: string, input: ProjectDecisionDto) {
@@ -68,7 +74,32 @@ export class ProjectDecisionsService {
           where: { projectId }, order: { decidedAt: 'DESC', id: 'DESC' },
           skip: page.offset, take: page.limit + 1,
         });
-        return { items: rows.slice(0, page.limit).map(response), hasMore: rows.length > page.limit };
+        const pageRows = rows.slice(0, page.limit);
+        const ids = pageRows.map(({ id }) => id);
+        const [evidence, allocations] = ids.length
+          ? await Promise.all([
+            manager.getRepository(DecisionAvailabilityEvidence).findBy({ decisionId: In(ids) }),
+            manager.getRepository(ProjectAllocation).findBy({ projectId, decisionId: In(ids) }),
+          ]) : [[], []];
+        const exactById = new Map(evidence.map((row) => [row.decisionId, row]));
+        const applied = new Set(allocations.map((row) => row.decisionId));
+        const items = pageRows.map((row) => {
+          const provenance = exactById.get(row.id);
+          const exact = provenance?.semantics === remainingSemantics ? {
+            availableHoursExact: provenance.availableHoursExact, supportHoursExact: provenance.supportHoursExact,
+          } : undefined;
+          const available = exact && parseDecimalHours(exact.availableHoursExact);
+          const support = exact && parsePositiveSupport(exact.supportHoursExact);
+          const expectedImpactExact = available && support &&
+            calculateExactImpact(decimalFromNumber(row.snapshot.requiredHours), support, available)?.exact;
+          return {
+            ...response(row),
+            allocationState: applied.has(row.id) ? 'APPLIED' : row.decision === 'ACCEPT' && exact ? 'ACCEPTED' : 'UNAVAILABLE',
+            ...(exact && { snapshotExact: exact }),
+            ...(expectedImpactExact && { expectedImpactExact }),
+          };
+        });
+        return { items, hasMore: rows.length > page.limit };
       });
     } catch (error) {
       if (error instanceof HttpException) throw error;
@@ -102,7 +133,8 @@ export class ProjectDecisionsService {
       const claims = verifyDecisionEvidence(key, input.simulationToken);
       if (!claims || claims.simulationId !== input.simulationId) throw invalidEvidence();
       if (claims.pmAccountId !== pmAccountId || claims.projectId !== projectId) throw forbidden();
-      await this.requireFresh(manager, claims.snapshot);
+      await this.requireFresh(manager, claims.snapshot,
+        claims.snapshotExact?.availableHoursExact ?? decimalText(decimalFromNumber(claims.snapshot.availableHours)));
 
       const row = {
         id: randomUUID(), simulationId: claims.simulationId, projectId, pmAccountId,
@@ -110,6 +142,11 @@ export class ProjectDecisionsService {
         expectedImpact: claims.expectedImpact, referenceDigest: decisionReferenceDigest(input.simulationToken),
       };
       await repository.insert(row);
+      if (claims.snapshotExact) {
+        await manager.getRepository(DecisionAvailabilityEvidence).insert({
+          decisionId: row.id, semantics: remainingSemantics, ...claims.snapshotExact,
+        });
+      }
       return { created: true, decision: response(row) };
     });
   }
@@ -126,14 +163,14 @@ export class ProjectDecisionsService {
     await this.projects.requireOwned(projectId, pmAccountId, { manager, lock });
   }
 
-  private async requireFresh(manager: EntityManager, snapshot: DecisionSnapshot) {
+  private async requireFresh(manager: EntityManager, snapshot: DecisionSnapshot, expectedHours: string) {
     const lock = { mode: 'pessimistic_write' } as const;
     const employee = await manager.getRepository(Employee).findOne({ where: { id: snapshot.employeeId }, lock });
     const skillLink = employee && await manager.getRepository(EmployeeSkill).findOne({
       where: { employeeId: snapshot.employeeId, skillId: snapshot.skillId }, lock,
     });
-    if (!employee || !skillLink || employee.availabilityWeekStart !== snapshot.weekStart ||
-        employee.availableHours !== snapshot.availableHours) {
+    const capacity = skillLink && await this.availability.forEmployee(snapshot.employeeId, snapshot.weekStart, manager);
+    if (!capacity || capacity.status !== 'AVAILABLE' || capacity.remainingHoursExact !== expectedHours) {
       throw new ConflictException({
         statusCode: 409, code: 'STALE_SIMULATION', message: 'Dữ liệu đã thay đổi. Hãy mô phỏng lại.',
       });

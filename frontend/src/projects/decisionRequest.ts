@@ -19,6 +19,9 @@ export type DecisionRecord = {
     availableHours: number
   }
   expectedImpact: Impact
+  allocationState?: 'UNAVAILABLE' | 'ACCEPTED' | 'APPLIED'
+  snapshotExact?: { availableHoursExact: string; supportHoursExact: string }
+  expectedImpactExact?: Record<keyof Impact, string>
 }
 
 export type DecisionState =

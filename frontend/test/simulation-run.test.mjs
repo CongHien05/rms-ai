@@ -62,6 +62,26 @@ test('publishes decision evidence only for a matching successful simulation with
   }
 })
 
+test('checks exact support even when another decimal projects to the same JSON number', async () => {
+  const run = new SimulationRun()
+  const input = { ...scenario, supportHours: 1, supportHoursExact: '99999999999999999e-17' }
+  const evidence = { simulationId: crypto.randomUUID(), simulationToken: `v2.eA.${'b'.repeat(43)}` }
+  for (const supportHoursExact of [input.supportHoursExact, '1e0']) {
+    let observed
+    await run.execute(input, state => { observed = state }, async (value, id) => {
+      const body = await success(value, id).json()
+      delete body.snapshot.supportHoursExact
+      return Response.json({ ...body, decisionEvidence: evidence,
+        snapshotExact: { availableHoursExact: '125e-1', supportHoursExact },
+        expectedImpactExact: {
+          hypotheticalSupportHours: supportHoursExact, remainingRequiredHours: '7e0', remainingAvailableHours: '115e-1',
+        },
+      })
+    })
+    assert.equal(observed.status, supportHoursExact === input.supportHoursExact ? 'success' : 'error')
+  }
+})
+
 test('classifies HTTP errors and retries with the same draft and a fresh runId', async () => {
   const run = new SimulationRun()
   const { send, calls } = controlledRequests()

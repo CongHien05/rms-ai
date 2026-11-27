@@ -7,6 +7,7 @@ import { usePagination } from '../layout/usePagination'
 import { TaskLoadGuard } from './taskLoadGuard'
 import { ProjectResourceRecommendations, resourceRecommendationsPanelId } from './ProjectResourceRecommendations'
 import { ProjectDecisionHistory } from './ProjectDecisionHistory'
+import { ProjectAllocationHistory } from './ProjectAllocationHistory'
 import { ProjectRiskAssessment } from './ProjectRiskAssessment'
 import {
   applyConfirmedTaskUpdate,
@@ -703,6 +704,8 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
   const [showRecommendations, setShowRecommendations] = useState(false)
   const [historyProject, setHistoryProject] = useState<string | null>(null)
   const [historyRevision, setHistoryRevision] = useState(0)
+  const [showAllocations, setShowAllocations] = useState(false)
+  const [allocationRevision, setAllocationRevision] = useState(0)
   const [sprints, setSprints] = useState<Sprint[]>([])
   const [selectedSprintId, setSelectedSprintId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -848,7 +851,13 @@ export function ProjectDetailView({ projectId, onBack }: Props) {
           onClick={() => setHistoryProject(value => value === projectId ? null : projectId)}>
           {historyProject === projectId ? 'Ẩn lịch sử quyết định' : 'Xem lịch sử quyết định'}
         </button>
-        {historyProject === projectId && <ProjectDecisionHistory key={`${projectId}:${historyRevision}`} projectId={projectId} />}
+        {historyProject === projectId && <ProjectDecisionHistory key={`${projectId}:${historyRevision}`} projectId={projectId}
+          onApplied={() => setAllocationRevision(value => value + 1)} />}
+        <button type="button" className="button button--secondary" aria-expanded={showAllocations}
+          onClick={() => setShowAllocations(value => !value)}>
+          {showAllocations ? 'Ẩn lịch sử áp dụng' : 'Xem lịch sử áp dụng'}
+        </button>
+        {showAllocations && <ProjectAllocationHistory key={`${projectId}:${allocationRevision}`} projectId={projectId} />}
       </>}
       {sprintNotice && <p role="status" className="feedback-panel feedback-panel--success">{sprintNotice}</p>}
       {loading && <p role="status" className="feedback-panel">Đang tải dữ liệu dự án…</p>}

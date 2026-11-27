@@ -1,4 +1,5 @@
 import { apiFetch } from '../auth/session.ts'
+import { exactHoursInput, parseHoursInput } from '../layout/exactHours.ts'
 export type SimulationInput = {
   projectId: string
   employeeId: string
@@ -6,6 +7,7 @@ export type SimulationInput = {
   weekStart: string
   requiredHours: number
   supportHours: number
+  supportHoursExact?: string
   recommendationContext: string
 }
 
@@ -21,7 +23,7 @@ type Failure = { status: 'invalid' | 'missing' | 'error'; message: string }
 
 export type SimulationState =
   | { status: 'idle' | 'loading' | 'stale' }
-  | { status: 'success'; impact: Impact; evidence?: DecisionEvidence }
+  | { status: 'success'; impact: Impact; impactExact?: Record<keyof Impact, string>; evidence?: DecisionEvidence }
   | Failure
 
 type SendSimulation = (input: SimulationInput, runId: string, signal: AbortSignal) => Promise<Response>
@@ -49,7 +51,7 @@ function readEvidence(body: unknown): DecisionEvidence | undefined {
   const { simulationId, simulationToken } = body.decisionEvidence
   if (typeof simulationId !== 'string' || !/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(simulationId) ||
     typeof simulationToken !== 'string' || simulationToken.length > 4096 ||
-    !/^v1\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]{43}$/.test(simulationToken)) return undefined
+    !/^v[12]\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]{43}$/.test(simulationToken)) return undefined
   return { simulationId, simulationToken }
 }
 
@@ -68,6 +70,21 @@ function readImpact(body: unknown, input: SimulationInput, runId: string): Impac
   }
   if (expectedImpact.hypotheticalSupportHours !== input.supportHours) return null
   return expectedImpact as Impact
+}
+
+function readExactImpact(body: Record<string, unknown>, input: SimulationInput, impact: Impact) {
+  const { snapshotExact, expectedImpactExact, snapshot } = body
+  if (!isRecord(snapshotExact) || !isRecord(expectedImpactExact) || !isRecord(snapshot)) return null
+  const valid = (exact: unknown, value: unknown) => typeof exact === 'string' &&
+    exactHoursInput(exact) !== '' && !exact.startsWith('-') && Number(exact) === value
+  if (!valid(snapshotExact.availableHoursExact, snapshot.availableHours) ||
+      !valid(snapshotExact.supportHoursExact, input.supportHours) ||
+      snapshotExact.supportHoursExact !== (input.supportHoursExact ?? parseHoursInput(String(input.supportHours))) ||
+      snapshotExact.supportHoursExact !== expectedImpactExact.hypotheticalSupportHours) return null
+  for (const key of ['hypotheticalSupportHours', 'remainingRequiredHours', 'remainingAvailableHours'] as const) {
+    if (!valid(expectedImpactExact[key], impact[key])) return null
+  }
+  return expectedImpactExact as Record<keyof Impact, string>
 }
 
 const unavailable: Failure = { status: 'error', message: 'Chưa thể mô phỏng. Vui lòng thử lại.' }
@@ -131,7 +148,16 @@ export class SimulationRun {
       }
       const impact = readImpact(body, input, attempt.runId)
       const evidence = impact ? readEvidence(body) : undefined
-      publish(impact ? { status: 'success', impact, ...(evidence ? { evidence } : {}) } : unavailable)
+      if (!impact || !isRecord(body)) {
+        publish(unavailable)
+        return
+      }
+      const needsExact = body.snapshotExact !== undefined || body.expectedImpactExact !== undefined ||
+        evidence?.simulationToken.startsWith('v2.') || input.supportHoursExact !== undefined
+      const impactExact = needsExact ? readExactImpact(body, input, impact) : undefined
+      publish(needsExact && !impactExact ? unavailable : {
+        status: 'success', impact, ...(evidence ? { evidence } : {}), ...(impactExact ? { impactExact } : {}),
+      })
     } catch {
       if (isCurrent()) publish(unavailable)
     } finally {

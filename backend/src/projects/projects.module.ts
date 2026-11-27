@@ -12,6 +12,8 @@ import { ProjectSimulationService } from './project-simulation.service.js';
 import { RiskClient } from './risk-client.js';
 import { ProjectDecisionsController } from './decisions/project-decisions.controller.js';
 import { ProjectDecisionsService } from './decisions/project-decisions.service.js';
+import { ProjectAllocationsController } from './allocations/project-allocations.controller.js';
+import { ProjectAllocationsService } from './allocations/project-allocations.service.js';
 
 @Module({
   imports: [
@@ -19,13 +21,14 @@ import { ProjectDecisionsService } from './decisions/project-decisions.service.j
     EmployeesModule,
     SkillsModule,
   ],
-  controllers: [ProjectsController, ProjectDecisionsController],
+  controllers: [ProjectsController, ProjectDecisionsController, ProjectAllocationsController],
   providers: [
     ProjectsService,
     ProjectRiskService,
     ProjectResourceRecommendationService,
     ProjectSimulationService,
     ProjectDecisionsService,
+    ProjectAllocationsService,
     RiskClient,
   ],
   exports: [ProjectsService],

@@ -1,4 +1,5 @@
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
+import { decimalFromNumber, decimalText } from '../employees/decimal-hours.js';
 
 export interface RecommendationContext {
   projectId: string;
@@ -72,6 +73,7 @@ export function verifyRecommendationProof(
 export function simulationReference(
   context: RecommendationContext,
   supportHours: number,
+  supportHoursExact?: string,
 ): string {
   return createHash('sha256')
     .update(
@@ -80,6 +82,8 @@ export function simulationReference(
         'v1',
         ...canonicalTuple(context),
         supportHours,
+        ...(supportHoursExact && supportHoursExact !== decimalText(decimalFromNumber(supportHours))
+          ? [supportHoursExact] : []),
       ]),
     )
     .digest('hex');

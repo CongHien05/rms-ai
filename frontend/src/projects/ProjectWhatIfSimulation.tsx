@@ -3,10 +3,12 @@ import { formatCalendarDate } from '../layout/formatCalendarDate'
 import { WhatIfSimulationPanels } from '../resource-recommendation/WhatIfSimulationPanels'
 import { SimulationRun, type SimulationInput, type SimulationState } from './simulationRun'
 import { ProjectDecisionControls } from './ProjectDecisionControls'
+import { displayExactHours, exactHoursInput, parseHoursInput } from '../layout/exactHours'
 
 type Props = {
-  scenario: Omit<SimulationInput, 'supportHours'>
+  scenario: Omit<SimulationInput, 'supportHours' | 'supportHoursExact'>
   suggestedHours: number
+  suggestedHoursExact?: string
   employeeName: string
   skillName: string
   initiallyStale: boolean
@@ -17,30 +19,31 @@ type Props = {
 const hours = new Intl.NumberFormat('vi-VN', { maximumSignificantDigits: 17 })
 
 export function ProjectWhatIfSimulation({
-  scenario, suggestedHours, employeeName, skillName, initiallyStale, onDecisionSaved, onShowHistory,
+  scenario, suggestedHours, suggestedHoursExact, employeeName, skillName, initiallyStale, onDecisionSaved, onShowHistory,
 }: Props) {
   const heading = useId()
   const [run] = useState(() => new SimulationRun())
-  const [input, setInput] = useState(String(suggestedHours))
+  const [input, setInput] = useState(suggestedHoursExact ? exactHoursInput(suggestedHoursExact) : String(suggestedHours))
   const [state, setState] = useState<SimulationState>({ status: initiallyStale ? 'stale' : 'idle' })
   useEffect(() => () => run.invalidate(), [run])
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const supportHours = Number(input)
-    if (!Number.isFinite(supportHours) || supportHours <= 0) {
+    const supportHoursExact = parseHoursInput(input)
+    if (!Number.isFinite(supportHours) || !supportHoursExact) {
       run.invalidate()
       setState({ status: 'invalid', message: 'Số giờ hỗ trợ phải là số hữu hạn lớn hơn 0.' })
       return
     }
-    void run.execute({ ...scenario, supportHours }, setState)
+    void run.execute({ ...scenario, supportHours, supportHoursExact }, setState)
   }
 
   const impact = state.status === 'success' ? (
-    <div className="impact-layout">
-      <div><h3>Giờ hỗ trợ giả định</h3><p>{hours.format(state.impact.hypotheticalSupportHours)} giờ</p></div>
-      <div><h3>Giờ cần còn thiếu</h3><p>{hours.format(state.impact.remainingRequiredHours)} giờ</p></div>
-      <div><h3>Giờ trống giả định còn lại</h3><p>{hours.format(state.impact.remainingAvailableHours)} giờ</p></div>
+    <div className="impact-layout" style={{ overflowWrap: 'anywhere' }}>
+      <div><h3>Giờ hỗ trợ giả định</h3><p>{state.impactExact ? displayExactHours(state.impactExact.hypotheticalSupportHours) : hours.format(state.impact.hypotheticalSupportHours)} giờ</p></div>
+      <div><h3>Giờ cần còn thiếu</h3><p>{state.impactExact ? displayExactHours(state.impactExact.remainingRequiredHours) : hours.format(state.impact.remainingRequiredHours)} giờ</p></div>
+      <div><h3>Giờ trống giả định còn lại</h3><p>{state.impactExact ? displayExactHours(state.impactExact.remainingAvailableHours) : hours.format(state.impact.remainingAvailableHours)} giờ</p></div>
     </div>
   ) : null
 

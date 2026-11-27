@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "test": "node --test test/task-load-guard.test.mjs test/task-planning.test.mjs test/task-progress.test.mjs test/simulation-run.test.mjs test/auth-session.test.mjs test/dev-workspace.test.mjs test/decision-request.test.mjs",
+    "test": "node --test test/task-load-guard.test.mjs test/task-planning.test.mjs test/task-progress.test.mjs test/simulation-run.test.mjs test/auth-session.test.mjs test/dev-workspace.test.mjs test/decision-request.test.mjs test/allocation-request.test.mjs",
     "test:race": "node --test test/task-load-guard.test.mjs",
     "preview": "vite preview"
   },

@@ -1,15 +1,17 @@
 import { createHash, createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { isUUID } from 'class-validator';
 import { isAvailabilityWeekStart } from '../employees/availability-week.js';
-import { calculateSimulationImpact } from './project-hours.js';
+import { decimalFromNumber, parseDecimalHours, parsePositiveSupport, projectHoursNumber } from '../employees/decimal-hours.js';
+import { remainingSemantics } from './decisions/decision-availability-evidence.entity.js';
+import type { SimulationSnapshotExact } from './dto/resource-simulation.dto.js';
+import { calculateExactImpact, calculateSimulationImpact } from './project-hours.js';
 import type { DecisionImpact, DecisionSnapshot } from './decisions/pm-decision.entity.js';
 
-type SimulationResult = { snapshot: DecisionSnapshot; expectedImpact: DecisionImpact };
+type SimulationResult = { snapshot: DecisionSnapshot; expectedImpact: DecisionImpact; snapshotExact?: SimulationSnapshotExact };
 type DecisionClaims = SimulationResult & { simulationId: string; projectId: string; pmAccountId: string };
 export type DecisionEvidence = { simulationId: string; simulationToken: string };
-export const decisionTokenPattern = /^v1\.([A-Za-z0-9_-]+)\.([A-Za-z0-9_-]{43})$/;
+export const decisionTokenPattern = /^(v1|v2)\.([A-Za-z0-9_-]+)\.([A-Za-z0-9_-]{43})$/;
 export const maxDecisionTokenLength = 4096;
-const domain = 'rms-ai/what-if/decision/v1:';
 
 function decodeCanonical(value: string): Buffer | null {
   const decoded = Buffer.from(value, 'base64url');
@@ -23,18 +25,22 @@ export function decisionKey(): Buffer | null {
   return key?.length === 32 ? key : null;
 }
 
-function sign(key: Buffer, payload: string) {
-  return createHmac('sha256', key).update(domain + payload, 'ascii').digest();
+function sign(key: Buffer, version: string, payload: string) {
+  return createHmac('sha256', key).update(`rms-ai/what-if/decision/${version}:` + payload, 'ascii').digest();
 }
 
 export function issueDecisionEvidence(key: Buffer, pmAccountId: string, result: SimulationResult): DecisionEvidence {
   const simulationId = randomUUID();
-  const claims: DecisionClaims = {
+  const version = result.snapshotExact ? 'v2' : 'v1';
+  const claims = {
     simulationId, projectId: result.snapshot.projectId, pmAccountId,
     snapshot: result.snapshot, expectedImpact: result.expectedImpact,
+    ...(result.snapshotExact && { snapshotExact: result.snapshotExact, availabilityBasis: remainingSemantics }),
   };
   const payload = Buffer.from(JSON.stringify(claims)).toString('base64url');
-  return { simulationId, simulationToken: `v1.${payload}.${sign(key, payload).toString('base64url')}` };
+  const simulationToken = `${version}.${payload}.${sign(key, version, payload).toString('base64url')}`;
+  if (simulationToken.length > maxDecisionTokenLength) throw new RangeError('Decision evidence too long.');
+  return { simulationId, simulationToken };
 }
 
 function exactObject<K extends string>(value: unknown, keys: readonly K[]): value is Record<K, unknown> {
@@ -42,8 +48,10 @@ function exactObject<K extends string>(value: unknown, keys: readonly K[]): valu
     Object.keys(value).length === keys.length && keys.every((key) => Object.hasOwn(value, key));
 }
 
-function validClaims(value: unknown): value is DecisionClaims {
-  if (!exactObject(value, ['simulationId', 'projectId', 'pmAccountId', 'snapshot', 'expectedImpact']) ||
+function validClaims(value: unknown, version: string): value is DecisionClaims {
+  const keys = ['simulationId', 'projectId', 'pmAccountId', 'snapshot', 'expectedImpact'] as const;
+  const allKeys = version === 'v2' ? [...keys, 'snapshotExact', 'availabilityBasis'] as const : keys;
+  if (!exactObject(value, allKeys) ||
       !isUUID(value.simulationId, '4') || !isUUID(value.projectId) || !isUUID(value.pmAccountId)) return false;
   const { snapshot, expectedImpact } = value;
   if (!exactObject(snapshot, ['projectId', 'employeeId', 'skillId', 'weekStart', 'requiredHours', 'supportHours', 'availableHours']) ||
@@ -52,9 +60,21 @@ function validClaims(value: unknown): value is DecisionClaims {
   const { requiredHours, supportHours, availableHours } = snapshot;
   if (typeof requiredHours !== 'number' || typeof supportHours !== 'number' || typeof availableHours !== 'number' ||
       ![requiredHours, supportHours, availableHours].every(Number.isFinite) ||
-      requiredHours <= 0 || supportHours <= 0 || supportHours > availableHours) return false;
+      requiredHours <= 0 || supportHours < 0 || supportHours > availableHours) return false;
   if (!exactObject(expectedImpact, ['hypotheticalSupportHours', 'remainingRequiredHours', 'remainingAvailableHours'])) return false;
-  const impact = calculateSimulationImpact(requiredHours, supportHours, availableHours);
+  let impact: DecisionImpact | null;
+  if (version === 'v2') {
+    if (!('availabilityBasis' in value) || value.availabilityBasis !== remainingSemantics ||
+        !('snapshotExact' in value) || !exactObject(value.snapshotExact, ['availableHoursExact', 'supportHoursExact'])) return false;
+    const available = parseDecimalHours(value.snapshotExact.availableHoursExact);
+    const support = parsePositiveSupport(value.snapshotExact.supportHoursExact);
+    if (!available || !support || available.coefficient < 0n ||
+        projectHoursNumber(available, true) !== availableHours || projectHoursNumber(support, true) !== supportHours) return false;
+    impact = calculateExactImpact(decimalFromNumber(requiredHours), support, available)?.numeric ?? null;
+  } else {
+    if (supportHours <= 0) return false;
+    impact = calculateSimulationImpact(requiredHours, supportHours, availableHours);
+  }
   return impact !== null && Object.entries(impact).every(([key, hours]) =>
     Number.isFinite(hours) && expectedImpact[key as keyof DecisionImpact] === hours);
 }
@@ -63,14 +83,14 @@ export function verifyDecisionEvidence(key: Buffer, token: string): DecisionClai
   if (token.length > maxDecisionTokenLength) return null;
   const frame = decisionTokenPattern.exec(token);
   if (!frame || frame[0] !== token) return null;
-  const [, encoded, mac] = frame;
+  const [, version, encoded, mac] = frame;
   const sig = decodeCanonical(mac);
-  if (!sig || sig.length !== 32 || !timingSafeEqual(sig, sign(key, encoded))) return null;
+  if (!sig || sig.length !== 32 || !timingSafeEqual(sig, sign(key, version, encoded))) return null;
   const bytes = decodeCanonical(encoded);
   if (!bytes) return null;
   try {
     const claims: unknown = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
-    return validClaims(claims) ? claims : null;
+    return validClaims(claims, version) ? claims : null;
   } catch {
     return null;
   }

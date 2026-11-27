@@ -9,6 +9,8 @@ import { AuthSession } from '../src/auth/auth-session.entity.js';
 import { UserAccount } from '../src/auth/user-account.entity.js';
 import { EmployeeSkill } from '../src/employee-skills/employee-skill.entity.js';
 import { Employee } from '../src/employees/employee.entity.js';
+import { ProjectAllocation } from '../src/projects/allocations/project-allocation.entity.js';
+import { DecisionAvailabilityEvidence } from '../src/projects/decisions/decision-availability-evidence.entity.js';
 import { Project } from '../src/projects/project.entity.js';
 import { Skill } from '../src/skills/skill.entity.js';
 import { Sprint } from '../src/sprints/sprint.entity.js';
@@ -22,7 +24,10 @@ class UnclassifiedController {
   read() { return { denied: false }; }
 }
 
-export async function openAuthApp(https = false, decisionRepository?: (entity: unknown) => unknown) {
+export async function openAuthApp(
+  https = false, decisionRepository?: (entity: unknown) => unknown,
+  configureRunner?: (runner: { manager: unknown; isTransactionActive: boolean; isReleased: boolean }) => unknown,
+) {
   configureAuthTestEnv();
   if (https) {
     vi.stubEnv('AUTH_MODE', 'https');
@@ -52,18 +57,31 @@ export async function openAuthApp(https = false, decisionRepository?: (entity: u
     findOne: async ({ where }: { where: { id: string } }) => fixture.accounts.get(where.id) ?? null,
   };
   const manager = {
+    async query(sql: string, [week, ids]: [string, string[]]) {
+      if (!sql.includes('FROM employees e')) throw new Error('Unexpected employee fixture query.');
+      return ids.flatMap(id => employees.has(id) ? [{ id, declaredWeek: week, declaredHours: 0.3, hours: '1e-1' }] : []);
+    },
     getRepository: (entity: unknown) => entity === UserAccount ? accountsRepository : fixture.sessionsRepository,
   };
   const decisionManager = {
-    async query(sql: string, [id]: [string]) {
+    async query(sql: string, [id, ids]: [string, string[]?]) {
       if (sql.includes('FROM user_accounts')) return [fixture.accounts.get(id)].filter(Boolean);
       if (sql.includes('FROM projects')) return [projects.get(id)].filter(Boolean);
+      if (sql.includes('FROM employees e')) {
+        const repo = decisionRepository?.(Employee) as { findOne: (input: unknown) => Promise<Employee | null> } | undefined;
+        return (await Promise.all((ids ?? []).map(async employeeId => {
+          const row = await repo?.findOne({ where: { id: employeeId } });
+          return row ? { id: employeeId, declaredWeek: row.availabilityWeekStart,
+            declaredHours: row.availableHours, hours: null } : null;
+        }))).filter(Boolean);
+      }
       throw new Error('Unexpected decision fixture query.');
     },
     getRepository: (entity: unknown) => {
       if (entity === UserAccount) return accountsRepository;
       if (entity === Project) return { findOne: async ({ where }: { where: { id: string } }) => projects.get(where.id) ?? null };
-      return decisionRepository?.(entity);
+      return decisionRepository?.(entity) ??
+        (entity === ProjectAllocation || entity === DecisionAvailabilityEvidence ? { findBy: async () => [] } : undefined);
     },
   };
   let transactionQueue = Promise.resolve();
@@ -79,6 +97,7 @@ export async function openAuthApp(https = false, decisionRepository?: (entity: u
   const dataSource = {
     manager, isInitialized: false, transaction,
     getRepository: manager.getRepository,
+    createQueryRunner: () => configureRunner?.({ manager: decisionManager, isTransactionActive: false, isReleased: false }),
   };
   const testing = Test.createTestingModule({ imports: [AppModule], controllers: [UnclassifiedController] })
     .overrideProvider(getDataSourceToken()).useValue(dataSource)
@@ -98,7 +117,7 @@ export async function openAuthApp(https = false, decisionRepository?: (entity: u
       findOneBy: async ({ id }: { id: string }) => employees.get(id) ?? null,
       findOne: async () => null,
       findAll: async () => [...employees.values()],
-      find: async () => [],
+      find: async () => [...employees.values()].map(employee => ({ ...employee, employeeSkills: [] })),
     })
     .overrideProvider(getRepositoryToken(EmployeeSkill)).useValue({ find: async () => [] })
     .overrideProvider(getRepositoryToken(Skill)).useValue({ find: async () => [] });

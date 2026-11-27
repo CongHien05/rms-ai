@@ -229,3 +229,11 @@ lịch sử theo PM hiện phụ trách. Frontend giữ lựa chọn khi retry v
 phản hồi đã mất ngữ cảnh. Phân bổ nguồn lực giữ nguyên.
 [Tasks](../specs/003-pm-decision-workflow/tasks.md) ·
 [Minh chứng](../chapter-08-ai-software-testing/README.md#kiểm-chứng-pm-decision-workflow-003-2026-11-26).
+
+### Apply Allocation 006 (2026-11-27)
+
+Người phụ trách duyệt D1–D4 và điều kiện Gate 2. AI triển khai Apply
+riêng trên ACCEPT đủ điều kiện, đọc đối chiếu và lịch sử theo Project.
+Nguồn giờ exact dùng chung cho HR, Recommendation, What-if, Decision
+và Apply. Chỉ phân bổ đã commit mới làm giảm giờ còn lại.
+[Tasks](../specs/006-apply-allocation/tasks.md).

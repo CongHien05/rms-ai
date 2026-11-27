@@ -297,6 +297,26 @@ Các quy tắc sau áp dụng cho US-04 trong Milestone 003, sau What-if thành 
 Cả ACCEPT và REJECT chỉ lưu lựa chọn. Availability và phân bổ thật giữ
 nguyên. TBD-06 và TBD-07 về Apply Allocation tiếp tục thuộc mốc riêng.
 
+### Quyết định Apply Allocation cho Milestone 006 (2026-11-26)
+
+**D1 — APPROVED.** Giữ giờ trống khai báo của Employee theo tuần. Giờ còn
+lại bằng giờ khai báo trừ tổng giờ của ProjectAllocation có hiệu lực cho
+cùng Employee và tuần trên mọi Project. ACCEPT chưa Apply không tính vào
+tổng. Kiểm và ghi trong cùng giao dịch, chặn vượt quỹ giờ hiện hành. Không
+làm tròn hoặc ép giá trị về 0 để che vượt mức. HR Availability,
+Recommendation, What-if, kiểm freshness của quyết định PM mới và Apply
+dùng cùng định nghĩa giờ còn lại. Resource Optimization 005 kế thừa quy tắc
+khi được mở lại.
+
+| Mã | Trạng thái | Quyết định |
+| --- | --- | --- |
+| D2 | APPROVED | PM hiện phụ trách chủ động Apply ACCEPT, kể cả của PM trước. REJECT không được Apply. Chỉ dùng tuần hiện tại hoặc tương lai có khai báo đúng tuần. Kiểm quyền Project, Employee, Skill, độ mới và quỹ giờ trước lần ghi mới. Dữ liệu đổi, thiếu điều kiện hoặc quyết định/snapshot trước 006 đều cần What-if và ACCEPT lượt mới. Backend xác minh phiên bản và giữ nguyên lịch sử. |
+| D3 | APPROVED | Tối đa một phân bổ thành công mỗi ACCEPT, UNIQUE theo decisionId. Ghi nguyên tử và rollback khi giao dịch lỗi. Auth, ownership và tra bản ghi đã lưu trước freshness và quỹ giờ. Retry trả đúng bản ghi, không tiêu hao thêm. Ghi lỗi nghiệp vụ xác nhận khi DB khả dụng. Kết quả chưa xác nhận không ghi như thất bại. Không sửa, hủy hoặc hoàn tác phân bổ đã commit. |
+| D4 | APPROVED | PM hiện phụ trách xem lịch sử áp dụng của Project. Giữ riêng người quyết định và người Apply. HR xem giờ khai báo, tổng phân bổ, giờ còn lại và trạng thái Employee/tuần. Quyền chi tiết Project, Sprint, Task giữ theo Auth 002. Phân bổ Project không tạo giao Task. |
+
+D1–D4 chốt các quy tắc TBD-06 và TBD-07 trong phạm vi 006.
+[Đặc tả 006](../../specs/006-apply-allocation/spec.md).
+
 ## 5. Ma trận truy vết
 
 | User Story | Nhu cầu người dùng | Bước MVP | Nguồn PRD | Mức ưu tiên | Trạng thái yêu cầu |

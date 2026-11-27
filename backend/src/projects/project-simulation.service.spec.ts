@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { NotFoundException } from '@nestjs/common';
 import type { EmployeesService } from '../employees/employees.service.js';
+import { readCapacity, type RemainingAvailabilityService } from '../employees/remaining-availability.service.js';
 import type { SkillsService } from '../skills/skills.service.js';
 import type { ProjectsService } from './projects.service.js';
 import { calculateSimulationImpact } from './project-hours.js';
@@ -72,10 +73,15 @@ describe('ProjectSimulationService', () => {
   const projects = { findOne: vi.fn() };
   const skills = { findOne: vi.fn() };
   const employees = { findSimulationAvailability: vi.fn() };
+  const availability = { forEmployee: async (_id: string, week: string) => {
+    const data = await employees.findSimulationAvailability.mock.results.at(-1)?.value;
+    return data ? readCapacity(week, data.weekStart, data.availableHours, []) : undefined;
+  } };
   const service = new ProjectSimulationService(
     projects as unknown as ProjectsService,
     skills as unknown as SkillsService,
     employees as unknown as EmployeesService,
+    availability as unknown as RemainingAvailabilityService,
   );
 
   beforeEach(() => {
@@ -94,6 +100,7 @@ describe('ProjectSimulationService', () => {
     expect(verifyDecisionEvidence(decisionKey, evidence.simulationToken)).toEqual({
       projectId: context.projectId, pmAccountId, simulationId: evidence.simulationId,
       snapshot: result.snapshot, expectedImpact: result.expectedImpact,
+      availabilityBasis: 'remaining-v1', snapshotExact: result.snapshotExact,
     });
   });
 

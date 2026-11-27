@@ -8,6 +8,7 @@ import type { Repository } from 'typeorm';
 import type { SkillResponse } from '../skills/skills.service.js';
 import { getAvailabilityWeek } from './availability-week.js';
 import { Employee } from './employee.entity.js';
+import { RemainingAvailabilityService, type Capacity } from './remaining-availability.service.js';
 
 export interface EmployeeResponse {
   id: string;
@@ -20,6 +21,7 @@ export interface EmployeeAvailabilityResponse {
   employees: (EmployeeResponse & {
     skills: SkillResponse[];
     availability: { weekStart: string; hours: number } | null;
+    capacity: Capacity;
   })[];
 }
 
@@ -33,6 +35,7 @@ export class EmployeesService {
   constructor(
     @InjectRepository(Employee)
     private readonly employeesRepository: Repository<Employee>,
+    private readonly availability: RemainingAvailabilityService,
   ) {}
 
   async create(displayName: string): Promise<EmployeeResponse> {
@@ -61,6 +64,7 @@ export class EmployeesService {
       relations: { employeeSkills: { skill: true } },
       order: { displayName: 'ASC', id: 'ASC' },
     });
+    const capacityByEmployee = await this.availability.forEmployees(employees.map(({ id }) => id), week.weekStart);
     return {
       ...week,
       employees: employees.map((employee) => {
@@ -74,6 +78,10 @@ export class EmployeesService {
             availabilityWeekStart != null && availableHours != null
               ? { weekStart: availabilityWeekStart, hours: availableHours }
               : null,
+          capacity: capacityByEmployee.get(employee.id) ?? {
+            weekStart: week.weekStart, declaredHoursExact: null, allocatedHoursExact: '0',
+            remainingHoursExact: null, status: 'MISSING',
+          },
         };
       }),
     };

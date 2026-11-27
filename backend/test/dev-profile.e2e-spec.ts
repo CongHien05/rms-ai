@@ -13,6 +13,8 @@ it('projects only the linked Employee for each DEV without accepting a caller-su
     await client.get(`/auth/me/employee?employeeId=${secondEmployeeId}`).set('Cookie', fixtureCookie(devId)).expect(400);
     await client.get(`/employees/${secondEmployeeId}`).set('Cookie', fixtureCookie(devId)).expect(403);
     await client.get('/projects').set('Cookie', fixtureCookie(devId)).expect(403);
+    await client.get('/employees/availability').set('Cookie', fixtureCookie(devId)).expect(403);
+    await client.get(`/projects/${firstEmployeeId}/allocation-results`).set('Cookie', fixtureCookie(devId)).expect(403);
   } finally {
     await app.close();
     vi.unstubAllEnvs();

@@ -196,3 +196,15 @@ người phụ trách review. Database dev gốc giữ nguyên.
 [Tasks](../specs/003-pm-decision-workflow/tasks.md) ·
 [Ma trận 27 endpoint](../specs/002-auth-rbac/contracts/auth-rbac-api.md#ma-trận-endpoint) ·
 [Kiểm chứng](../chapter-08-ai-software-testing/README.md#kiểm-chứng-pm-decision-workflow-003-2026-11-26).
+
+### Bàn giao Gate 3 Apply Allocation 006 (2026-11-27)
+
+AI triển khai theo D1–D4 và các điều kiện Gate 2 người phụ trách đã duyệt.
+Phân bổ đúng phương án ACCEPT, dùng quỹ Employee/tuần liên Project và
+ghi cùng kết quả APPLIED. PM hiện phụ trách được đọc kết quả và đối chiếu
+retry. HR đọc tổng hợp, DEV giữ quyền 002. Hồ sơ chờ người phụ trách duyệt.
+
+[Spec 006](../specs/006-apply-allocation/spec.md) ·
+[Tasks](../specs/006-apply-allocation/tasks.md) ·
+[Kiểm chứng](../chapter-08-ai-software-testing/README.md#kiểm-chứng-apply-allocation-006-2026-11-27) ·
+[Ma trận 30 endpoint](../specs/002-auth-rbac/contracts/auth-rbac-api.md#ma-trận-endpoint).

@@ -200,3 +200,14 @@ Không log khóa, token hoặc digest. Chỉ chạy migration 003 trên MariaDB
 clone đã xác minh. [API PM Decision](../specs/003-pm-decision-workflow/contracts/pm-decision-api.md) ·
 [Ma trận 27 endpoint](../specs/002-auth-rbac/contracts/auth-rbac-api.md#ma-trận-endpoint) ·
 [Nghiệm thu clone](../specs/003-pm-decision-workflow/quickstart.md).
+
+## Apply Allocation 006
+
+Chạy nghiệm thu với cấu hình môi trường ngoài Git trên MariaDB clone. Script
+`test/runtime/apply-allocation.mariadb.mjs` kiểm TCP loopback cổng 33308,
+schema thử nghiệm `rms_ai_pm006_*_clone` hoặc `rms_ai_pm006_*_recovery` và
+`PM006_CLONE_DATA_DIRECTORY` trước khi ghi. Chế độ Chrome dùng
+`PM006_CHROME_PATH`. Giữ cùng khóa ký 003, dùng HMAC domain v2 cho
+snapshot mới. Backend dùng khóa Employee và quỹ giờ liên Project, với
+`UNIQUE(decisionId)` cho retry. [Quickstart](../specs/006-apply-allocation/quickstart.md) ·
+[Ma trận quyền](../specs/002-auth-rbac/contracts/auth-rbac-api.md#ma-trận-endpoint).

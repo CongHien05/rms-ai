@@ -1,4 +1,6 @@
 import { randomUUID } from 'node:crypto';
+import { decimalFromNumber, decimalText, projectHoursNumber, subtractHours } from '../employees/decimal-hours.js';
+import { calculateExactImpact } from './project-hours.js';
 import { decisionKey, issueDecisionEvidence, verifyDecisionEvidence } from './decision-context.js';
 
 const projectId = randomUUID();
@@ -10,6 +12,26 @@ const result = {
 };
 
 afterEach(() => vi.unstubAllEnvs());
+
+it('round-trips a maximum-width v2 proof within 4 KiB and binds its semantic version', () => {
+  const key = Buffer.alloc(32, 26);
+  const support = decimalFromNumber(Number.MIN_VALUE);
+  const required = decimalFromNumber(Number.MAX_VALUE);
+  const available = subtractHours(required, support);
+  const snapshotExact = { supportHoursExact: decimalText(support), availableHoursExact: decimalText(available) };
+  const signed = {
+    snapshot: { ...result.snapshot, requiredHours: Number.MAX_VALUE,
+      supportHours: Number.MIN_VALUE, availableHours: projectHoursNumber(available) },
+    expectedImpact: calculateExactImpact(required, support, available)!.numeric, snapshotExact,
+  };
+  const evidence = issueDecisionEvidence(key, pmAccountId, signed);
+  expect(evidence.simulationToken).toMatch(/^v2\./);
+  expect(Buffer.byteLength(evidence.simulationToken)).toBeLessThanOrEqual(4096);
+  expect(verifyDecisionEvidence(key, evidence.simulationToken)).toMatchObject({
+    ...signed, pmAccountId, projectId, availabilityBasis: 'remaining-v1',
+  });
+  expect(verifyDecisionEvidence(key, evidence.simulationToken.replace(/^v2\./, 'v1.'))).toBeNull();
+});
 
 it('issues distinct server identities and preserves the verified simulation after restart with the same key', () => {
   const key = Buffer.alloc(32, 17);

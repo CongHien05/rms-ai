@@ -133,6 +133,21 @@ chứng đã ghi nhận.
   kiểm thử và trạng thái review Gate 3 được ghi riêng tại
   [Chapter 9](chapter-09-ai-technical-documentation/README.md#bàn-giao-gate-3-pm-decision-workflow-003-2026-11-26).
 
+## Thứ tự triển khai milestone kế tiếp
+
+- Ưu tiên Apply Allocation 006 sau 003 theo quyết định người phụ trách.
+  006 dùng phương án đã chấp nhận từ 003, dữ liệu giờ trống theo tuần từ
+  luồng 001 và quyền Project từ 002. Hai mốc 004 và 005 không chặn 006.
+- Giữ mã 004 cho AI Risk Prediction Enhancement. Tạm hoãn để người phụ trách
+  trực tiếp chọn dataset và huấn luyện. Giữ mã 005 cho Resource Optimization
+  và xếp sau 006. Thứ tự giữa 004 và 005 sẽ được xác nhận sau.
+- 006 hoàn tất hồ sơ Gate 2 theo D1–D4 đã duyệt. Kiểm thử triển khai và
+  nghiệm thu MariaDB clone thuộc lượt sau.
+  [Đặc tả 006](specs/006-apply-allocation/spec.md) · [Kế hoạch](specs/006-apply-allocation/plan.md).
+- 006 đã triển khai Apply Allocation và kiểm chứng trên MariaDB clone.
+  [Bàn giao Gate 3](chapter-09-ai-technical-documentation/README.md#bàn-giao-gate-3-apply-allocation-006-2026-11-27)
+  chờ người phụ trách duyệt.
+
 ## Mốc trước tích hợp PM (lịch sử)
 
 - Cơ sở phân tích yêu cầu và sản phẩm đã có PRD, User Stories, Acceptance

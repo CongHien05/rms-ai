@@ -24,7 +24,7 @@ Các đường dẫn trong ma trận là NestJS. Trình duyệt gọi cùng orig
 
 ## Ma trận endpoint
 
-Ma trận hiện hành gồm 27 endpoint NestJS, trong đó có hai route PM Decision 003.
+Ma trận hiện hành gồm 30 endpoint NestJS, trong đó có hai route PM Decision 003 và ba route Apply Allocation 006.
 
 PM-own nghĩa là PM đã xác thực và `Project.pmAccountId` bằng Account của họ.
 Tài nguyên con kế thừa phạm vi qua Project. Dấu — là `403` khi phiên hợp lệ.
@@ -42,6 +42,9 @@ theo mặc định khi có route mới thiếu khai báo.
 | `POST /projects/:projectId/simulations` | What-if chỉ đọc, chứng minh quyền trước HMAC | PM-own | — | — |
 | `POST /projects/:projectId/decisions` | Ghi ACCEPT hoặc REJECT sau What-if đủ điều kiện. Bằng chứng phải thuộc PM đang gọi. | PM-own | — | — |
 | `GET /projects/:projectId/decisions` | Đọc lịch sử của Project kể cả quyết định của PM trước | PM-own | — | — |
+| `POST /projects/:projectId/decisions/:decisionId/apply` | Áp dụng ACCEPT đủ điều kiện | PM-own | — | — |
+| `GET /projects/:projectId/decisions/:decisionId/apply` | Đối chiếu tình trạng áp dụng của quyết định thuộc Project | PM-own | — | — |
+| `GET /projects/:projectId/allocation-results` | Đọc lịch sử áp dụng theo Project | PM-own | — | — |
 | `POST /projects/:projectId/sprints` | Tạo Sprint | PM-own | — | — |
 | `GET /projects/:projectId/sprints` | Đọc Sprint của Project | PM-own | — | — |
 | `POST /sprints/:sprintId/tasks` | Tạo Task trong Sprint của Project | PM-own | — | — |
@@ -49,7 +52,7 @@ theo mặc định khi có route mới thiếu khai báo.
 | `PATCH /sprints/:sprintId/tasks/:taskId` | Cập nhật Task gắn với đúng Sprint đã kiểm | PM-own | — | — |
 | `POST /employees` | Tạo Employee | — | ✓ | — |
 | `GET /employees` | Liệt kê Employee | — | ✓ | — |
-| `GET /employees/availability` | Đọc availability theo tuần, phân biệt null/0 | — | ✓ | — |
+| `GET /employees/availability` | Giờ khai báo, tổng phân bổ, giờ còn lại và trạng thái Employee/tuần | — | ✓ | — |
 | `GET /employees/:employeeId` | Đọc Employee theo ID cho HR | — | ✓ | — |
 | `POST /employees/:employeeId/skills` | Gán Skill cho Employee | — | ✓ | — |
 | `GET /employees/:employeeId/skills` | Đọc Skill của Employee theo ID cho HR | — | ✓ | — |
@@ -68,7 +71,7 @@ Sau khi kiểm Sprint đã được cấp, Task thiếu hoặc sai cặp Task–
 
 ## Hợp đồng nội bộ FastAPI
 
-`POST /risk/predict` nằm ngoài 27 route NestJS. Không proxy trực tiếp cho Frontend.
+`POST /risk/predict` nằm ngoài 30 route NestJS. Không proxy trực tiếp cho Frontend.
 RiskClient gửi header `X-Risk-Service-Token` lấy từ `RISK_SERVICE_TOKEN`; bí mật
 32 byte base64url được cấp riêng cho đúng hai service. FastAPI so sánh constant-time
 trước inference. Header thiếu/sai nhận `401`, cấu hình service thiếu/sai nhận

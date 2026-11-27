@@ -2,6 +2,10 @@ import { UserAccount } from '../auth/user-account.entity.js';
 import { AuthSession } from '../auth/auth-session.entity.js';
 import { AddAuthAndProjectOwner1791240000000 } from './migrations/1791240000000-add-auth-and-project-owner.js';
 import { AddPMDecisions1791250000000 } from './migrations/1791250000000-add-pm-decisions.js';
+import { AddApplyAllocation1791260000000 } from './migrations/1791260000000-add-apply-allocation.js';
+import { ApplicationResult } from '../projects/allocations/application-result.entity.js';
+import { ProjectAllocation } from '../projects/allocations/project-allocation.entity.js';
+import { DecisionAvailabilityEvidence } from '../projects/decisions/decision-availability-evidence.entity.js';
 import { PMDecision } from '../projects/decisions/pm-decision.entity.js';
 import { EmployeeSkill } from '../employee-skills/employee-skill.entity.js';
 import { Employee } from '../employees/employee.entity.js';
@@ -45,7 +49,8 @@ describe('database configuration', () => {
       type: 'mysql',
       synchronize: false,
       migrationsRun: false,
-      entities: [Project, Sprint, Task, Employee, Skill, EmployeeSkill, UserAccount, AuthSession, PMDecision],
+      entities: [Project, Sprint, Task, Employee, Skill, EmployeeSkill, UserAccount, AuthSession, PMDecision,
+        DecisionAvailabilityEvidence, ProjectAllocation, ApplicationResult],
       migrations: [
         CreateProjectSprintTaskFoundation1791120736172,
         CreateEmployeeSkillFoundation1791123398274,
@@ -54,6 +59,7 @@ describe('database configuration', () => {
         AddEmployeeAvailability1791230000000,
         AddAuthAndProjectOwner1791240000000,
         AddPMDecisions1791250000000,
+        AddApplyAllocation1791260000000,
       ],
     });
     expect(moduleOptions).not.toHaveProperty('autoLoadEntities');
